@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware 
 from decouple import config
 
-from database import get_database
+from database import create_user, get_database
 
 app = FastAPI()
 
@@ -21,7 +21,8 @@ app.add_middleware(
 )
 
 @app.get("/")
-async def root(db = Depends(get_database)):
+async def root(db=Depends(get_database)):
+    await create_user(db, "weferrf", "test", "testmail.com")
     return {"message": "Hello World"}
 
 if __name__ == "__main__":

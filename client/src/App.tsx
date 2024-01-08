@@ -1,17 +1,25 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
-  // get the content of https://front-matcha.pandeo.fr/"
-  const [data, setData] = useState("")
+  const [data, setData] = useState("gfdgdf")
 
-  fetch('https://back-matcha.pandeo.fr/')
-  .then(response => response.text())
-  .then(data => setData(data));
-
+  useEffect(() => {
+    fetch("https://back-matcha.pandeo.fr/")
+      .then(res => res.text())
+      .then(
+        (result) => {
+          setData(result)
+        },
+        (error) => {
+          console.log(error)
+        }
+      )
+  }
+  , [])
 
   return (
     <>
@@ -32,7 +40,7 @@ function App() {
         {data}
         </>
         <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
+          Edit <code>src/App.tsx</code> and save to test HMR {data}
         </p>
       </div>
       <p className="read-the-docs">
