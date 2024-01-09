@@ -1,52 +1,40 @@
-import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import './App.css'
+import HomePage from './src/pages/Home';
+import RegisterPage from './src/pages/Register';
+
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#892CDC',
+    },
+    secondary: {
+      main: '#BC6FF1',
+    },
+    background: {
+      default: '#0b1f30',
+    },
+    error: {
+      main: '#FF0000',
+    },
+  },
+});
+
 
 function App() {
-  const [count, setCount] = useState(0)
-  const [data, setData] = useState("gfdgdf")
-
-  useEffect(() => {
-    fetch("https://back-matcha.pandeo.fr/")
-      .then(res => res.text())
-      .then(
-        (result) => {
-          setData(result)
-        },
-        (error) => {
-          console.log(error)
-        }
-      )
-  }
-  , [])
-
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <ThemeProvider theme={theme}>
+      <div className="App">
+        <Router>
+          <Routes>
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/" element={<HomePage />} />
+          </Routes>
+        </Router>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <>
-        {data}
-        </>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR {data}
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </ThemeProvider>
   )
 }
 

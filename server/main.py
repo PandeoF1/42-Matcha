@@ -1,14 +1,8 @@
 #!/usr/bin/env python3
-from fastapi import FastAPI, Query, Path, Depends
-from typing import Annotated
+from fastapi import FastAPI
 import uvicorn
-import requests
-from requests.auth import HTTPBasicAuth
-from pydantic import BaseModel
-from fastapi.middleware.cors import CORSMiddleware 
-from decouple import config
-
-from database import create_user, get_database
+from fastapi.middleware.cors import CORSMiddleware
+from controllers.user_controller import user_controller
 
 app = FastAPI()
 
@@ -20,10 +14,13 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type"],
 )
 
+
 @app.get("/")
-async def root(db=Depends(get_database)):
-    await create_user(db, "weferrf", "test", "testmail.com")
+async def root():
     return {"message": "Hello World"}
+
+app.include_router(user_controller)
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8765, reload=True)
