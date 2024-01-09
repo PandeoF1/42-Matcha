@@ -22,14 +22,8 @@ def password_no_special():
 def invalid_email():
     return JSONResponse(status_code=422, content={"message": "Invalid email"})
 
-def email_already_exists():
-    return JSONResponse(status_code=422, content={"message": "Email already exists"})
-
 def invalid_username():
     return JSONResponse(status_code=422, content={"message": "Invalid username"})
-
-def username_already_exists():
-    return JSONResponse(status_code=422, content={"message": "Username already exists"})
 
 def username_too_short():
     return JSONResponse(status_code=422, content={"message": "Username too short"})

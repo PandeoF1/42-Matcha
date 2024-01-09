@@ -18,11 +18,19 @@ def success_200_with_data(data):
         }
     )
 
-def account_created_200(data):
+def login_success(data):
     return JSONResponse(
         status_code=200,
         content={
-            "message": "Account created successfully",
+            "message": "Login Success",
             "data": data
+        }
+    )
+
+def logout_success():
+    return JSONResponse(
+        status_code=200,
+        content={
+            "message": "Logout Success"
         }
     )

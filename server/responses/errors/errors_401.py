@@ -21,3 +21,11 @@ def empty_token():
         }
     )
 
+def invalid_username_or_password():
+    return JSONResponse(
+        status_code=401,
+        content={
+            "error": {
+                "message": "Invalid username or password"
+            }
+        })

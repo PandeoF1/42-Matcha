@@ -26,7 +26,7 @@ const theme = createTheme({
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <div className="App">
+      <div className="App w-100">
         <Router>
           <Routes>
             <Route path="/register" element={<RegisterPage />} />
