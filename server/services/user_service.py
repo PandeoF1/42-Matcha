@@ -53,7 +53,9 @@ async def search_user(db, user_id):
 
 
 async def search_user_by_username(db, username):
-    result = await db.fetchrow("""SELECT * FROM users WHERE username = $1""", username)
+    db.execute("""SELECT * FROM users WHERE username = %s""", (username,))
+    result = db.fetchone()
+    print(result)
     if not result:
         return None
     return result
