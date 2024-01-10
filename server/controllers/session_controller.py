@@ -28,10 +28,9 @@ async def get_session(request: Request, db=Depends(get_database)):
     ):
         return empty_token()
     user_id = await check_token(db, data["headers"]["authorization"].split(" ")[1])
-    print("user_id", user_id, data["headers"]["authorization"].split(" ")[1])
     if user_id is None:
         return invalid_token()
-    return session({"user_id": str(user_id)})
+    return session(str(user_id))
     
 
 

@@ -15,8 +15,7 @@ async def register(request: Request, db=Depends(get_database)):
     # Check if not connected
     if data["body"] is None:
         return missing_body()
-    if (
-        "authorization" not in data["headers"]
+    if ("authorization" not in data["headers"] or len(data["headers"]["authorization"].split(" ")) < 2
         or data["headers"]["authorization"].split(" ")[1] is None
     ):
         return await create_user(db, data["body"])
@@ -24,7 +23,14 @@ async def register(request: Request, db=Depends(get_database)):
         return empty_token()
     return await create_user(db, data["body"])
 
+@user_controller.put("")
+async def update_user(request: Request, db=Depends(get_database)):
+    print("update user")
 
-@user_controller.get("/{user}")
-async def get_user(user, request: Request, db=Depends(get_database)):
-    print("get user", user)
+@user_controller.get("")
+async def get_user(request: Request, db=Depends(get_database)):
+    print("get user")
+
+@user_controller.get("/{id}")
+async def get_specific_user(id, request: Request, db=Depends(get_database)):
+    print("get user specific", id)

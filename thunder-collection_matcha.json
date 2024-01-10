@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "matcha",
-    "dateExported": "2024-01-10T10:33:46.884Z",
+    "dateExported": "2024-01-10T13:40:40.372Z",
     "version": "1.1",
     "folders": [
         {
@@ -25,11 +25,11 @@
             "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
             "containerId": "778826e1-5f4b-40ea-95d8-75b1f0584b54",
             "name": "Login",
-            "url": "/session/",
+            "url": "/session",
             "method": "POST",
             "sortNum": 10000,
             "created": "2024-01-10T09:04:39.209Z",
-            "modified": "2024-01-10T09:55:46.505Z",
+            "modified": "2024-01-10T11:28:29.391Z",
             "headers": [],
             "params": [],
             "body": {
@@ -51,11 +51,11 @@
             "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
             "containerId": "778826e1-5f4b-40ea-95d8-75b1f0584b54",
             "name": "Logout",
-            "url": "/session/",
+            "url": "/session",
             "method": "DELETE",
             "sortNum": 20000,
             "created": "2024-01-10T09:08:06.869Z",
-            "modified": "2024-01-10T09:15:43.240Z",
+            "modified": "2024-01-10T11:29:03.283Z",
             "headers": [],
             "params": [],
             "tests": [
@@ -72,16 +72,16 @@
             "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
             "containerId": "778826e1-5f4b-40ea-95d8-75b1f0584b54",
             "name": "Create account",
-            "url": "/user/",
+            "url": "/user",
             "method": "POST",
             "sortNum": 30000,
             "created": "2024-01-10T09:08:54.827Z",
-            "modified": "2024-01-10T09:19:46.848Z",
+            "modified": "2024-01-10T13:23:56.015Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"email\": \"{{email}}\",\n  \"first_name\": \"{{first_name}}\",\n  \"last_name\": \"{{last_name}}\"\n}",
+                "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"email\": \"{{email}}\",\n  \"firstName\": \"{{first_name}}\",\n  \"lastName\": \"{{last_name}}\"\n}",
                 "form": []
             },
             "tests": []
@@ -90,7 +90,7 @@
             "_id": "89b485d1-d707-4cba-bf4b-6b3ea4da5e40",
             "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
             "containerId": "18dd1cce-ca7f-4065-8fa8-775096ac67dc",
-            "name": "confirm",
+            "name": "confirm email",
             "url": "/email/confirm",
             "method": "POST",
             "sortNum": 30000,
@@ -103,6 +103,93 @@
                 "raw": "{\n  \"token\": \"r2ZW8TSf4sYwKLBJaaYbLx0WdMu5bviAmYdVTwQLEexZOmZANn1TYH6qyIKepo5h\"\n}",
                 "form": []
             },
+            "tests": []
+        },
+        {
+            "_id": "a953e553-7a84-4f45-815d-638592145490",
+            "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
+            "containerId": "18dd1cce-ca7f-4065-8fa8-775096ac67dc",
+            "name": "generate recovery email",
+            "url": "/email/password/new",
+            "method": "POST",
+            "sortNum": 40000,
+            "created": "2024-01-10T11:10:01.055Z",
+            "modified": "2024-01-10T11:20:08.370Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"email\": \"theo.nard18@gmail.com\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "d20707b2-51f7-45cc-b629-bc9f8c4780a6",
+            "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
+            "containerId": "18dd1cce-ca7f-4065-8fa8-775096ac67dc",
+            "name": "change password",
+            "url": "/email/password",
+            "method": "POST",
+            "sortNum": 50000,
+            "created": "2024-01-10T11:20:13.515Z",
+            "modified": "2024-01-10T11:36:59.148Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"token\": \"F9UhKpW36jC3LfDeBPcxbwMwPk2lm0MSyeubfOL72oPXPdY641PN6AYg69CrYQGA\",\n  \"password\": \"Qw@rty123\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "d96b6feb-2067-4ede-83cb-714d6c41e693",
+            "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
+            "containerId": "778826e1-5f4b-40ea-95d8-75b1f0584b54",
+            "name": "Check session",
+            "url": "/session",
+            "method": "GET",
+            "sortNum": 50000,
+            "created": "2024-01-10T11:39:14.887Z",
+            "modified": "2024-01-10T11:54:52.168Z",
+            "headers": [],
+            "params": [],
+            "tests": [
+                {
+                    "type": "set-env-var",
+                    "custom": "json.data.user_id",
+                    "action": "setto",
+                    "value": "{{user_id}}"
+                }
+            ]
+        },
+        {
+            "_id": "78a44ffe-8fbb-4afd-9718-696c3c9c348d",
+            "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
+            "containerId": "778826e1-5f4b-40ea-95d8-75b1f0584b54",
+            "name": "get user",
+            "url": "/user",
+            "method": "GET",
+            "sortNum": 70000,
+            "created": "2024-01-10T11:45:11.095Z",
+            "modified": "2024-01-10T11:46:12.201Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "b803c368-a8fe-4f22-bf46-9f188f2be8f1",
+            "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
+            "containerId": "778826e1-5f4b-40ea-95d8-75b1f0584b54",
+            "name": "get specific user",
+            "url": "/user/{{user_id}}",
+            "method": "GET",
+            "sortNum": 90000,
+            "created": "2024-01-10T11:45:23.011Z",
+            "modified": "2024-01-10T11:48:57.735Z",
+            "headers": [],
+            "params": [],
             "tests": []
         }
     ],

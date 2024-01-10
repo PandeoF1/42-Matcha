@@ -10,9 +10,9 @@ def success_200_with_data(data):
     return JSONResponse(status_code=200, content={"message": "OK", "data": data})
 
 
-def login_success(data):
+def login_success(token):
     return JSONResponse(
-        status_code=200, content={"message": "Login Success", "data": data}
+        status_code=200, content={"message": "Login Success", "token": token}
     )
 
 def logout_success():
@@ -33,7 +33,7 @@ def password_reset():
         status_code=200, content={"message": "Your password has been reset"}
     )
 
-def session(data):
+def session(user_id):
     return JSONResponse(
-        status_code=200, content={"message": "Session is valid", "data": data}
+        status_code=200, content={"message": "Session is valid", "user_id": user_id}
     )

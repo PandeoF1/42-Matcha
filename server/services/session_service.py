@@ -36,6 +36,9 @@ async def login_user(db, body: dict):
             return invalid_username_or_password()
         if not bcrypt.checkpw(body["password"].encode(), user["password"].encode()):
             return invalid_username_or_password()
+        # Check completion 
+        if user['completion'] == 0:
+            return email_not_validated()
         # random 64 alphanum str
         token_id = str(uuid.uuid4())
         token = "".join(random.choices(string.ascii_uppercase + string.digits + string.ascii_lowercase, k=64))
@@ -47,9 +50,8 @@ async def login_user(db, body: dict):
         )
         subject = "New connection detected"
         content = "Someone just connected to your account at " + datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-        print(user["email"])
         send_email(user["email"], subject, content)
-        return login_success({"token": token})
+        return login_success(token)
 
     except Exception as e:
         print(e)

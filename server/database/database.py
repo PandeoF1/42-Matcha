@@ -6,13 +6,11 @@ import dotenv
 dotenv.load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+DB = None
+
 
 async def get_database():
-    connexion = await asyncpg.connect(DATABASE_URL)
-    try:
-        yield connexion
-    except:
-        print("Error")
-    finally:
-        if connexion:
-            await connexion.close()
+    global DB
+    if DB is None:
+        DB = await asyncpg.connect(DATABASE_URL)
+    return DB

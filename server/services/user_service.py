@@ -14,30 +14,36 @@ import uuid
 import random
 import string
 
-password_rules = {
-    "length_min": 8,
-    "length_max": 30,
-    "special": 1,
-    "number": 1,
-    "upper": 1,
-    "lower": 1,
-}
 
 def check_password(password):
-    if len(password) < password_rules["length_min"]:
-        return password_too_short()
-    if len(password) > password_rules["length_max"]:
-        return password_too_long()
-    if not any(char.isdigit() for char in password):
-        return password_no_number()
-    if not any(char.isupper() for char in password):
-        return password_no_upper()
-    if not any(char.islower() for char in password):
-        return password_no_lower()
-    if not any(char in "!@#$%^&*()-+?_=,<>/;:[]{}" for char in password):
-        return password_no_special()
+    regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&])[A-Za-z\d#@$!%*?&]{8,30}$"
+    if not re.match(regex, password):
+        return invalid_password()
     return None
 
+def check_username(username):
+    regex = r"^[a-zA-Z0-9]{3,16}$"
+    if not re.match(regex, username):
+        return invalid_username()
+    return None
+
+def check_last_name(last_name):
+    regex = r"^[a-zA-Z]{3,16}$"
+    if not re.match(regex, last_name):
+        return invalid_last_name()
+    return None
+
+def check_first_name(first_name):
+    regex = r"^[a-zA-Z]{3,16}$"
+    if not re.match(regex, first_name):
+        return invalid_first_name()
+    return None
+
+def check_email(email):
+    regex = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}$"
+    if not re.match(regex, email):
+        return invalid_email()
+    return None
 
 async def search_user(db, user_id):
     result = await db.fetchrow("""SELECT * FROM users WHERE id = $1""", user_id)
@@ -64,7 +70,7 @@ async def create_user(db, body: dict):
 
     try:
         missing = missing_keys(
-            ["email", "username", "last_name", "first_name", "password"], body
+            ["email", "username", "lastName", "firstName", "password"], body
         )
         if missing:
             return missing
@@ -74,31 +80,17 @@ async def create_user(db, body: dict):
         if check_password(body["password"]) is not None:
             return check_password(body["password"])
         # username
-        if len(body["username"]) < 3:
-            return username_too_short()
-        if len(body["username"]) > 30:
-            return username_too_long()
-        if not body["username"].isalnum():
-            return username_not_alphanumeric()
+        if check_username(body["username"]) is not None:
+            return check_username(body["username"])
         # first name
-        if len(body["first_name"]) < 2:
-            return first_name_too_short()
-        if len(body["first_name"]) > 30:
-            return first_name_too_long()
-        if not body["first_name"].isalpha():
-            return first_name_not_alphanumeric()
+        if check_first_name(body["firstName"]) is not None:
+            return check_first_name(body["firstName"])
         # last name
-        if len(body["last_name"]) < 2:
-            return last_name_too_short()
-        if len(body["last_name"]) > 30:
-            return last_name_too_long()
-        if not body["last_name"].isalpha():
-            return last_name_not_alphanumeric()
-
+        if check_last_name(body["lastName"]) is not None:
+            return check_last_name(body["lastName"])
         # email
-        regex = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
-        if not re.match(regex, body["email"]):
-            return invalid_email()
+        if check_email(body["email"]) is not None:
+            return check_email(body["email"])
         # check if email already exists
 
         email = await db.fetchrow(
@@ -122,25 +114,11 @@ async def create_user(db, body: dict):
             user_id,
             body["email"],
             body["username"],
-            body["first_name"],
-            body["last_name"],
+            body["firstName"],
+            body["lastName"],
             hashed_password.decode(),
         )
-        # random 64 alphanum str
-        token = "".join(
-            random.choices(
-                string.ascii_uppercase + string.digits + string.ascii_lowercase, k=64
-            )
-        )
-        token_id = str(uuid.uuid4())
 
-        # save token in db
-        await db.execute(
-            """INSERT INTO token (id, token, user_id) VALUES ($1, $2, $3)""",
-            token_id,
-            token,
-            user_id,
-        )
         # Create email validation token
         token_id = "".join(random.choices(string.ascii_uppercase + string.digits + string.ascii_lowercase, k=64))
         await db.execute(
@@ -151,9 +129,9 @@ async def create_user(db, body: dict):
             "email_validation"
         )
         subject = "Welcome to Adopt A Goose"
-        content = "Welcome to Adopt A Goose, please click on the following link to validate your email address: " + str(URL_FRONT) + "validate_email/" + token_id
+        content = "Welcome to Adopt A Goose, please click on the following link to validate your email address: " + str(URL_FRONT) + "validate-email/" + token_id
         send_email(body["email"], subject, content)
-        return account_created({"token": token})
+        return account_created()
 
     except Exception as e:
         print(e)
@@ -215,7 +193,7 @@ async def ask_reset_password(db, body):
             "password_reset"
         )
         subject = "Password reset"
-        content = "You asked for a password reset, please click on the following link to reset your password: " + str(URL_FRONT) + "reset_password/" + token_id
+        content = "You asked for a password reset, please click on the following link to reset your password: " + str(URL_FRONT) + "reset-password/" + token_id
         send_email(email, subject, content)
         return email_ask_reset_password()
     except Exception as e:
