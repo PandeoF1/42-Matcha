@@ -41,6 +41,7 @@ async def test_login_user():
     assert response.status_code == 200
     assert response.json()['message'] == 'Login Success'
     assert response.json()['token'] is not None
+    await db.close()
 
 @pytest.mark.order(2)
 def test_get_session_without_token():

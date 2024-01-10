@@ -50,6 +50,7 @@ async def test_reset_password_wrong_password():
     response = requests.post("https://back-matcha.pandeo.fr/email/password", json.dumps(data))
     assert response.status_code == 422
     assert response.json() == {'message': 'Invalid password'}
+    await db.close()
 
 @pytest.mark.order(3)
 def test_reset_password_with_invalid_type():
@@ -68,3 +69,4 @@ async def test_reset_password():
     response = requests.post("https://back-matcha.pandeo.fr/email/password", json.dumps(data))
     assert response.status_code == 200
     assert response.json() == {'message': 'Your password has been reset'}
+    await db.close()

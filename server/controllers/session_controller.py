@@ -6,9 +6,7 @@ from utils.parse_request import *
 from responses.errors.errors_422 import *
 from responses.errors.errors_400 import *
 
-
 session_controller = APIRouter(prefix="/session", tags=["session"])
-
 
 @session_controller.post("")
 async def login(request: Request, db=Depends(get_database)):
@@ -24,7 +22,7 @@ async def get_session(request: Request, db=Depends(get_database)):
     data = await parse_request(request)
     if get_token(data["headers"]) is None:
         return empty_token()
-    user_id = await check_token(db, data["headers"]["authorization"].split(" ")[1])
+    user_id = await check_token(db, get_token(data["headers"]) )
     if user_id is None:
         return invalid_token()
     return session(str(user_id))
@@ -36,4 +34,4 @@ async def logout(request: Request, db=Depends(get_database)):
     data = await parse_request(request)
     if get_token(data["headers"]) is None:
         return empty_token()
-    return await logout_user(db, data["headers"]["authorization"].split(" ")[1])
+    return await logout_user(db, get_token(data["headers"]))

@@ -4,6 +4,7 @@ from responses.errors.errors_400 import *
 from responses.errors.errors_409 import *
 from responses.errors.errors_422 import *
 from responses.errors.errors_401 import *
+from database.database import get_database
 from services.email_service import send_email
 from services.user_service import search_user, search_user_by_username
 import bcrypt
@@ -72,10 +73,7 @@ async def login_user(db, body: dict):
 
 async def logout_user(db, token):
     try:
-        user_id = await check_token(db, token)
-        if user_id is None:
-            return invalid_token()
-        await db.execute("""DELETE FROM token WHERE user_id = $1""", user_id)
+        await db.execute("""DELETE FROM token WHERE token = $1""", token)
         return logout_success()
     except Exception as e:
         print(e)

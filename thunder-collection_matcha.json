@@ -183,7 +183,7 @@
             "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
             "containerId": "778826e1-5f4b-40ea-95d8-75b1f0584b54",
             "name": "get specific user",
-            "url": "/user/{{user_id}}",
+            "url": "/users/{{user_id}}",
             "method": "GET",
             "sortNum": 90000,
             "created": "2024-01-10T11:45:23.011Z",
