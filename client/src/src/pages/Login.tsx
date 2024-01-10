@@ -1,4 +1,5 @@
-import { Button, Card, TextField } from "@mui/material"
+import { Card, TextField } from "@mui/material"
+import LoadingButton from '@mui/lab/LoadingButton';
 import { useEffect, useState } from "react"
 import { LoginForm } from "./models/LoginForm"
 import instance from "../api/Instance"
@@ -7,6 +8,7 @@ import { useNavigate } from "react-router-dom"
 
 const LoginPage = () => {
     const [form, setForm] = useState<LoginForm>({ username: '', password: '' })
+    const [isLoading, setIsLoading] = useState(false)
 
     const navigate = useNavigate()
 
@@ -31,12 +33,15 @@ const LoginPage = () => {
 
     const handleSubmit = () => {
         if (!localStorage.getItem("token")) {
+            setIsLoading(true)
             instance.post('/session', form).then((res) => {
                 localStorage.setItem("token", res.data.token)
                 navigate('/')
             }
             ).catch(() => {
                 // TODO: show error
+            }).finally(() => {
+                setIsLoading(false)
             })
         }
     }
@@ -50,6 +55,7 @@ const LoginPage = () => {
                             <TextField
                                 value={form.username}
                                 onChange={handleFieldChange}
+                                disabled={isLoading}
                                 className="w-100"
                                 required
                                 id="username"
@@ -65,6 +71,7 @@ const LoginPage = () => {
                             <TextField
                                 value={form.password}
                                 onChange={handleFieldChange}
+                                disabled={isLoading}
                                 className="w-100"
                                 required
                                 id="password"
@@ -82,14 +89,16 @@ const LoginPage = () => {
                         </div>
                     </div>
                     <div className="row justify-content-center pt-3">
-                        <Button
+                        <LoadingButton
                             variant="contained"
+                            // disabled={isLoading}
+                            loading={isLoading}
                             color="primary"
                             size="large"
                             onClick={() => handleSubmit()}
                         >
                             Login
-                        </Button>
+                        </LoadingButton>
                     </div>
                 </Card>
             </div>

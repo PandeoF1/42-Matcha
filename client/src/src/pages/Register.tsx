@@ -1,4 +1,5 @@
-import { Button, Card, TextField } from "@mui/material"
+import { Card, TextField } from "@mui/material"
+import LoadingButton from '@mui/lab/LoadingButton';
 import { useEffect, useState } from "react"
 import { RegisterForm } from "./models/RegisterForm"
 import validator from 'validator'
@@ -8,6 +9,7 @@ import { useNavigate } from "react-router-dom"
 
 const RegisterPage = () => {
     const [form, setForm] = useState<RegisterForm>({ firstName: '', lastName: '', username: '', password: '', email: '' })
+    const [isLoading, setIsLoading] = useState(false)
     const emailError = !!form.email.length && (validator.isEmail(form.email) ? false : true)
     const passwordError = !!form.password.length && !(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&])[A-Za-z\d#@$!%*?&]{8,30}$/).test(form.password)
     const usernameError = !!form.username.length && !(/^[a-zA-Z0-9]{3,16}$/).test(form.username)
@@ -37,11 +39,14 @@ const RegisterPage = () => {
 
     const handleSubmit = () => {
         if (!localStorage.getItem("token")) {
+            setIsLoading(true)
             instance.post('/user', form).then(() => {
                 navigate('/login')
                 // Todo : show notif to ask email confirmation
             }
             ).catch(() => {
+            }).finally(() => {
+                setIsLoading(false)
             })
         }
     }
@@ -55,6 +60,7 @@ const RegisterPage = () => {
                             <TextField
                                 error={firstnameError}
                                 value={form.firstName}
+                                disabled={isLoading}
                                 onChange={handleFieldChange}
                                 className="w-100"
                                 required
@@ -70,6 +76,7 @@ const RegisterPage = () => {
                             <TextField
                                 error={lastnameError}
                                 value={form.lastName}
+                                disabled={isLoading}
                                 onChange={handleFieldChange}
                                 className="w-100"
                                 required
@@ -87,6 +94,7 @@ const RegisterPage = () => {
                             <TextField
                                 error={usernameError}
                                 value={form.username}
+                                disabled={isLoading}
                                 onChange={handleFieldChange}
                                 className="w-100"
                                 required
@@ -104,6 +112,7 @@ const RegisterPage = () => {
                             <TextField
                                 error={emailError}
                                 value={form.email}
+                                disabled={isLoading}
                                 onChange={handleFieldChange}
                                 className="w-100"
                                 required
@@ -121,6 +130,7 @@ const RegisterPage = () => {
                             <TextField
                                 error={passwordError}
                                 value={form.password}
+                                disabled={isLoading}
                                 onChange={handleFieldChange}
                                 className="w-100"
                                 required
@@ -141,14 +151,15 @@ const RegisterPage = () => {
                         </div>
                     </div>
                     <div className="row justify-content-center pt-3">
-                        <Button
+                        <LoadingButton
                             variant="contained"
                             color="primary"
+                            loading={isLoading}
                             size="large"
                             onClick={() => handleSubmit()}
                         >
                             Register
-                        </Button>
+                        </LoadingButton>
                     </div>
                 </Card>
             </div>

@@ -7,14 +7,15 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Header from "./src/components/header";
 import LoginPage from "./src/pages/Login";
 import ValidateEmailPage from "./src/pages/ValidateEmail";
+import ProfilePage from "./src/pages/Profile";
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#892CDC',
+      main: "#ff6e00",
     },
     secondary: {
-      main: "##ff6e00",
+      main: "#ff00ff",
     },
     background: {
       default: '#0b1f30',
@@ -40,6 +41,7 @@ function App() {
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/validate-email/:id" element={<ValidateEmailPage/>} />
+              <Route path="/profile" element={<ProfilePage />} />
               <Route path="*" element={<h1>Not Found</h1>} />
             </Routes>
           </Router>

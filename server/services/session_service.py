@@ -6,7 +6,6 @@ from responses.errors.errors_422 import *
 from responses.errors.errors_401 import *
 from services.email_service import send_email
 from services.user_service import search_user, search_user_by_username
-import re
 import bcrypt
 import uuid
 import random
@@ -42,12 +41,14 @@ async def login_user(db, body: dict):
         # random 64 alphanum str
         token_id = str(uuid.uuid4())
         token = "".join(random.choices(string.ascii_uppercase + string.digits + string.ascii_lowercase, k=64))
+        print("ms: ", datetime.datetime.now())
         await db.execute(
             """INSERT INTO token (id, token, user_id) VALUES ($1, $2, $3)""",
             token_id,
             token,
             user["id"],
         )
+        print("ms: ", datetime.datetime.now())
         subject = "New connection detected"
         content = "Someone just connected to your account at " + datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
         send_email(user["email"], subject, content)

@@ -16,6 +16,7 @@ async def confirm(request: Request, db=Depends(get_database)):
     # Check if not connected
     if data["body"] is None:
         return missing_body()
+    print("body", data["body"])
     return await validate_email(db, data["body"])
 
 

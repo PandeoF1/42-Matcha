@@ -14,7 +14,7 @@ const ValidateEmailPage = () => {
         if (!navigate || !params) return;
         let intervalId : number = 0;
         const checkToken = async (token: string) => {
-            await instance.post('/email/confirm', { params: { token: token } }).then(() => {
+            await instance.post('/email/confirm', {token: token}).then(() => {
                 // Todo : show success notif
                 setStatus(true)
                 setTimeout(() => {
@@ -26,8 +26,11 @@ const ValidateEmailPage = () => {
             }
             ).catch(() => {
                 // TODO: show error
-            }).finally(() => {
-                navigate('/login')
+                if (localStorage.getItem("token")) {
+                    navigate('/')
+                }
+                else
+                    navigate('/login')
             })
         }
 
