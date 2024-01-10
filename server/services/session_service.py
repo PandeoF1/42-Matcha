@@ -16,6 +16,13 @@ async def check_token(db, token):
     result = await db.fetchrow("""SELECT * FROM token WHERE token = $1""", token)
     if not result:
         return None
+    # check if token is expired
+    print(result["last_activity"], datetime.datetime.now().timestamp(), result["last_activity"] - datetime.datetime.now().timestamp())
+    if (datetime.datetime.now().timestamp() - result["last_activity"] > 3600 * 6):
+        await db.execute("""DELETE FROM token WHERE token = $1""", token)
+        return None
+    # Update last activity
+    await db.execute("""UPDATE token SET last_activity = $1 WHERE token = $2""", datetime.datetime.now().timestamp(), token)
     return result["user_id"]
 
 async def search_user_by_token(db, token):
@@ -41,17 +48,18 @@ async def login_user(db, body: dict):
         # random 64 alphanum str
         token_id = str(uuid.uuid4())
         token = "".join(random.choices(string.ascii_uppercase + string.digits + string.ascii_lowercase, k=64))
-        print("ms: ", datetime.datetime.now())
+        print(datetime.datetime.now())
         await db.execute(
-            """INSERT INTO token (id, token, user_id) VALUES ($1, $2, $3)""",
+            """INSERT INTO token (id, token, user_id, creation_date, last_activity) VALUES ($1, $2, $3, $4, $5)""",
             token_id,
             token,
             user["id"],
+            datetime.datetime.now().timestamp(),
+            datetime.datetime.now().timestamp()
         )
-        print("ms: ", datetime.datetime.now())
         subject = "New connection detected"
         content = "Someone just connected to your account at " + datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-        send_email(user["email"], subject, content)
+        await send_email(user["email"], subject, content)
         return login_success(token)
 
     except Exception as e:

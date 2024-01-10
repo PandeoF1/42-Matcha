@@ -1,16 +1,23 @@
-import smtplib
-from email.mime.text import MIMEText
+import aiosmtplib
 from constants.email import EMAIL
 
-def send_email(email, subject, body):
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+async def send_email(email, subject, body):
     try:
-        msg = MIMEText(body)
+        msg = MIMEMultipart()
+        msg.preamble = subject
         msg['Subject'] = subject
         msg['From'] = EMAIL['email']
         msg['To'] = email
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
-            smtp_server.login(EMAIL['email'], EMAIL['password'])
-            smtp_server.sendmail(EMAIL['email'], email, msg.as_string())
+        msg.attach(MIMEText(body, 'plain', 'utf-8'))
+        smtp = aiosmtplib.SMTP(hostname=EMAIL['host'], port=EMAIL['port'], use_tls=True)
+        await smtp.connect()
+        await smtp.login(EMAIL['email'], EMAIL['password'])
+        await smtp.send_message(msg)
+        await smtp.quit()
         return True
-    except Exception:
+    except Exception as e:
+        print(e)
         return False

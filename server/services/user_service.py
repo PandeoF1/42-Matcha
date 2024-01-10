@@ -53,9 +53,7 @@ async def search_user(db, user_id):
 
 
 async def search_user_by_username(db, username):
-    db.execute("""SELECT * FROM users WHERE username = %s""", (username,))
-    result = db.fetchone()
-    print(result)
+    result = await db.fetchrow("""SELECT * FROM users WHERE username = $1""", username)
     if not result:
         return None
     return result
@@ -132,7 +130,7 @@ async def create_user(db, body: dict):
         )
         subject = "Welcome to Adopt A Goose"
         content = "Welcome to Adopt A Goose, please click on the following link to validate your email address: " + str(URL_FRONT) + "validate-email/" + token_id
-        send_email(body["email"], subject, content)
+        await send_email(body["email"], subject, content)
         return account_created()
 
     except Exception as e:
@@ -196,7 +194,7 @@ async def ask_reset_password(db, body):
         )
         subject = "Password reset"
         content = "You asked for a password reset, please click on the following link to reset your password: " + str(URL_FRONT) + "reset-password/" + token_id
-        send_email(email, subject, content)
+        await send_email(email, subject, content)
         return email_ask_reset_password()
     except Exception as e:
         print(e)

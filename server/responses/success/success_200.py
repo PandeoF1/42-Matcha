@@ -35,5 +35,5 @@ def password_reset():
 
 def session(user_id):
     return JSONResponse(
-        status_code=200, content={"message": "Session is valid", "user_id": user_id}
+        status_code=200, content={"message": "The current session is valid", "user_id": user_id}
     )
