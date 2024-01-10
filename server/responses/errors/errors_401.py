@@ -21,3 +21,8 @@ def invalid_username_or_password():
     return JSONResponse(
         status_code=401, content={"message": "Invalid username or password"}
     )
+
+def authentication_required():
+    return JSONResponse(
+        status_code=401, content={"message": "Authentication is required"}
+    )

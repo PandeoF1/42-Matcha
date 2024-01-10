@@ -12,12 +12,20 @@ import random
 import string
 import datetime
 
+def get_token(headers):
+    if (
+        "authorization" not in headers
+        or len(headers["authorization"].split(" ")) != 2
+        or headers["authorization"].split(" ")[1] is None
+    ):
+        return None
+    return headers["authorization"].split(" ")[1]
+
 async def check_token(db, token):
     result = await db.fetchrow("""SELECT * FROM token WHERE token = $1""", token)
     if not result:
         return None
     # check if token is expired
-    print(result["last_activity"], datetime.datetime.now().timestamp(), result["last_activity"] - datetime.datetime.now().timestamp())
     if (datetime.datetime.now().timestamp() - result["last_activity"] > 3600 * 6):
         await db.execute("""DELETE FROM token WHERE token = $1""", token)
         return None
@@ -34,9 +42,6 @@ async def search_user_by_token(db, token):
 
 async def login_user(db, body: dict):
     try:
-        missing = missing_keys(["username", "password"], body)
-        if missing:
-            return missing
         user = await search_user_by_username(db, body["username"])
         if not user:
             return invalid_username_or_password()
@@ -48,7 +53,6 @@ async def login_user(db, body: dict):
         # random 64 alphanum str
         token_id = str(uuid.uuid4())
         token = "".join(random.choices(string.ascii_uppercase + string.digits + string.ascii_lowercase, k=64))
-        print(datetime.datetime.now())
         await db.execute(
             """INSERT INTO token (id, token, user_id, creation_date, last_activity) VALUES ($1, $2, $3, $4, $5)""",
             token_id,

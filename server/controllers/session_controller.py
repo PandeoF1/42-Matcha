@@ -13,19 +13,16 @@ session_controller = APIRouter(prefix="/session", tags=["session"])
 @session_controller.post("")
 async def login(request: Request, db=Depends(get_database)):
     data = await parse_request(request)
-    # Check if not connected
-    if data["body"] is None:
-        return missing_body()
+    validator = body_validator(data["body"], ["username", "password"], str)
+    if validator is not None:
+        return validator
     return await login_user(db, data["body"])
 
 
 @session_controller.get("")
 async def get_session(request: Request, db=Depends(get_database)):
     data = await parse_request(request)
-    if (
-        "authorization" not in data["headers"]
-        or data["headers"]["authorization"].split(" ")[1] is None
-    ):
+    if get_token(data["headers"]) is None:
         return empty_token()
     user_id = await check_token(db, data["headers"]["authorization"].split(" ")[1])
     if user_id is None:
@@ -37,9 +34,6 @@ async def get_session(request: Request, db=Depends(get_database)):
 @session_controller.delete("")
 async def logout(request: Request, db=Depends(get_database)):
     data = await parse_request(request)
-    if (
-        "authorization" not in data["headers"]
-        or data["headers"]["authorization"].split(" ")[1] is None
-    ):
+    if get_token(data["headers"]) is None:
         return empty_token()
     return await logout_user(db, data["headers"]["authorization"].split(" ")[1])

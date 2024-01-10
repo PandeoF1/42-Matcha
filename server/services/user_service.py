@@ -14,6 +14,24 @@ import uuid
 import random
 import string
 
+def strip_user(user):
+    if not user:
+        return None
+    return {
+        "id": user["id"],
+        "email": user["email"],
+        "username": user["username"],
+        "firstName": user["first_name"],
+        "lastName": user["last_name"],
+        "images": user["images"],
+        "completion": user["completion"],
+        "gender": user["gender"],
+        "orientation": user["orientation"],
+        "tags": user["tags"],
+        "bio": user["bio"],
+        "geoloc": user["geoloc"],
+        "birthDate": user["birthdate"] 
+    }
 
 def check_password(password):
     regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&])[A-Za-z\d#@$!%*?&]{8,30}$"
@@ -67,16 +85,7 @@ async def search_user_by_email(db, email):
 
 
 async def create_user(db, body: dict):
-
     try:
-        missing = missing_keys(
-            ["email", "username", "lastName", "firstName", "password"], body
-        )
-        if missing:
-            return missing
-        empty = empty_keys(body)
-        if empty:
-            return empty
         if check_password(body["password"]) is not None:
             return check_password(body["password"])
         # username
@@ -138,9 +147,6 @@ async def create_user(db, body: dict):
 
 async def validate_email(db, body):
     try:
-        missing = missing_keys(["token"], body)
-        if missing:
-            return missing
         token_id = body["token"]
         result = await db.fetchrow("""SELECT * FROM email_validation WHERE id = $1""", token_id)
         if not result:
@@ -155,9 +161,6 @@ async def validate_email(db, body):
 
 async def change_password(db, body):
     try:
-        missing = missing_keys(["token", "password"], body)
-        if missing:
-            return missing
         token_id = body["token"]
         result = await db.fetchrow("""SELECT * FROM email_validation WHERE id = $1""", token_id)
         if not result:
@@ -172,15 +175,11 @@ async def change_password(db, body):
         return password_reset()
     except Exception as e:
         print(e)
-        
-        
 
-async def ask_reset_password(db, body):
+
+async def ask_reset_password(db, user):
     try:
-        missing = missing_keys(["email"], body)
-        if missing:
-            return missing
-        email = body["email"]
+        email = user["email"]
         result = await db.fetchrow("""SELECT * FROM users WHERE email = $1""", email)
         if not result:
             return email_ask_reset_password()
