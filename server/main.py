@@ -3,7 +3,6 @@ from fastapi import FastAPI
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from controllers.user_controller import user_controller
-from controllers.session_controller import session_controller
 from controllers.email_controller import email_controller
 
 app = FastAPI()
@@ -23,7 +22,6 @@ async def root():
 
 
 app.include_router(user_controller)
-app.include_router(session_controller)
 app.include_router(email_controller)
 
 if __name__ == "__main__":

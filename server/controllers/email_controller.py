@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request
 from database.database import *
-from services.user_service import ask_reset_password, validate_email, change_password
-from services.session_service import *
+from responses.errors.errors_401 import authentication_required
+from services.user_service import ask_reset_password, get_token, search_user_by_token, validate_email, change_password
 from utils.parse_request import *
 from responses.errors.errors_422 import *
 from responses.errors.errors_400 import *
