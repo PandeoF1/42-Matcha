@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "matcha",
-    "dateExported": "2024-01-10T13:40:40.372Z",
+    "dateExported": "2024-01-10T23:14:28.164Z",
     "version": "1.1",
     "folders": [
         {
@@ -25,11 +25,11 @@
             "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
             "containerId": "778826e1-5f4b-40ea-95d8-75b1f0584b54",
             "name": "Login",
-            "url": "/session",
+            "url": "/user/login",
             "method": "POST",
             "sortNum": 10000,
             "created": "2024-01-10T09:04:39.209Z",
-            "modified": "2024-01-10T11:28:29.391Z",
+            "modified": "2024-01-10T22:29:00.219Z",
             "headers": [],
             "params": [],
             "body": {
@@ -40,7 +40,7 @@
             "tests": [
                 {
                     "type": "set-env-var",
-                    "custom": "json.data.token",
+                    "custom": "json.token",
                     "action": "setto",
                     "value": "{{token}}"
                 }
@@ -51,11 +51,11 @@
             "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
             "containerId": "778826e1-5f4b-40ea-95d8-75b1f0584b54",
             "name": "Logout",
-            "url": "/session",
-            "method": "DELETE",
+            "url": "/user/logout",
+            "method": "POST",
             "sortNum": 20000,
             "created": "2024-01-10T09:08:06.869Z",
-            "modified": "2024-01-10T11:29:03.283Z",
+            "modified": "2024-01-10T22:27:57.971Z",
             "headers": [],
             "params": [],
             "tests": [
@@ -76,7 +76,7 @@
             "method": "POST",
             "sortNum": 30000,
             "created": "2024-01-10T09:08:54.827Z",
-            "modified": "2024-01-10T13:23:56.015Z",
+            "modified": "2024-01-10T18:53:00.440Z",
             "headers": [],
             "params": [],
             "body": {
@@ -148,17 +148,17 @@
             "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
             "containerId": "778826e1-5f4b-40ea-95d8-75b1f0584b54",
             "name": "Check session",
-            "url": "/session",
+            "url": "/user/session",
             "method": "GET",
             "sortNum": 50000,
             "created": "2024-01-10T11:39:14.887Z",
-            "modified": "2024-01-10T11:54:52.168Z",
+            "modified": "2024-01-10T22:56:34.304Z",
             "headers": [],
             "params": [],
             "tests": [
                 {
                     "type": "set-env-var",
-                    "custom": "json.data.user_id",
+                    "custom": "json.user_id",
                     "action": "setto",
                     "value": "{{user_id}}"
                 }
@@ -183,11 +183,11 @@
             "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
             "containerId": "778826e1-5f4b-40ea-95d8-75b1f0584b54",
             "name": "get specific user",
-            "url": "/users/{{user_id}}",
+            "url": "/user/{{user_id}}",
             "method": "GET",
             "sortNum": 90000,
             "created": "2024-01-10T11:45:23.011Z",
-            "modified": "2024-01-10T11:48:57.735Z",
+            "modified": "2024-01-10T22:57:28.918Z",
             "headers": [],
             "params": [],
             "tests": []

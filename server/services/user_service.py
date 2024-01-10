@@ -65,7 +65,8 @@ def check_email(email):
 
 async def search_user_by_id(db, user_id):
     try:
-        result = await db.fetchrow("""SELECT * FROM users WHERE id = $1""", user_id)
+        async with db.acquire() as conn:
+            result = await conn.fetchrow("""SELECT * FROM users WHERE id = $1""", user_id)
         if not result:
             return None
         return result
@@ -73,20 +74,23 @@ async def search_user_by_id(db, user_id):
         return None
 
 async def search_user_by_username(db, username):
-    result = await db.fetchrow("""SELECT * FROM users WHERE username = $1""", username)
+    async with db.acquire() as conn:
+        result = await conn.fetchrow("""SELECT * FROM users WHERE username = $1""", username)
     if not result:
         return None
     return result
 
 
 async def search_user_by_email(db, email):
-    result = await db.fetchrow("""SELECT * FROM users WHERE email = $1""", email)
+    async with db.acquire() as conn:
+        result = await conn.fetchrow("""SELECT * FROM users WHERE email = $1""", email)
     if not result:
         return None
     return result
 
 async def search_user_by_token(db, token):
-    result = await db.fetchrow("""SELECT user_id FROM token WHERE token = $1""", token)
+    async with db.acquire() as conn:
+        result = await conn.fetchrow("""SELECT user_id FROM token WHERE token = $1""", token)
     if not result:
         return None
     result = await search_user_by_id(db, result["user_id"])
@@ -109,42 +113,44 @@ async def create_user(db, body: dict):
         if check_email(body["email"]) is not None:
             return check_email(body["email"])
         # check if email already exists
-
-        email = await db.fetchrow(
-            """SELECT id, email FROM users WHERE email = $1""", body["email"]
-        )
+        async with db.acquire() as conn:
+            email = await conn.fetchrow(
+                """SELECT id, email FROM users WHERE email = $1""", body["email"]
+            )
         # print (users)
         if email:
             return email_already_exists()
-        username = await db.fetchrow(
-            """SELECT id, username FROM users WHERE username = $1""", body["username"]
-        )
+        async with db.acquire() as conn:
+            username = await conn.fetchrow(
+                """SELECT id, username FROM users WHERE username = $1""", body["username"]
+            )
         if username:
             return username_already_exists()
 
         hashed_password = bcrypt.hashpw(body["password"].encode(), bcrypt.gensalt())
 
         user_id = str(uuid.uuid4())
-        # save in db
-        await db.execute(
-            """INSERT INTO users (id, email, username, first_name, last_name, password) VALUES ($1, $2, $3, $4, $5, $6)""",
-            user_id,
-            body["email"],
-            body["username"],
-            body["firstName"],
-            body["lastName"],
-            hashed_password.decode(),
-        )
+        async with db.acquire() as conn:
+            await conn.execute(
+                """INSERT INTO users (id, email, username, first_name, last_name, password) VALUES ($1, $2, $3, $4, $5, $6)""",
+                user_id,
+                body["email"],
+                body["username"],
+                body["firstName"],
+                body["lastName"],
+                hashed_password.decode(),
+            )
 
         # Create email validation token
         token_id = "".join(random.choices(string.ascii_uppercase + string.digits + string.ascii_lowercase, k=64))
-        await db.execute(
-            """INSERT INTO email_validation (id, creation_date, user_id, type) VALUES ($1, $2, $3, $4)""",
-            token_id,
-            datetime.datetime.now(),
-            user_id,
-            "email_validation"
-        )
+        async with db.acquire() as conn:
+            await conn.execute(
+                """INSERT INTO email_validation (id, creation_date, user_id, type) VALUES ($1, $2, $3, $4)""",
+                token_id,
+                datetime.datetime.now(),
+                user_id,
+                "email_validation"
+            )
         subject = "Welcome to Adopt A Goose"
         content = "Welcome to Adopt A Goose, please click on the following link to validate your email address: " + str(URL_FRONT) + "validate-email/" + token_id
         await send_email(body["email"], subject, content)
@@ -156,13 +162,16 @@ async def create_user(db, body: dict):
 async def validate_email(db, body):
     try:
         token_id = body["token"]
-        result = await db.fetchrow("""SELECT * FROM email_validation WHERE id = $1""", token_id)
+        async with db.acquire() as conn:
+            result = await conn.fetchrow("""SELECT * FROM email_validation WHERE id = $1""", token_id)
         if not result:
             return invalid_email_token()
         if result["type"] != "email_validation":
             return invalid_email_token()
-        await db.execute("""UPDATE users SET completion = 1 WHERE id = $1""", result["user_id"])
-        await db.execute("""DELETE FROM email_validation WHERE id = $1""", token_id)
+        async with db.acquire() as conn:
+            await conn.execute("""UPDATE users SET completion = 1 WHERE id = $1""", result["user_id"])
+        async with db.acquire() as conn:
+            await conn.execute("""DELETE FROM email_validation WHERE id = $1""", token_id)
         return email_validated()
     except Exception as e:
         print(e)
@@ -170,7 +179,8 @@ async def validate_email(db, body):
 async def change_password(db, body):
     try:
         token_id = body["token"]
-        result = await db.fetchrow("""SELECT * FROM email_validation WHERE id = $1""", token_id)
+        async with db.acquire() as conn:
+            result = await conn.fetchrow("""SELECT * FROM email_validation WHERE id = $1""", token_id)
         if not result:
             return invalid_email_token()
         if result["type"] != "password_reset":
@@ -178,8 +188,10 @@ async def change_password(db, body):
         if check_password(body["password"]) is not None:
             return check_password(body["password"])
         hashed_password = bcrypt.hashpw(body["password"].encode(), bcrypt.gensalt())
-        await db.execute("""UPDATE users SET password = $1 WHERE id = $2""", hashed_password.decode(), result["user_id"])
-        await db.execute("""DELETE FROM email_validation WHERE id = $1""", token_id)
+        async with db.acquire() as conn:
+            await conn.execute("""UPDATE users SET password = $1 WHERE id = $2""", hashed_password.decode(), result["user_id"])
+        async with db.acquire() as conn:
+            await conn.execute("""DELETE FROM email_validation WHERE id = $1""", token_id)
         return password_reset()
     except Exception as e:
         print(e)
@@ -188,17 +200,19 @@ async def change_password(db, body):
 async def ask_reset_password(db, user):
     try:
         email = user["email"]
-        result = await db.fetchrow("""SELECT * FROM users WHERE email = $1""", email)
+        async with db.acquire() as conn:
+            result = await conn.fetchrow("""SELECT * FROM users WHERE email = $1""", email)
         if not result:
             return email_ask_reset_password()
         token_id = "".join(random.choices(string.ascii_uppercase + string.digits + string.ascii_lowercase, k=64))
-        await db.execute(
-            """INSERT INTO email_validation (id, creation_date, user_id, type) VALUES ($1, $2, $3, $4)""",
-            token_id,
-            datetime.datetime.now(),
-            result["id"],
-            "password_reset"
-        )
+        async with db.acquire() as conn:
+            await conn.execute(
+                """INSERT INTO email_validation (id, creation_date, user_id, type) VALUES ($1, $2, $3, $4)""",
+                token_id,
+                datetime.datetime.now(),
+                result["id"],
+                "password_reset"
+            )
         subject = "Password reset"
         content = "You asked for a password reset, please click on the following link to reset your password: " + str(URL_FRONT) + "reset-password/" + token_id
         await send_email(email, subject, content)
@@ -216,15 +230,18 @@ def get_token(headers):
     return headers["authorization"].split(" ")[1]
 
 async def check_token(db, token):
-    result = await db.fetchrow("""SELECT * FROM token WHERE token = $1""", token)
+    async with db.acquire() as conn:
+        result = await conn.fetchrow("""SELECT * FROM token WHERE token = $1""", token)
     if not result:
         return None
     # check if token is expired
     if (datetime.datetime.now().timestamp() - result["last_activity"] > 3600 * 6):
-        await db.execute("""DELETE FROM token WHERE token = $1""", token)
+        async with db.acquire() as conn:
+            await conn.execute("""DELETE FROM token WHERE token = $1""", token)
         return None
     # Update last activity
-    await db.execute("""UPDATE token SET last_activity = $1 WHERE token = $2""", datetime.datetime.now().timestamp(), token)
+    async with db.acquire() as conn:
+        await conn.execute("""UPDATE token SET last_activity = $1 WHERE token = $2""", datetime.datetime.now().timestamp(), token)
     return result["user_id"]
 
 async def login_user(db, body: dict):
@@ -238,14 +255,15 @@ async def login_user(db, body: dict):
             return email_not_validated()
         token_id = str(uuid.uuid4())
         token = "".join(random.choices(string.ascii_uppercase + string.digits + string.ascii_lowercase, k=64))
-        await db.execute(
-            """INSERT INTO token (id, token, user_id, creation_date, last_activity) VALUES ($1, $2, $3, $4, $5)""",
-            token_id,
-            token,
-            user["id"],
-            datetime.datetime.now().timestamp(),
-            datetime.datetime.now().timestamp()
-        )
+        async with db.acquire() as conn:
+            await conn.execute(
+                """INSERT INTO token (id, token, user_id, creation_date, last_activity) VALUES ($1, $2, $3, $4, $5)""",
+                token_id,
+                token,
+                user["id"],
+                datetime.datetime.now().timestamp(),
+                datetime.datetime.now().timestamp()
+            )
         subject = "New connection detected"
         content = "Someone just connected to your account at " + datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
         await send_email(user["email"], subject, content)
@@ -256,7 +274,8 @@ async def login_user(db, body: dict):
 
 async def logout_user(db, token):
     try:
-        await db.execute("""DELETE FROM token WHERE token = $1""", token)
+        async with db.acquire() as conn:
+            await conn.execute("""DELETE FROM token WHERE token = $1""", token)
         return logout_success()
     except Exception as e:
         print(e)
