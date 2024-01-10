@@ -1,31 +1,23 @@
 from fastapi.responses import JSONResponse
 from constants.errors import *
 
+
 def invalid_token():
     return JSONResponse(
-        status_code=401,
-        content={
-            "error": {
-                "message": "The token provided is invalid"
-            }
-        }
+        status_code=401, content={"message": "The token provided is invalid"}
+    )
+
+def invalid_email_token():
+    return JSONResponse(
+        status_code=401, content={"message": "The email token provided is invalid"}
     )
 
 def empty_token():
     return JSONResponse(
-        status_code=401,
-        content={
-            "error": {
-                "message": "Authentication is required"
-            }
-        }
+        status_code=401, content={"message": "Authentication is required"}
     )
 
 def invalid_username_or_password():
     return JSONResponse(
-        status_code=401,
-        content={
-            "error": {
-                "message": "Invalid username or password"
-            }
-        })
+        status_code=401, content={"message": "Invalid username or password"}
+    )

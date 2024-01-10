@@ -4,6 +4,7 @@ import HomePage from './src/pages/Home';
 import RegisterPage from './src/pages/Register';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import Header from "./src/components/header";
 
 const theme = createTheme({
   palette: {
@@ -26,14 +27,19 @@ const theme = createTheme({
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <div className="App w-100">
-        <Router>
-          <Routes>
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/" element={<HomePage />} />
-          </Routes>
-        </Router>
-      </div>
+      <header className="App-header w-100">
+        <Header />
+      </header>
+      <body className="App-body">
+        <div className="App w-100">
+          <Router>
+            <Routes>
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/" element={<HomePage />} />
+            </Routes>
+          </Router>
+        </div>
+      </body>
     </ThemeProvider>
   )
 }

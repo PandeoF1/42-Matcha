@@ -1,0 +1,129 @@
+{
+    "client": "Thunder Client",
+    "collectionName": "matcha",
+    "dateExported": "2024-01-10T10:33:46.884Z",
+    "version": "1.1",
+    "folders": [
+        {
+            "_id": "778826e1-5f4b-40ea-95d8-75b1f0584b54",
+            "name": "user & session",
+            "containerId": "",
+            "created": "2024-01-10T10:28:11.072Z",
+            "sortNum": 10000
+        },
+        {
+            "_id": "18dd1cce-ca7f-4065-8fa8-775096ac67dc",
+            "name": "email",
+            "containerId": "",
+            "created": "2024-01-10T10:28:33.092Z",
+            "sortNum": 20000
+        }
+    ],
+    "requests": [
+        {
+            "_id": "79adba6b-c360-4ece-9817-8bdafc146f2b",
+            "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
+            "containerId": "778826e1-5f4b-40ea-95d8-75b1f0584b54",
+            "name": "Login",
+            "url": "/session/",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2024-01-10T09:04:39.209Z",
+            "modified": "2024-01-10T09:55:46.505Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+                "form": []
+            },
+            "tests": [
+                {
+                    "type": "set-env-var",
+                    "custom": "json.data.token",
+                    "action": "setto",
+                    "value": "{{token}}"
+                }
+            ]
+        },
+        {
+            "_id": "264202c2-316d-4e03-aabb-85fc1f4bd31b",
+            "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
+            "containerId": "778826e1-5f4b-40ea-95d8-75b1f0584b54",
+            "name": "Logout",
+            "url": "/session/",
+            "method": "DELETE",
+            "sortNum": 20000,
+            "created": "2024-01-10T09:08:06.869Z",
+            "modified": "2024-01-10T09:15:43.240Z",
+            "headers": [],
+            "params": [],
+            "tests": [
+                {
+                    "type": "set-env-var",
+                    "custom": "1",
+                    "action": "setto",
+                    "value": "{{token}}"
+                }
+            ]
+        },
+        {
+            "_id": "7c4ca595-b5c7-4acc-8ebe-3031205fb43d",
+            "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
+            "containerId": "778826e1-5f4b-40ea-95d8-75b1f0584b54",
+            "name": "Create account",
+            "url": "/user/",
+            "method": "POST",
+            "sortNum": 30000,
+            "created": "2024-01-10T09:08:54.827Z",
+            "modified": "2024-01-10T09:19:46.848Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"email\": \"{{email}}\",\n  \"first_name\": \"{{first_name}}\",\n  \"last_name\": \"{{last_name}}\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "89b485d1-d707-4cba-bf4b-6b3ea4da5e40",
+            "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
+            "containerId": "18dd1cce-ca7f-4065-8fa8-775096ac67dc",
+            "name": "confirm",
+            "url": "/email/confirm",
+            "method": "POST",
+            "sortNum": 30000,
+            "created": "2024-01-10T10:28:40.932Z",
+            "modified": "2024-01-10T10:33:40.714Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"token\": \"r2ZW8TSf4sYwKLBJaaYbLx0WdMu5bviAmYdVTwQLEexZOmZANn1TYH6qyIKepo5h\"\n}",
+                "form": []
+            },
+            "tests": []
+        }
+    ],
+    "settings": {
+        "auth": {
+            "type": "bearer",
+            "bearer": "{{token}}"
+        },
+        "options": {
+            "baseUrl": "https://back-matcha.pandeo.fr"
+        },
+        "preReq": {
+            "runRequests": [
+                {
+                    "reqId": "79adba6b-c360-4ece-9817-8bdafc146f2b",
+                    "colId": "6bdadd10-9d8d-40c8-bfd7-8a0eb726dafc",
+                    "triggerCondition": "run-var-value",
+                    "triggerValue": "{{token}}=1"
+                }
+            ]
+        },
+        "envId": "90d3b50d-fdd1-49fa-8f68-62905a68634e"
+    }
+}

@@ -1,6 +1,6 @@
 import { Card, TextField } from "@mui/material"
 import { useState } from "react"
-import { RegisterForm } from "./Models/RegisterForm"
+import { RegisterForm } from "./models/RegisterForm"
 import validator from 'validator'
 
 
@@ -15,9 +15,8 @@ const RegisterPage = () => {
 
     return (
         <div className="RegisterPage container">
-            <div className="row justify-content-center">
-                <h1>Register</h1>
-                <Card className="col-xs-12 col-sm-8 col-md-6 col-lg-4 p-4">
+            <div className="row justify-content-center p-4">
+                <Card className="col-xs-12 col-sm-8 col-md-6 col-lg-5 col-xl-4 col-xxl-3 p-4">
                     <div className="row justify-content-center">
                         <div className="col-12">
                             <TextField
@@ -35,7 +34,7 @@ const RegisterPage = () => {
                             />
                         </div>
                     </div>
-                    <div className="row justify-content-center pt-2">
+                    <div className="row justify-content-center pt-3">
                         <div className="col-12">
                             <TextField
                                 error={passwordError}
