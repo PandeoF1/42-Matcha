@@ -24,7 +24,7 @@ const RegisterPage = () => {
 
     useEffect(() => {
         const checkLoggedIn = async () => {
-            await instance.get('/session').then(() => {
+            await instance.get('/user/session').then(() => {
                 navigate('/')
             }
             ).catch(() => {
@@ -65,11 +65,11 @@ const RegisterPage = () => {
                                 className="w-100"
                                 required
                                 id="firstName"
-                                label="first name"
-                                helperText={usernameError ? 'Invalid first name' : ''}
+                                label="First name"
+                                helperText={firstnameError ? 'firstname must be between 3 and 16 characters long and contain only letters' : ''}
                                 variant="outlined"
                                 color="primary"
-                                inputProps={{ style: { color: 'black' } }}
+                                inputProps={{style: { color: 'black' }, maxLength: 16}}
                             />
                         </div>
                         <div className="col-6">
@@ -81,11 +81,11 @@ const RegisterPage = () => {
                                 className="w-100"
                                 required
                                 id="lastName"
-                                label="last name"
-                                helperText={usernameError ? 'Invalid last name' : ''}
+                                label="Last name"
+                                helperText={lastnameError ? 'last name must be between 3 and 16 characters long and contain only letters' : ''}
                                 variant="outlined"
                                 color="primary"
-                                inputProps={{ style: { color: 'black' } }}
+                                inputProps={{style: { color: 'black' }, maxLength: 16}}
                             />
                         </div>
                     </div>
@@ -99,11 +99,11 @@ const RegisterPage = () => {
                                 className="w-100"
                                 required
                                 id="username"
-                                label="username"
-                                helperText={usernameError ? 'Invalid username' : ''}
+                                label="Username"
+                                helperText={usernameError ? 'username must be between 3 and 16 characters long and contain only letters and numbers' : ''}
                                 variant="outlined"
                                 color="primary"
-                                inputProps={{ style: { color: 'black' } }}
+                                inputProps={{style: { color: 'black' }, maxLength: 16}}
                             />
                         </div>
                     </div>
@@ -117,11 +117,11 @@ const RegisterPage = () => {
                                 className="w-100"
                                 required
                                 id="email"
-                                label="email"
-                                helperText={emailError ? 'Invalid email address' : ''}
+                                label="Email"
+                                helperText={emailError ? 'Invalid email' : ''}
                                 variant="outlined"
                                 color="primary"
-                                inputProps={{ style: { color: 'black' } }}
+                                inputProps={{style: { color: 'black' }, maxLength: 320}}
                             />
                         </div>
                     </div>
@@ -137,7 +137,7 @@ const RegisterPage = () => {
                                 type="password"
                                 autoComplete="current-password"
                                 id="password"
-                                label="password"
+                                label="Password"
                                 helperText={passwordError ? 'Invalid password , must contain beween 8 and 30 characters, 1 uppercase letter, lowercase letter, number and special character' : ''}
                                 variant="outlined"
                                 color="primary"
@@ -146,7 +146,7 @@ const RegisterPage = () => {
                                         handleSubmit()
                                     }
                                 }}
-                                inputProps={{ style: { color: 'black' } }}
+                                inputProps={{style: { color: 'black' }, maxLength: 30}}
                             />
                         </div>
                     </div>

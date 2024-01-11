@@ -18,7 +18,7 @@ const LoginPage = () => {
 
     useEffect(() => {
         const checkLoggedIn = async () => {
-            await instance.get('/session').then(() => {
+            await instance.get('/user/session').then(() => {
                 navigate('/')
             }
             ).catch(() => {
@@ -34,7 +34,7 @@ const LoginPage = () => {
     const handleSubmit = () => {
         if (!localStorage.getItem("token")) {
             setIsLoading(true)
-            instance.post('/session', form).then((res) => {
+            instance.post('/user/login', form).then((res) => {
                 localStorage.setItem("token", res.data.token)
                 navigate('/')
             }
@@ -59,10 +59,10 @@ const LoginPage = () => {
                                 className="w-100"
                                 required
                                 id="username"
-                                label="username"
+                                label="Username"
                                 variant="outlined"
                                 color="primary"
-                                inputProps={{ style: { color: 'black' } }}
+                                inputProps={{style: { color: 'black' }, maxLength: 16}}
                             />
                         </div>
                     </div>
@@ -76,7 +76,7 @@ const LoginPage = () => {
                                 required
                                 id="password"
                                 type="password"
-                                label="password"
+                                label="Password"
                                 variant="outlined"
                                 color="primary"
                                 onKeyDown={e => {
@@ -84,7 +84,7 @@ const LoginPage = () => {
                                         handleSubmit()
                                     }
                                 }}
-                                inputProps={{ style: { color: 'black' } }}
+                                inputProps={{style: { color: 'black' }, maxLength: 30}}
                             />
                         </div>
                     </div>

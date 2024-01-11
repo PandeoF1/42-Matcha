@@ -6,6 +6,6 @@ export interface UpdateForm {
     orientation: string
     bio: string
     birthdate: string
-    tags: string[]
+    tags: {[key: string]: boolean}
     images: string[]
 }

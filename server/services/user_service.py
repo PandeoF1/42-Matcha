@@ -1,4 +1,4 @@
-from tabnanny import check
+import json
 from responses.success.success_200 import *
 from responses.success.success_201 import *
 from responses.errors.errors_400 import *
@@ -27,10 +27,10 @@ def strip_user(user):
         "completion": user["completion"],
         "gender": user["gender"],
         "orientation": user["orientation"],
-        "tags": user["tags"],
-        "bio": user["bio"],
+        "tags": json.loads(user["tags"]),
+        "bio": user["bio"] if user["bio"] else "",
         "geoloc": user["geoloc"],
-        "birthDate": user["birthdate"] 
+        "age": user["age"] 
     }
 
 def check_password(password):
@@ -222,7 +222,7 @@ async def check_token(db, token):
         await db.execute("""DELETE FROM token WHERE token = $1""", token)
         return None
     # Update last activity
-    db.execute("""UPDATE token SET last_activity = $1 WHERE token = $2""", datetime.datetime.now().timestamp(), token)
+    await db.execute("""UPDATE token SET last_activity = $1 WHERE token = $2""", datetime.datetime.now().timestamp(), token)
     return result["user_id"]
 
 async def login_user(db, body: dict):

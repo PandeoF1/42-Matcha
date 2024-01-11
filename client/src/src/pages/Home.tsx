@@ -7,7 +7,7 @@ const HomePage = () => {
 
     useEffect(() => {
         const checkLoggedIn = async () => {
-            await instance.get('/session').then(() => {
+            await instance.get('/user/session').then(() => {
                 navigate('/')
             }
             ).catch(() => {

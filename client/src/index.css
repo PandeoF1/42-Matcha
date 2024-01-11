@@ -14,10 +14,26 @@
   -moz-osx-font-smoothing: grayscale;
   padding : 0px!important;
   max-width: none!important;
+  min-height: 100vh;
 }
 
 .header {
   background-color : #143857!important;
+  position: sticky;
+  top : 0;
+  z-index : 1000
+}
+
+.imgMosaic {
+  width : 120px;
+  height : 145px;
+  object-fit : cover;
+  object-position : center;
+  border-radius : 6px;
+}
+
+hr {
+  border-color: #0b1f30!important;
 }
 
 .headerTitle {
