@@ -7,7 +7,7 @@ async def parse_request(request: Request):
     body = await request.body()
 
     parsed = {}
-    try: 
+    try:
         parsed["headers"] = dict(headers) if headers else None
     except:
         parsed["headers"] = None

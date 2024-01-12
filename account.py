@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import asyncio
 import json
 import string
@@ -20,35 +21,14 @@ async def test_register():
     # print the response
     print(r.json())
 
-async def randomize():
-    # Change age, geoloc and elo of all user in database
-    db = await asyncpg.connect('postgresql://matchadmin:matchapasspas@localhost/matcha')
-    users = await db.fetch("SELECT id FROM users")
-    for user in users:
-        geoloc = "%s,%s" % (random.uniform(48.8, 48.9), random.uniform(2.3, 2.4))
-        age = random.randint(18, 99)
-        elo = random.randint(0, 100)
-        # gender
-        if (random.randint(0,1)):
-            gender = "male"
-        else:
-            gender = "female"
-        # orientation
-        if (random.randint(0,1)):
-            orientation = "heterosexual"
-        elif (random.randint(0,1)):
-            orientation = "homosexual"
-        else:
-            orientation = "bisexual"
-        if (random.randint(0,1)):
-            tag = {
+TAGS = {
   "#cinema": False,
-  "#music": True,
-  "#bar": True,
-  "#hiking": True,
-  "#biking": True,
-  "#cooking": True,
-  "#photography": True,
+  "#music": False,
+  "#bar": False,
+  "#hiking": False,
+  "#biking": False,
+  "#cooking": False,
+  "#photography": False,
   "#gaming": False,
   "#reading": False,
   "#dancing": False,
@@ -66,19 +46,19 @@ async def randomize():
   "#tea": False,
   "#running": False,
   "#writing": False,
-  "#knitting": True,
-  "#crafting": True,
-  "#theater": True,
-  "#karaoke": True,
-  "#camping": True,
-  "#beach": True,
-  "#concerts": True,
-  "#museums": True,
+  "#knitting": False,
+  "#crafting": False,
+  "#theater": False,
+  "#karaoke": False,
+  "#camping": False,
+  "#beach": False,
+  "#concerts": False,
+  "#museums": False,
   "#boardgames": False,
-  "#puzzles": True,
-  "#astronomy": True,
+  "#puzzles": False,
+  "#astronomy": False,
   "#stargazing": False,
-  "#fitness": True,
+  "#fitness": False,
   "#meditation": False,
   "#poetry": False,
   "#DIY": False,
@@ -94,16 +74,16 @@ async def randomize():
   "#languages": False,
   "#poetry": False,
   "#filmlovers": False,
-  "#musicians": True,
+  "#musicians": False,
   "#gaming": False,
-  "#outdoorlife": True,
-  "#bookclub": True,
-  "#photography": True,
+  "#outdoorlife": False,
+  "#bookclub": False,
+  "#photography": False,
   "#gamer": False,
-  "#literature": True,
+  "#literature": False,
   "#art": False,
-  "#traveling": True,
-  "#winetasting": True,
+  "#traveling": False,
+  "#winetasting": False,
   "#brewerytour": False,
   "#coffee": False,
   "#teatime": False,
@@ -127,98 +107,33 @@ async def randomize():
   "#art": False,
   "#adventure": False
 }
-        else:
-            tag = {
-  "#cinema": True,
-  "#music": True,
-  "#bar": False,
-  "#hiking": False,
-  "#biking": False,
-  "#cooking": False,
-  "#photography": False,
-  "#gaming": False,
-  "#reading": True,
-  "#dancing": False,
-  "#painting": True,
-  "#skiing": False,
-  "#traveling": True,
-  "#yoga": False,
-  "#gardening": False,
-  "#fishing": False,
-  "#surfing": False,
-  "#golfing": True,
-  "#wine": False,
-  "#beer": False,
-  "#coffee": True,
-  "#tea": False,
-  "#running": False,
-  "#writing": False,
-  "#knitting": True,
-  "#crafting": True,
-  "#theater": False,
-  "#karaoke": True,
-  "#camping": False,
-  "#beach": False,
-  "#concerts": False,
-  "#museums": True,
-  "#boardgames": False,
-  "#puzzles": True,
-  "#astronomy": True,
-  "#stargazing": False,
-  "#fitness": False,
-  "#meditation": False,
-  "#poetry": True,
-  "#DIY": False,
-  "#technology": False,
-  "#vintage": False,
-  "#cars": False,
-  "#pets": False,
-  "#sailing": True,
-  "#rockclimbing": False,
-  "#foodie": False,
-  "#fashion": True,
-  "#history": False,
-  "#languages": False,
-  "#poetry": False,
-  "#filmlovers": False,
-  "#musicians": False,
-  "#gaming": False,
-  "#outdoorlife": False,
-  "#bookclub": False,
-  "#photography": False,
-  "#gamer": False,
-  "#literature": False,
-  "#art": False,
-  "#traveling": False,
-  "#winetasting": False,
-  "#brewerytour": False,
-  "#coffee": False,
-  "#teatime": True,
-  "#running": True,
-  "#journaling": False,
-  "#theater": True,
-  "#campfire": False,
-  "#beach": True,
-  "#livemusic": False,
-  "#museum": False,
-  "#games": False,
-  "#mindfulness": False,
-  "#fishing": True,
-  "#surfing": False,
-  "#golfing": True,
-  "#wine": False,
-  "#beer": True,
-  "#coffee": False,
-  "#yoga": True,
-  "#fashion": False,
-  "#art": False,
-  "#adventure": False
-}
 
-        print(user['id'], geoloc, age, elo, gender, orientation, tag)
-        await db.execute("UPDATE users SET (age, geoloc, elo, orientation, gender, tags) = ($1, $2, $3, $4, $5, $6) WHERE id = $7", age, geoloc, elo, orientation, gender, json.dumps(tag), user['id'])
-            
-        
+async def randomize():
+    # Change age, geoloc and elo of all user in database
+    db = await asyncpg.connect('postgresql://matchadmin:matchapasspas@localhost/matcha')
+    users = await db.fetch("SELECT id FROM users")
+    for user in users:
+        geoloc = "%s,%s" % (random.uniform(48.8, 48.9), random.uniform(2.3, 2.4))
+        age = random.randint(18, 99)
+        elo = random.randint(0, 100)
+        # gender
+        if (random.randint(0,1)):
+            gender = "male"
+        else:
+            gender = "female"
+        # orientation
+        if (random.randint(0,1)):
+            orientation = "heterosexual"
+        elif (random.randint(0,1)):
+            orientation = "homosexual"
+        else:
+            orientation = "bisexual"
+        tags = {}
+        for tag in TAGS:
+            tags[tag] = True if random.randint(0,6) == 5 else False
+
+        print(user['id'], geoloc, age, elo, gender, orientation, tags)
+        await db.execute("UPDATE users SET (age, geoloc, elo, orientation, gender, tags) = ($1, $2, $3, $4, $5, $6) WHERE id = $7", age, geoloc, elo, orientation, gender, json.dumps(tags), user['id'])
 
 if __name__ == "__main__":
 #    for i in range(10):

@@ -9,6 +9,7 @@ from responses.errors.errors_400 import *
 
 profiles_controller = APIRouter(prefix="/profiles", tags=["user"])
 
+
 @profiles_controller.get("")
 async def get_profiles(request: Request, db=Depends(get_database)):
     data = await parse_request(request)

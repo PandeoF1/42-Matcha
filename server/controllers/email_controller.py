@@ -1,7 +1,13 @@
 from fastapi import APIRouter, Depends, Request
 from database.database import *
 from responses.errors.errors_401 import authentication_required
-from services.user_service import ask_reset_password, get_token, search_user_by_token, validate_email, change_password
+from services.user_service import (
+    ask_reset_password,
+    get_token,
+    search_user_by_token,
+    validate_email,
+    change_password,
+)
 from utils.parse_request import *
 from responses.errors.errors_422 import *
 from responses.errors.errors_400 import *
@@ -28,6 +34,7 @@ async def password(request: Request, db=Depends(get_database)):
     if not user:
         return authentication_required()
     return await ask_reset_password(db, user)
+
 
 @email_controller.post("/password")
 async def reset_password(request: Request, db=Depends(get_database)):

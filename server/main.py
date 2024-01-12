@@ -11,7 +11,11 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://back-matcha.pandeo.fr", "https://front-matcha.pandeo.fr", "https://front-matcha.pandeo.fr/"],
+    allow_origins=[
+        "https://back-matcha.pandeo.fr",
+        "https://front-matcha.pandeo.fr",
+        "https://front-matcha.pandeo.fr/",
+    ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "DELETE", "PUT"],
     allow_headers=["Authorization", "Content-Type", "Access-Control-Allow-Origin"],

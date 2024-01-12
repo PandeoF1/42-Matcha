@@ -19,10 +19,16 @@ def missing_keys(awaited_keys: list, received_keys: dict):
         )
     return None
 
-def type_keys(received_keys, type = str):
+
+def type_keys(received_keys, type=str):
     response = []
     for key in received_keys:
-        if not isinstance(received_keys[key], type) and key != "images" and key != "tags" and key != "age":
+        if (
+            not isinstance(received_keys[key], type)
+            and key != "images"
+            and key != "tags"
+            and key != "age"
+        ):
             response.append(key)
         if key == "images":
             for image in received_keys[key]:
@@ -40,6 +46,7 @@ def type_keys(received_keys, type = str):
         )
     return None
 
+
 def empty_keys(received_keys: dict):
     response = []
     try:
@@ -54,7 +61,8 @@ def empty_keys(received_keys: dict):
         return JSONResponse(status_code=400, content={"message": "Empty key(s)"})
     return None
 
-def body_validator(body, keys, type = str):
+
+def body_validator(body, keys, type=str):
     if body is None:
         return missing_body()
     if missing_keys(keys, body):
@@ -64,6 +72,7 @@ def body_validator(body, keys, type = str):
     if empty_keys(body):
         return empty_keys(body)
     return None
+
 
 def header_validator(headers):
     if headers is None:
@@ -76,8 +85,14 @@ def header_validator(headers):
         return empty_token()
     return None
 
+
 def image_invalid():
-    return JSONResponse(status_code=422, content={"message": "The provided image is invalid"})
+    return JSONResponse(
+        status_code=422, content={"message": "The provided image is invalid"}
+    )
+
 
 def too_many_images():
-    return JSONResponse(status_code=422, content={"message": "You can only upload 5 images"})
+    return JSONResponse(
+        status_code=422, content={"message": "You can only upload 5 images"}
+    )
