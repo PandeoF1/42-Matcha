@@ -10,3 +10,8 @@ def no_profile():
     return JSONResponse(
         status_code=404, content={"message": "No profile found"}
     )
+
+def image_not_found():
+    return JSONResponse(
+        status_code=404, content={"message": "Image not found"}
+    )

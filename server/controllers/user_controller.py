@@ -18,8 +18,21 @@ async def register(request: Request, db=Depends(get_database)):
     return await create_user(db, data["body"])
 
 @user_controller.put("")
-async def update_user(request: Request, db=Depends(get_database)):
-    print("update user")
+async def porfile(request: Request, db=Depends(get_database)):
+    data = await parse_request(request)
+    validator = body_validator(data["body"], ["email", "username", "lastName", "firstName", "images"])
+    if validator is not None:
+        return validator
+    token = get_token(data["headers"])
+    if token is None:
+        return empty_token()
+    user = await search_user_by_token(db, token)
+    if not user:
+        return authentication_required()
+    if user["completion"] == 0:
+        return incomplete_profile()
+    return await update_user(db, user, data["body"])
+
 
 @user_controller.get("")
 async def get_user(request: Request, db=Depends(get_database)):
@@ -70,3 +83,19 @@ async def get_specific_user(id, request: Request, db=Depends(get_database)):
     if not user:
         return user_not_found()
     return strip_user(user)
+
+@user_controller.post("/{id}/like")
+async def like_user(id, request: Request, db=Depends(get_database)):
+    data = await parse_request(request)
+    token = get_token(data["headers"])
+    if token is None:
+        return empty_token()
+    origin = await search_user_by_token(db, token)
+    if not origin:
+        return authentication_required()
+    recipient = await search_user_by_id(db, id)
+    if not recipient:
+        return user_not_found()
+    if origin["id"] == recipient["id"]:
+        return no_self_interact()
+    return await like(db, origin, recipient)

@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from controllers.user_controller import user_controller
 from controllers.profiles_controller import profiles_controller
 from controllers.email_controller import email_controller
+from controllers.image_controller import image_controller
 
 app = FastAPI()
 
@@ -25,6 +26,8 @@ async def root():
 app.include_router(user_controller)
 app.include_router(email_controller)
 app.include_router(profiles_controller)
+app.include_router(image_controller)
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8765, reload=True)

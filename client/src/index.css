@@ -32,6 +32,15 @@
   border-radius : 6px;
 }
 
+.tagsContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.tagsContainer {
+  -ms-overflow-style: none;
+  scrollbar-width: none; 
+}
+
 hr {
   border-color: #0b1f30!important;
 }

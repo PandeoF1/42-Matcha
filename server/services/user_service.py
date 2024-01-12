@@ -258,3 +258,14 @@ async def logout_user(db, token):
         return logout_success()
     except Exception as e:
         print(e)
+
+async def update_user(db, user, body):
+    print(body)
+
+async def like(db, origin, recipient):
+    try:
+        # Check if already liked
+        result = await db.fetchrow("""SELECT * FROM interactions WHERE (origin = $1 OR recipient = $2) AND type = 'like'""", origin, recipient)
+        print(result)
+    except Exception as e:
+        print(e)

@@ -22,8 +22,12 @@ def missing_keys(awaited_keys: list, received_keys: dict):
 def type_keys(received_keys, type = str):
     response = []
     for key in received_keys:
-        if not isinstance(received_keys[key], type):
+        if not isinstance(received_keys[key], type) and key != "images":
             response.append(key)
+        if key == "images":
+            for image in received_keys[key]:
+                if not isinstance(image, object):
+                    response.append(key)
     if len(response):
         return JSONResponse(
             status_code=400, content={"message": f"Wrong type key(s): {response}"}
@@ -65,3 +69,6 @@ def header_validator(headers):
     if len(headers["authorization"].split(" ")) != 2:
         return empty_token()
     return None
+
+def image_invalid():
+    return JSONResponse(status_code=422, content={"message": "The provided image is invalid"})

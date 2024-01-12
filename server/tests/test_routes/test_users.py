@@ -1,4 +1,6 @@
 import json
+import random
+import string
 import asyncpg
 import pytest
 import requests
@@ -150,12 +152,24 @@ async def test_get_specific_user():
     assert response.status_code == 200
 
 @pytest.mark.order(4)
+def test_update_profile_without_token():
+    response = requests.put('https://back-matcha.pandeo.fr/user/profile')
+    assert response.status_code == 401
+    assert response.json() == {'message': 'Authentication is required'}
+
+@pytest.mark.order(4)
+def test_update_profile_random():
+    response = requests.put('https://back-matcha.pandeo.fr/user/profile', headers=generate_token())
+    assert response.status_code == 400
+    assert response.json() == {'message': "Missing key(s): "}
+
+@pytest.mark.order(100)
 def test_logout_without_token():
     response = requests.post("https://back-matcha.pandeo.fr/user/logout")
     assert response.status_code == 401
     assert response.json() == {'message': 'Authentication is required'}
 
-@pytest.mark.order(4)
+@pytest.mark.order(100)
 def test_logout():
     response = requests.post("https://back-matcha.pandeo.fr/user/logout", headers={"authorization": "Bearer %s" % generate_token()})
     assert response.status_code == 200

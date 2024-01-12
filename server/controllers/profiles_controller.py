@@ -18,4 +18,6 @@ async def get_profiles(request: Request, db=Depends(get_database)):
     user = await search_user_by_token(db, token)
     if not user:
         return authentication_required()
+    if user["completion"] < 2:
+        return incomplete_profile()
     return await get_profiles_unfiltered(db, user)
