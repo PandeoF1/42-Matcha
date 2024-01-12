@@ -2,7 +2,11 @@ import { useEffect } from "react"
 import instance from "../api/Instance"
 import { useNavigate } from "react-router-dom"
 
-const HomePage = () => {
+interface HomePageProps {
+    setErrorAlert: (message: string) => void    
+}
+
+const HomePage = ({setErrorAlert} : HomePageProps) => {
     const navigate = useNavigate()
 
     useEffect(() => {

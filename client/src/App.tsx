@@ -4,10 +4,12 @@ import HomePage from './src/pages/Home';
 import RegisterPage from './src/pages/Register';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import Header from "./src/components/header";
+import Header from "./src/components/Header";
 import LoginPage from "./src/pages/Login";
 import ValidateEmailPage from "./src/pages/ValidateEmail";
 import ProfilePage from "./src/pages/Profile";
+import ErrorAlert from "./src/components/ErrorAlert";
+import { useState } from "react";
 
 const theme = createTheme({
   palette: {
@@ -28,19 +30,22 @@ const theme = createTheme({
 
 
 function App() {
+  const [errorAlert, setErrorAlert] = useState<string>("")
+
   return (
     <ThemeProvider theme={theme}>
       <div className="App w-100">
-        <Header />
         <Router>
+          <Header />
           <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={<HomePage setErrorAlert={setErrorAlert}/>} />
+            <Route path="/register" element={<RegisterPage setErrorAlert={setErrorAlert}/>} />
+            <Route path="/login" element={<LoginPage setErrorAlert={setErrorAlert}/>} />
             <Route path="/validate-email/:id" element={<ValidateEmailPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile" element={<ProfilePage setErrorAlert={setErrorAlert}/>} />
             <Route path="*" element={<h1>Not Found</h1>} />
           </Routes>
+          <ErrorAlert errorAlert={errorAlert} setErrorAlert={setErrorAlert}/>
         </Router>
       </div>
     </ThemeProvider >

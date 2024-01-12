@@ -1,4 +1,4 @@
-import { Button, Card, Chip, CircularProgress, FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography } from "@mui/material"
+import { Badge, Button, Card, Chip, CircularProgress, FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography } from "@mui/material"
 import { UpdateForm } from "./models/UpdateForm"
 import { useEffect, useState } from "react"
 import _ from "lodash"
@@ -9,9 +9,13 @@ import instance from "../api/Instance"
 import { useNavigate } from "react-router-dom"
 import { LoadingButton } from "@mui/lab"
 import { UserModel } from "./models/UserModel"
+import ErrorAlert from "../components/ErrorAlert"
 
+interface ProfilePageProps {
+    setErrorAlert: (message: string) => void
+}
 
-const ProfilePage = () => {
+const ProfilePage = ({ setErrorAlert }: ProfilePageProps) => {
     const [formBackup, setFormBackup] = useState<UpdateForm>({
         firstName: '', lastName: '', email: '', gender: '', orientation: '', bio: '', age: 18, tags: {}, images: []
     })
@@ -40,6 +44,12 @@ const ProfilePage = () => {
         setForm({ ...form, [event.target.name]: parseInt(event.target.value) })
     }
 
+    const handleDeleteImg = (index: number) => {
+        const images = _.cloneDeep(form.images)
+        images.splice(index, 1)
+        setForm({ ...form, images })
+    }
+
     const handleTagChange = (key: string, value: boolean) => {
         const tags = _.cloneDeep(form.tags)
         if (Object.keys(tags).includes(key)) {
@@ -54,7 +64,7 @@ const ProfilePage = () => {
             for (let i = 0; i < res.data.images.length; i++) {
                 imgLoadingArray.push(i)
             }
-            const { id, username, completion, geoloc, ...filteredData } = res.data
+            const { id, username, geoloc, completion, ...filteredData } = res.data
             setFormBackup(filteredData)
             setForm(filteredData)
             setIsPageLoading(false)
@@ -72,29 +82,27 @@ const ProfilePage = () => {
                 'Content-Type': 'multipart/form-data',
             }
         }).then((res) => {
-            const images = _.cloneDeep(form.images)
-            images.push(res.data.url)
-            setForm({ ...form, images })
+            setForm(prev => ({ ...prev, images: [...prev.images].concat(res.data.url) }))
         }).catch(() => {
-            // TODO: show error
+            setErrorAlert("Could not upload image")
         })
     }
 
     const handleSubmit = async () => {
         setIsSubmitting(true)
-        await instance.put('/user', form).then(() => {
+        let formToSend = _.cloneDeep(form)
+        if (!formToSend.bio) {
+            formToSend.bio = " "
+        }
+        await instance.put('/user', formToSend).then(() => {
             setFormBackup(form)
             getUser()
         }).catch(() => {
-            //TODO : show error
+            setErrorAlert("An error occured, please try again later")
         }).finally(() => {
             setIsSubmitting(false)
         })
     }
-
-    useEffect(() => {
-        console.log(form)
-    }, [form])
 
     const onChangeImg = async (files: FileList | null) => {
 
@@ -119,8 +127,8 @@ const ProfilePage = () => {
 
     return (
         <div className="RegisterPage container">
-            <div className="row justify-content-center p-4">
-                {isPageLoading ? <CircularProgress color="secondary" /> :
+            {isPageLoading ? <CircularProgress color="secondary" className="mt-4" /> :
+                <div className="row justify-content-center p-4">
                     <Card className="col-xs-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 col-xxl-4 p-4">
                         <div className="row justify-content-center">
                             <h5 className="fw-bold">PROFILE</h5>
@@ -131,14 +139,17 @@ const ProfilePage = () => {
                                     return (
                                         <Grid item xs={6} sm={4} className="mt-3 imgMosaicContainer" key={index}>
                                             {imgAreLoading.includes(index) && <CircularProgress color="secondary" />}
-                                            <img src={image} alt="profile" className="imgMosaic" onError={(e) => { e.currentTarget.src = goose }} onLoad={() => { setImgAreLoading(prev => prev.filter((value) => value !== index)) }} style={{ display: imgAreLoading.includes(index) ? "none" : "block" }} />
+                                            <Badge color="error" badgeContent={<p className="badgeCross">x</p>} role="button" className="cursor-pointer" style={{ display: isSubmitting || imgAreLoading.includes(index) ? "none" : "block" }} onClick={() => handleDeleteImg(index)}>
+                                                <img src={image} alt="profile" className="imgMosaic" onError={(e) => { e.currentTarget.src = goose }} onLoad={() => { setImgAreLoading(prev => prev.filter((value) => value !== index)) }} />
+                                            </Badge>
                                         </Grid>
                                     )
                                 })}
-                                <Grid item xs={6} sm={4} className="mt-3 imgMosaicContainer">
-                                    <img src={addImage} alt="Click to upload" className="imgMosaic" onClick={() => document.getElementById("imgInput")?.click()} />
-                                    <input multiple id="imgInput" type="file" accept=".jpg, .jpeg, .png" onChange={(event) => onChangeImg(event.target.files)} style={{ display: "none" }} disabled={isSubmitting} />
-                                </Grid>
+                                {form.images.length < 5 &&
+                                    <Grid item xs={6} sm={4} className="mt-3 imgMosaicContainer">
+                                        <img src={addImage} alt="Click to upload" className="imgMosaic" onClick={() => document.getElementById("imgInput")?.click()} />
+                                        <input multiple id="imgInput" type="file" accept=".jpg, .jpeg, .png" onChange={(event) => onChangeImg(event.target.files)} style={{ display: "none" }} disabled={isSubmitting} />
+                                    </Grid>}
                             </Grid>
                         </div>
                         <hr className="w-100 mt-4" />
@@ -317,12 +328,12 @@ const ProfilePage = () => {
                                 style={{ width: "fit-content" }}
                                 onClick={() => navigate('/')}
                             >
-                                Cancel
+                                Close
                             </Button>
                             <LoadingButton
                                 variant="contained"
                                 color="primary"
-                                disabled={_.isEqual(form, formBackup) || emailError || firstnameError || lastnameError}
+                                disabled={_.isEqual(form, formBackup) || emailError || firstnameError || lastnameError || form.images.length < 1}
                                 loading={isSubmitting}
                                 size="medium"
                                 style={{ width: "fit-content" }}
@@ -331,8 +342,8 @@ const ProfilePage = () => {
                                 Save
                             </LoadingButton>
                         </div>
-                    </Card>}
-            </div>
+                    </Card>
+                </div>}
         </div>
     )
 }

@@ -78,3 +78,6 @@ def header_validator(headers):
 
 def image_invalid():
     return JSONResponse(status_code=422, content={"message": "The provided image is invalid"})
+
+def too_many_images():
+    return JSONResponse(status_code=422, content={"message": "You can only upload 5 images"})

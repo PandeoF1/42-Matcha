@@ -6,8 +6,11 @@ import validator from 'validator'
 import instance from "../api/Instance"
 import { useNavigate } from "react-router-dom"
 
+interface RegisterPageProps {
+    setErrorAlert: (message: string) => void    
+}
 
-const RegisterPage = () => {
+const RegisterPage = ({setErrorAlert} : RegisterPageProps) => {
     const [form, setForm] = useState<RegisterForm>({ firstName: '', lastName: '', username: '', password: '', email: '' })
     const [isLoading, setIsLoading] = useState(false)
     const emailError = !!form.email.length && (validator.isEmail(form.email) ? false : true)
@@ -52,11 +55,11 @@ const RegisterPage = () => {
     }
 
     return (
-        <div className="RegisterPage container">
-            <div className="row justify-content-center p-4">
+        <div className="registerPage container">
+            <div className="row justify-content-center p-4 w-100">
                 <Card className="col-xs-12 col-sm-8 col-md-6 col-lg-5 col-xl-4 col-xxl-3 p-4">
-                    <div className="row justify-content-center">
-                        <div className="col-6">
+                    <div className="row justify-content-center ">
+                        <div className="col-12">
                             <TextField
                                 error={firstnameError}
                                 value={form.firstName}
@@ -66,13 +69,15 @@ const RegisterPage = () => {
                                 required
                                 id="firstName"
                                 label="First name"
-                                helperText={firstnameError ? 'firstname must be between 3 and 16 characters long and contain only letters' : ''}
+                                helperText={firstnameError ? 'Firstname must be between 3 and 16 characters long and contain only letters' : ''}
                                 variant="outlined"
                                 color="primary"
-                                inputProps={{style: { color: 'black' }, maxLength: 16}}
+                                inputProps={{ style: { color: 'black' }, maxLength: 16 }}
                             />
                         </div>
-                        <div className="col-6">
+                    </div>
+                    <div className="row justify-content-center pt-3">
+                        <div className="col-12">
                             <TextField
                                 error={lastnameError}
                                 value={form.lastName}
@@ -82,10 +87,10 @@ const RegisterPage = () => {
                                 required
                                 id="lastName"
                                 label="Last name"
-                                helperText={lastnameError ? 'last name must be between 3 and 16 characters long and contain only letters' : ''}
+                                helperText={lastnameError ? 'Last name must be between 3 and 16 characters long and contain only letters' : ''}
                                 variant="outlined"
                                 color="primary"
-                                inputProps={{style: { color: 'black' }, maxLength: 16}}
+                                inputProps={{ style: { color: 'black' }, maxLength: 16 }}
                             />
                         </div>
                     </div>
@@ -100,10 +105,10 @@ const RegisterPage = () => {
                                 required
                                 id="username"
                                 label="Username"
-                                helperText={usernameError ? 'username must be between 3 and 16 characters long and contain only letters and numbers' : ''}
+                                helperText={usernameError ? 'Username must be between 3 and 16 characters long and contain only letters and numbers' : ''}
                                 variant="outlined"
                                 color="primary"
-                                inputProps={{style: { color: 'black' }, maxLength: 16}}
+                                inputProps={{ style: { color: 'black' }, maxLength: 16 }}
                             />
                         </div>
                     </div>
@@ -121,7 +126,7 @@ const RegisterPage = () => {
                                 helperText={emailError ? 'Invalid email' : ''}
                                 variant="outlined"
                                 color="primary"
-                                inputProps={{style: { color: 'black' }, maxLength: 320}}
+                                inputProps={{ style: { color: 'black' }, maxLength: 320 }}
                             />
                         </div>
                     </div>
@@ -146,20 +151,27 @@ const RegisterPage = () => {
                                         handleSubmit()
                                     }
                                 }}
-                                inputProps={{style: { color: 'black' }, maxLength: 30}}
+                                inputProps={{ style: { color: 'black' }, maxLength: 30 }}
                             />
                         </div>
                     </div>
                     <div className="row justify-content-center pt-3">
-                        <LoadingButton
-                            variant="contained"
-                            color="primary"
-                            loading={isLoading}
-                            size="large"
-                            onClick={() => handleSubmit()}
-                        >
-                            Register
-                        </LoadingButton>
+                        <div className="col-12">
+                            <LoadingButton
+                                variant="contained"
+                                color="primary"
+                                className="w-100"
+                                disabled={emailError || passwordError || usernameError || firstnameError || lastnameError || !form.email.length || !form.password.length || !form.username.length || !form.firstName.length || !form.lastName.length}
+                                loading={isLoading}
+                                size="large"
+                                onClick={() => handleSubmit()}
+                            >
+                                Register
+                            </LoadingButton>
+                        </div>
+                    </div>
+                    <div className="row justify-content-center pt-3">
+                        Already registered ? <p onClick={() => navigate("/login")} style={{width : "fit-content", paddingLeft : "4px", cursor : "pointer", color : "#ff6e00", marginBottom : "0px"}}>Login</p>
                     </div>
                 </Card>
             </div>

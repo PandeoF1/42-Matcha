@@ -41,10 +41,10 @@ const ValidateEmailPage = () => {
         }
     }, [navigate, params])
     return (
-        <div className="ValidateEmailPage container">
+        <div className="validateEmailPage container">
             <div className="row justify-content-center p-4">
                 <div className="col-12">
-                    {status ? <h1>Email confirmed, you will be redirected to login in {count} seconds</h1> : <CircularProgress color="secondary" />}
+                    {status ? <h4>Request confirmed, you will be redirected to login in {count} seconds</h4> : <CircularProgress color="secondary" />}
                 </div>
             </div>
         </div>

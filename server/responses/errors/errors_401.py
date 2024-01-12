@@ -51,9 +51,9 @@ def user_blocked_you():
         status_code=401, content={"message": "You have been blocked by this user"}
     )
 
-def user_skiped():
+def user_skipped():
     return JSONResponse(
-        status_code=401, content={"message": "You already skiped this user"}
+        status_code=401, content={"message": "You already skipped this user"}
     )
 
 def not_liked():
@@ -61,7 +61,27 @@ def not_liked():
         status_code=401, content={"message": "You didn't like this user"}
     )
 
-def not_skiped():
+def not_skipped():
     return JSONResponse(
         status_code=401, content={"message": "You didn't skip this user"}
+    )
+
+def invalid_orientation():
+    return JSONResponse(
+        status_code=401, content={"message": "Invalid orientation"}
+    )
+
+def invalid_gender():
+    return JSONResponse(
+        status_code=401, content={"message": "Invalid gender"}
+    )
+
+def update_failed():
+    return JSONResponse(
+        status_code=401, content={"message": "Update failed"}
+    )
+
+def user_not_blocked():
+    return JSONResponse(
+        status_code=401, content={"message": "You didn't block this user"}
     )

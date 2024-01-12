@@ -153,15 +153,24 @@ async def test_get_specific_user():
 
 @pytest.mark.order(4)
 def test_update_profile_without_token():
-    response = requests.put('https://back-matcha.pandeo.fr/user/profile')
+    data = {"email": "%s@nofoobar.com" % str, "lastName": "Theo", "firstName": "Nard", "images": ["https://back-matcha.pandeo.fr/image/0c86c1d7-2b84-453e-9a32-978d576fc552"], "bio": "Oui", "tags": { "vegan": True }, "age": 20, "orientation": "heterosexual", "gender": "male"}
+    response = requests.put('https://back-matcha.pandeo.fr/user', json.dumps(data))
     assert response.status_code == 401
     assert response.json() == {'message': 'Authentication is required'}
 
 @pytest.mark.order(4)
 def test_update_profile_random():
-    response = requests.put('https://back-matcha.pandeo.fr/user/profile', headers=generate_token())
+    response = requests.put('https://back-matcha.pandeo.fr/user', "{}", headers={"authorization": "Bearer %s" % generate_token()})
+    print(response.json())
     assert response.status_code == 400
-    assert response.json() == {'message': "Missing key(s): "}
+    assert response.json() == {'message': "Missing key(s): ['email', 'lastName', 'firstName', 'images', 'bio', 'tags', 'orientation', 'gender']"}
+
+@pytest.mark.order(4)
+def test_update_profile():
+    data = {"email": "%s@nofoobar.com" % str, "lastName": "Theo", "firstName": "Nard", "images": ["https://back-matcha.pandeo.fr/image/0c86c1d7-2b84-453e-9a32-978d576fc552"], "bio": "Oui", "tags": { "vegan": True }, "age": 20, "orientation": "heterosexual", "gender": "male"}
+    response = requests.put('https://back-matcha.pandeo.fr/user', json.dumps(data), headers={"authorization": "Bearer %s" % generate_token()})
+    assert response.status_code == 200
+    assert response.json() == {'message': "Your profile has been updated"}
 
 @pytest.mark.order(100)
 def test_logout_without_token():

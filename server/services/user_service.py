@@ -24,7 +24,7 @@ def strip_user(user):
         "username": user["username"],
         "firstName": user["first_name"],
         "lastName": user["last_name"],
-        "images": user["images"],
+        "images": user["images"] if user["images"] else [],
         "completion": user["completion"],
         "gender": user["gender"],
         "orientation": user["orientation"],
@@ -158,9 +158,12 @@ async def validate_email(db, body):
         result = await db.fetchrow("""SELECT * FROM email_validation WHERE id = $1""", token_id)
         if not result:
             return invalid_email_token()
-        if result["type"] != "email_validation":
+        if result["type"] != "email_validation" and result["type"] != "email_change":
             return invalid_email_token()
-        await db.execute("""UPDATE users SET completion = 1 WHERE id = $1""", result["user_id"])
+        if result["type"] == "email_change":
+            await db.execute("""UPDATE users SET email = $1 WHERE id = $2""", result["value"], result["user_id"])
+        else:
+            await db.execute("""UPDATE users SET completion = 1 WHERE id = $1""", result["user_id"])
         await db.execute("""DELETE FROM email_validation WHERE id = $1""", token_id)
         return email_validated()
     except Exception as e:
@@ -268,12 +271,26 @@ async def update_user(db, user, body):
             return check_first_name(body["firstName"])
         if check_last_name(body["lastName"]) is not None:
             return check_last_name(body["lastName"])
+        if body["images"] != user["images"]:
+            for image in body["images"]:
+                if URL_BACK not in image:
+                    return image_invalid()
+            if len(body["images"]) > 5:
+                return too_many_images()
+        if body["orientation"] != user["orientation"]:
+            if body["orientation"] != "biseuxal" and body["orientation"] != "heterosexual" and body["orientation"] != "homosexual":
+                return invalid_orientation()
+        if body["gender"] != user["gender"]:
+            if body["gender"] != "male" and body["gender"] != "female":
+                return invalid_gender()
         if body["email"] != user["email"]:
             email = await db.fetchrow(
                     """SELECT id, email FROM users WHERE email = $1""", body["email"]
                 )
             if email:
                 return email_already_exists()
+            # Delete last email validation token
+            await db.execute("""DELETE FROM email_validation WHERE user_id = $1 AND type = 'email_change'""", user["id"])
             # Create email validation token
             token_id = "".join(random.choices(string.ascii_uppercase + string.digits + string.ascii_lowercase, k=64))
             await db.execute(
@@ -284,23 +301,12 @@ async def update_user(db, user, body):
                     "email_change",
                     body["email"]
                 )
-            await send_email(user["email"], "Email change", "You asked for an email change, please click on the following link to validate your new email address: " + str(URL_FRONT) + "change-email/" + token_id)
-        if body["firstName"] != user["first_name"]:
-            await db.execute("""UPDATE users SET first_name = $1 WHERE id = $2""", body["firstName"], user["id"])
-        if body["lastName"] != user["last_name"]:
-            await db.execute("""UPDATE users SET last_name = $1 WHERE id = $2""", body["lastName"], user["id"])
-        if body["images"] != user["images"]:
-            for image in body["images"]:
-                if URL_BACK not in image:
-                    return image_invalid()
-            await db.execute("""UPDATE users SET images = $1 WHERE id = $2""", body["images"], user["id"])
-        if body["bio"] != user["bio"]:
-            await db.execute("""UPDATE users SET bio = $1 WHERE id = $2""", body["bio"], user["id"])
-        if json.dumps(body["tags"]) != json.dumps(user["tags"]):
-            await db.execute("""UPDATE users SET tags = $1 WHERE id = $2""", json.dumps(body["tags"]), user["id"])
+            await send_email(user["email"], "Email change", "You asked for an email change, please click on the following link to validate your new email address: " + str(URL_FRONT) + "validate-email/" + token_id)
+        await db.execute("""UPDATE users SET first_name = $1, last_name = $2, age = $3, orientation = $4, gender = $5, bio = $6, tags = $7, images = $8 WHERE id = $9""", body["firstName"], body["lastName"], body["age"], body["orientation"], body["gender"], body["bio"], json.dumps(body["tags"]), body["images"],user["id"])
         return update_success()
     except Exception as e:
         print(e)
+        return update_failed()
 
 async def is_liked(db, origin, recipient):
     try:
@@ -320,7 +326,7 @@ async def is_blocked(db, origin, recipient):
     except Exception:
         return False
 
-async def is_skiped(db, origin, recipient):
+async def is_skipped(db, origin, recipient):
     try:
         result = await db.fetchrow("""SELECT * FROM interactions WHERE origin = $1 AND recipient = $2 AND type = 'skip'""", origin["id"], recipient["id"])
         if not result:
@@ -337,8 +343,8 @@ async def like(db, origin, recipient):
             return user_blocked()
         if await is_blocked(db, recipient, origin):
             return user_blocked_you()
-        if await is_skiped(db, origin, recipient):
-            return user_skiped()
+        if await is_skipped(db, origin, recipient):
+            return user_skipped()
         id = str(uuid.uuid4())
         await db.execute("""INSERT INTO interactions (id, origin, recipient, type, date) VALUES ($1, $2, $3, $4, $5)""", id, origin["id"], recipient["id"], "like", datetime.datetime.now().timestamp())
         print("send notification")
@@ -368,8 +374,10 @@ async def skip(db, origin, recipient):
             return user_blocked()
         if await is_blocked(db, recipient, origin):
             return user_blocked_you()
-        if await is_skiped(db, origin, recipient):
-            return user_skiped()
+        if await is_skipped(db, origin, recipient):
+            return user_skipped()
+        if await is_liked(db, origin, recipient):
+            return already_liked()
         id = str(uuid.uuid4())
         await db.execute("""INSERT INTO interactions (id, origin, recipient, type, date) VALUES ($1, $2, $3, $4, $5)""", id, origin["id"], recipient["id"], "skip", datetime.datetime.now().timestamp())
         return skip_success()
@@ -378,9 +386,39 @@ async def skip(db, origin, recipient):
 
 async def unskip(db, origin, recipient):
     try:
-        if not await is_skiped(db, origin, recipient):
-            return not_skiped()
+        if not await is_skipped(db, origin, recipient):
+            return not_skipped()
         await db.execute("""DELETE FROM interactions WHERE origin = $1 AND recipient = $2 AND type = 'skip'""", origin["id"], recipient["id"])
         return unskip_success()
+    except Exception as e:
+        print(e)
+
+async def block(db, origin, recipient):
+    try:
+        if await is_blocked(db, origin, recipient):
+            return user_blocked()
+        if await is_blocked(db, recipient, origin):
+            return user_blocked_you()
+        id = str(uuid.uuid4())
+        await db.execute("""INSERT INTO interactions (id, origin, recipient, type, date) VALUES ($1, $2, $3, $4, $5)""", id, origin["id"], recipient["id"], "block", datetime.datetime.now().timestamp())
+        return block_success()
+    except Exception as e:
+        print(e)
+
+async def unblock(db, origin, recipient):
+    try:
+        if not await is_blocked(db, origin, recipient):
+            return user_not_blocked()
+        await db.execute("""DELETE FROM interactions WHERE origin = $1 AND recipient = $2 AND type = 'block'""", origin["id"], recipient["id"])
+        return unblock_success()
+    except Exception as e:
+        print(e)
+
+async def report(db, origin, recipient):
+    try:
+#        id = str(uuid.uuid4())
+#        await db.execute("""INSERT INTO interactions (id, origin, recipient, type, date) VALUES ($1, $2, $3, $4, $5)""", id, origin["id"], recipient["id"], "report", datetime.datetime.now().timestamp())
+        await send_email("theo.nard18@gmail.com", "Report", "User " + origin["username"] + " reported user " + recipient["username"])
+        return report_success()
     except Exception as e:
         print(e)

@@ -57,3 +57,18 @@ def unskip_success():
     return JSONResponse(
         status_code=200, content={"message": "You successfully unskipped this user", "status": "unskip"}
     )
+
+def block_success():
+    return JSONResponse(
+        status_code=200, content={"message": "You successfully blocked this user", "status": "block"}
+    )
+
+def unblock_success():
+    return JSONResponse(
+        status_code=200, content={"message": "You successfully unblocked this user", "status": "unblock"}
+    )
+
+def report_success():
+    return JSONResponse(
+        status_code=200, content={"message": "You successfully reported this user", "status": "report"}
+    )
