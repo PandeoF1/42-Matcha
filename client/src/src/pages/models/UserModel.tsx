@@ -1,4 +1,6 @@
-export interface UpdateForm {
+export interface UserModel {
+    id : string
+    username: string
     firstName: string
     lastName: string
     email: string
@@ -8,4 +10,6 @@ export interface UpdateForm {
     age : number
     tags: {[key: string]: boolean}
     images: string[]
+    completion : number
+    geoloc : string
 }

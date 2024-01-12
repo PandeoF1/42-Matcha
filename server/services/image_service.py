@@ -13,6 +13,5 @@ async def image_upload(db, user, form):
     if magic.from_buffer(image, mime=True) != 'image/jpeg' and magic.from_buffer(image, mime=True) != 'image/png':
         return image_invalid()
     id = uuid.uuid4()
-    print('type: ', type(image))
     await db.execute("INSERT INTO images (id, user_id, image) VALUES ($1, $2, $3)", id, user['id'], image)
     return image_success(url = f"{URL_BACK}image/{id}")

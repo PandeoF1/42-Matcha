@@ -37,3 +37,23 @@ def session(user_id):
     return JSONResponse(
         status_code=200, content={"message": "The current session is valid", "user_id": user_id}
     )
+
+def unlike_success():
+    return JSONResponse(
+        status_code=200, content={"message": "You successfully unliked this user", "status": "unlike"}
+    )
+
+def update_success():
+    return JSONResponse(
+        status_code=200, content={"message": "Your profile has been updated"}
+    )
+
+def skip_success():
+    return JSONResponse(
+        status_code=200, content={"message": "You successfully skipped this user", "status": "skip"}
+    )
+
+def unskip_success():
+    return JSONResponse(
+        status_code=200, content={"message": "You successfully unskipped this user", "status": "unskip"}
+    )

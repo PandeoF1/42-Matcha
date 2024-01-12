@@ -18,9 +18,9 @@ async def register(request: Request, db=Depends(get_database)):
     return await create_user(db, data["body"])
 
 @user_controller.put("")
-async def porfile(request: Request, db=Depends(get_database)):
+async def profile(request: Request, db=Depends(get_database)):
     data = await parse_request(request)
-    validator = body_validator(data["body"], ["email", "username", "lastName", "firstName", "images"])
+    validator = body_validator(data["body"], ["email", "lastName", "firstName", "images", "bio", "tags"])
     if validator is not None:
         return validator
     token = get_token(data["headers"])
@@ -99,3 +99,19 @@ async def like_user(id, request: Request, db=Depends(get_database)):
     if origin["id"] == recipient["id"]:
         return no_self_interact()
     return await like(db, origin, recipient)
+
+@user_controller.delete("/{id}/like")
+async def unlike_user(id, request: Request, db=Depends(get_database)):
+    data = await parse_request(request)
+    token = get_token(data["headers"])
+    if token is None:
+        return empty_token()
+    origin = await search_user_by_token(db, token)
+    if not origin:
+        return authentication_required()
+    recipient = await search_user_by_id(db, id)
+    if not recipient:
+        return user_not_found()
+    if origin["id"] == recipient["id"]:
+        return no_self_interact()
+    return await unlike(db, origin, recipient)

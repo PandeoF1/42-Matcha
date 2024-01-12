@@ -35,3 +35,33 @@ def no_self_interact():
     return JSONResponse(
         status_code=401, content={"message": "You can't interact with yourself"}
     )
+
+def already_liked():
+    return JSONResponse(
+        status_code=401, content={"message": "You already liked this user"}
+    )
+
+def user_blocked():
+    return JSONResponse(
+        status_code=401, content={"message": "You have blocked this user"}
+    )
+
+def user_blocked_you():
+    return JSONResponse(
+        status_code=401, content={"message": "You have been blocked by this user"}
+    )
+
+def user_skiped():
+    return JSONResponse(
+        status_code=401, content={"message": "You already skiped this user"}
+    )
+
+def not_liked():
+    return JSONResponse(
+        status_code=401, content={"message": "You didn't like this user"}
+    )
+
+def not_skiped():
+    return JSONResponse(
+        status_code=401, content={"message": "You didn't skip this user"}
+    )

@@ -5,7 +5,8 @@ from responses.errors.errors_400 import *
 from responses.errors.errors_409 import *
 from responses.errors.errors_422 import *
 from responses.errors.errors_401 import *
-from constants.domain import URL_FRONT
+from constants.domain import URL_BACK, URL_FRONT
+from responses.errors.errors_404 import user_not_found
 from services.email_service import *
 import re
 import datetime
@@ -260,12 +261,126 @@ async def logout_user(db, token):
         print(e)
 
 async def update_user(db, user, body):
-    print(body)
+    try:
+        if check_email(body["email"]) is not None:
+            return check_email(body["email"])
+        if check_first_name(body["firstName"]) is not None:
+            return check_first_name(body["firstName"])
+        if check_last_name(body["lastName"]) is not None:
+            return check_last_name(body["lastName"])
+        if body["email"] != user["email"]:
+            email = await db.fetchrow(
+                    """SELECT id, email FROM users WHERE email = $1""", body["email"]
+                )
+            if email:
+                return email_already_exists()
+            # Create email validation token
+            token_id = "".join(random.choices(string.ascii_uppercase + string.digits + string.ascii_lowercase, k=64))
+            await db.execute(
+                    """INSERT INTO email_validation (id, creation_date, user_id, type, value) VALUES ($1, $2, $3, $4, $5)""",
+                    token_id,
+                    datetime.datetime.now(),
+                    user["id"],
+                    "email_change",
+                    body["email"]
+                )
+            await send_email(user["email"], "Email change", "You asked for an email change, please click on the following link to validate your new email address: " + str(URL_FRONT) + "change-email/" + token_id)
+        if body["firstName"] != user["first_name"]:
+            await db.execute("""UPDATE users SET first_name = $1 WHERE id = $2""", body["firstName"], user["id"])
+        if body["lastName"] != user["last_name"]:
+            await db.execute("""UPDATE users SET last_name = $1 WHERE id = $2""", body["lastName"], user["id"])
+        if body["images"] != user["images"]:
+            for image in body["images"]:
+                if URL_BACK not in image:
+                    return image_invalid()
+            await db.execute("""UPDATE users SET images = $1 WHERE id = $2""", body["images"], user["id"])
+        if body["bio"] != user["bio"]:
+            await db.execute("""UPDATE users SET bio = $1 WHERE id = $2""", body["bio"], user["id"])
+        if json.dumps(body["tags"]) != json.dumps(user["tags"]):
+            await db.execute("""UPDATE users SET tags = $1 WHERE id = $2""", json.dumps(body["tags"]), user["id"])
+        return update_success()
+    except Exception as e:
+        print(e)
+
+async def is_liked(db, origin, recipient):
+    try:
+        result = await db.fetchrow("""SELECT * FROM interactions WHERE origin = $1 AND recipient = $2 AND type = 'like'""", origin["id"], recipient["id"])
+        if not result:
+            return False
+        return True
+    except Exception:
+        return False
+
+async def is_blocked(db, origin, recipient):
+    try:
+        result = await db.fetchrow("""SELECT * FROM interactions WHERE origin = $1 AND recipient = $2 AND type = 'block'""", origin["id"], recipient["id"])
+        if not result:
+            return False
+        return True
+    except Exception:
+        return False
+
+async def is_skiped(db, origin, recipient):
+    try:
+        result = await db.fetchrow("""SELECT * FROM interactions WHERE origin = $1 AND recipient = $2 AND type = 'skip'""", origin["id"], recipient["id"])
+        if not result:
+            return False
+        return True
+    except Exception:
+        return False
 
 async def like(db, origin, recipient):
     try:
-        # Check if already liked
-        result = await db.fetchrow("""SELECT * FROM interactions WHERE (origin = $1 OR recipient = $2) AND type = 'like'""", origin, recipient)
-        print(result)
+        if await is_liked(db, origin, recipient):
+            return already_liked()
+        if await is_blocked(db, origin, recipient):
+            return user_blocked()
+        if await is_blocked(db, recipient, origin):
+            return user_blocked_you()
+        if await is_skiped(db, origin, recipient):
+            return user_skiped()
+        id = str(uuid.uuid4())
+        await db.execute("""INSERT INTO interactions (id, origin, recipient, type, date) VALUES ($1, $2, $3, $4, $5)""", id, origin["id"], recipient["id"], "like", datetime.datetime.now().timestamp())
+        print("send notification")
+        # send notification
+        if await is_liked(db, recipient, origin) and await is_liked(db, origin, recipient):
+            return match_success()
+        return like_success()
+    except Exception as e:
+        print(e)
+
+async def unlike(db, origin, recipient):
+    try:
+        if not await is_liked(db, origin, recipient):
+            return not_liked()
+        if await is_liked(db, recipient, origin):
+            print("unmatched delete chat")
+            # remove chat
+
+        await db.execute("""DELETE FROM interactions WHERE origin = $1 AND recipient = $2 AND type = 'like'""", origin["id"], recipient["id"])
+        return unlike_success()
+    except Exception as e:
+        print(e)
+
+async def skip(db, origin, recipient):
+    try:
+        if await is_blocked(db, origin, recipient):
+            return user_blocked()
+        if await is_blocked(db, recipient, origin):
+            return user_blocked_you()
+        if await is_skiped(db, origin, recipient):
+            return user_skiped()
+        id = str(uuid.uuid4())
+        await db.execute("""INSERT INTO interactions (id, origin, recipient, type, date) VALUES ($1, $2, $3, $4, $5)""", id, origin["id"], recipient["id"], "skip", datetime.datetime.now().timestamp())
+        return skip_success()
+    except Exception as e:
+        print(e)
+
+async def unskip(db, origin, recipient):
+    try:
+        if not await is_skiped(db, origin, recipient):
+            return not_skiped()
+        await db.execute("""DELETE FROM interactions WHERE origin = $1 AND recipient = $2 AND type = 'skip'""", origin["id"], recipient["id"])
+        return unskip_success()
     except Exception as e:
         print(e)

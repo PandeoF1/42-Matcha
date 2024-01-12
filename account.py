@@ -26,7 +26,7 @@ async def randomize():
     users = await db.fetch("SELECT id FROM users")
     for user in users:
         geoloc = "%s,%s" % (random.uniform(48.8, 48.9), random.uniform(2.3, 2.4))
-        age = random.randint(18, 50)
+        age = random.randint(18, 99)
         elo = random.randint(0, 100)
         # gender
         if (random.randint(0,1)):
@@ -51,6 +51,6 @@ async def randomize():
         
 
 if __name__ == "__main__":
-    for i in range(10):
-        asyncio.run(test_register())
+#    for i in range(10):
+#        asyncio.run(test_register())
     asyncio.run(randomize())
