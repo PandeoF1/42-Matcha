@@ -9,13 +9,13 @@ import instance from "../api/Instance"
 import { useNavigate } from "react-router-dom"
 import { LoadingButton } from "@mui/lab"
 import { UserModel } from "./models/UserModel"
-import ErrorAlert from "../components/ErrorAlert"
 
 interface ProfilePageProps {
     setErrorAlert: (message: string) => void
+    setSuccessAlert: (message: string) => void
 }
 
-const ProfilePage = ({ setErrorAlert }: ProfilePageProps) => {
+const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
     const [formBackup, setFormBackup] = useState<UpdateForm>({
         firstName: '', lastName: '', email: '', gender: '', orientation: '', bio: '', age: 18, tags: {}, images: []
     })
@@ -90,15 +90,16 @@ const ProfilePage = ({ setErrorAlert }: ProfilePageProps) => {
 
     const handleSubmit = async () => {
         setIsSubmitting(true)
-        let formToSend = _.cloneDeep(form)
+        const formToSend = _.cloneDeep(form)
         if (!formToSend.bio) {
             formToSend.bio = " "
         }
         await instance.put('/user', formToSend).then(() => {
             setFormBackup(form)
+            setSuccessAlert("Profile updated")
             getUser()
-        }).catch(() => {
-            setErrorAlert("An error occured, please try again later")
+        }).catch((err) => {
+            setErrorAlert(err.response.data.message)
         }).finally(() => {
             setIsSubmitting(false)
         })
@@ -140,7 +141,7 @@ const ProfilePage = ({ setErrorAlert }: ProfilePageProps) => {
                                         <Grid item xs={6} sm={4} className="mt-3 imgMosaicContainer" key={index}>
                                             {imgAreLoading.includes(index) && <CircularProgress color="secondary" />}
                                             <Badge color="error" badgeContent={<p className="badgeCross">x</p>} role="button" className="cursor-pointer" style={{ display: isSubmitting || imgAreLoading.includes(index) ? "none" : "block" }} onClick={() => handleDeleteImg(index)}>
-                                                <img src={image} alt="profile" className="imgMosaic" onError={(e) => { e.currentTarget.src = goose }} onLoad={() => { setImgAreLoading(prev => prev.filter((value) => value !== index)) }} />
+                                                <img src={image} alt="profile" className="imgMosaic" onError={(e) => { e.currentTarget.src = goose }} onLoad={() => { setImgAreLoading(prev => prev.filter((value) => value !== index)) }} loading="lazy" />
                                             </Badge>
                                         </Grid>
                                     )

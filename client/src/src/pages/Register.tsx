@@ -7,10 +7,11 @@ import instance from "../api/Instance"
 import { useNavigate } from "react-router-dom"
 
 interface RegisterPageProps {
-    setErrorAlert: (message: string) => void    
+    setErrorAlert: (message: string) => void
+    setSuccessAlert: (message: string) => void
 }
 
-const RegisterPage = ({setErrorAlert} : RegisterPageProps) => {
+const RegisterPage = ({ setErrorAlert, setSuccessAlert }: RegisterPageProps) => {
     const [form, setForm] = useState<RegisterForm>({ firstName: '', lastName: '', username: '', password: '', email: '' })
     const [isLoading, setIsLoading] = useState(false)
     const emailError = !!form.email.length && (validator.isEmail(form.email) ? false : true)
@@ -45,9 +46,10 @@ const RegisterPage = ({setErrorAlert} : RegisterPageProps) => {
             setIsLoading(true)
             instance.post('/user', form).then(() => {
                 navigate('/login')
-                // Todo : show notif to ask email confirmation
+                setSuccessAlert('User registered, please check your email to confirm your account')
             }
-            ).catch(() => {
+            ).catch((err) => {
+                setErrorAlert(err.response.data.message)
             }).finally(() => {
                 setIsLoading(false)
             })
@@ -171,7 +173,7 @@ const RegisterPage = ({setErrorAlert} : RegisterPageProps) => {
                         </div>
                     </div>
                     <div className="row justify-content-center pt-3">
-                        Already registered ? <p onClick={() => navigate("/login")} style={{width : "fit-content", paddingLeft : "4px", cursor : "pointer", color : "#ff6e00", marginBottom : "0px"}}>Login</p>
+                        Already registered ? <p onClick={() => navigate("/login")} style={{ width: "fit-content", paddingLeft: "4px", cursor: "pointer", color: "#ff6e00", marginBottom: "0px" }}>Login</p>
                     </div>
                 </Card>
             </div>

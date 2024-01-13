@@ -12,20 +12,18 @@ const ValidateEmailPage = () => {
 
     useEffect(() => {
         if (!navigate || !params) return;
-        let intervalId : number = 0;
+        let intervalId: number = 0;
         const checkToken = async (token: string) => {
-            await instance.post('/email/confirm', {token: token}).then(() => {
-                // Todo : show success notif
+            await instance.post('/email/confirm', { token: token }).then(() => {
                 setStatus(true)
                 setTimeout(() => {
                     navigate('/login')
                 }, 5000)
                 intervalId = setInterval(() => {
-                    setCount((prevCount : number) => prevCount - 1)
+                    setCount((prevCount: number) => prevCount - 1)
                 }, 1000);
             }
             ).catch(() => {
-                // TODO: show error
                 if (localStorage.getItem("token")) {
                     navigate('/')
                 }

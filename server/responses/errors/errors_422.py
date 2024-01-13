@@ -29,3 +29,9 @@ def email_not_validated():
         status_code=422,
         content={"message": "The email was not validated, please check your email"},
     )
+
+def invalid_tags():
+    return JSONResponse(
+        status_code=422,
+        content={"message": "Invalid tags"},
+    )

@@ -6,10 +6,10 @@ import instance from "../api/Instance"
 import { useNavigate } from "react-router-dom"
 
 interface LoginPageProps {
-    setErrorAlert: (message: string) => void    
+    setErrorAlert: (message: string) => void
 }
 
-const LoginPage = ({setErrorAlert} : LoginPageProps) => {
+const LoginPage = ({ setErrorAlert }: LoginPageProps) => {
     const [form, setForm] = useState<LoginForm>({ username: '', password: '' })
     const [isLoading, setIsLoading] = useState(false)
 
@@ -41,8 +41,8 @@ const LoginPage = ({setErrorAlert} : LoginPageProps) => {
                 localStorage.setItem("token", res.data.token)
                 navigate('/')
             }
-            ).catch(() => {
-                // TODO: show error
+            ).catch((err) => {
+                setErrorAlert(err.response.data.message)
             }).finally(() => {
                 setIsLoading(false)
             })
@@ -107,7 +107,7 @@ const LoginPage = ({setErrorAlert} : LoginPageProps) => {
                         </div>
                     </div>
                     <div className="row justify-content-center pt-3">
-                        New here ? <p onClick={() => navigate("/register")}  style={{width : "fit-content", paddingLeft : "4px", cursor : "pointer", color : "#ff6e00", marginBottom : "0px"}}>Register</p>
+                        New here ? <p onClick={() => navigate("/register")} style={{ width: "fit-content", paddingLeft: "4px", cursor: "pointer", color: "#ff6e00", marginBottom: "0px" }}>Register</p>
                     </div>
                 </Card>
             </div>

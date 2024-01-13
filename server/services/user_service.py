@@ -127,6 +127,11 @@ async def create_user(db, body: dict):
         # print (users)
         if email:
             return email_already_exists()
+        email = await db.fetchrow(
+            """SELECT id FROM email_validation WHERE value = $1""", body["email"]
+        )
+        if email:
+            return email_already_exists()
         username = await db.fetchrow(
             """SELECT id, username FROM users WHERE username = $1""", body["username"]
         )
@@ -346,6 +351,14 @@ async def update_user(db, user, body):
                 and body["orientation"] != "homosexual"
             ):
                 return invalid_orientation()
+        for tag, value in body["tags"].items():
+            if tag not in TAGS:
+                return invalid_tags()
+            if not isinstance(value, bool):
+                return invalid_tags()
+        if len(body["tags"]) != len(TAGS):
+            return invalid_tags()
+
         if body["gender"] != user["gender"]:
             if body["gender"] != "male" and body["gender"] != "female":
                 return invalid_gender()

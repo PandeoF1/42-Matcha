@@ -35,3 +35,21 @@ def message_success():
         status_code=201,
         content={"message": "Message sent successfully", "status": "message"},
     )
+
+def report_success():
+    return JSONResponse(
+        status_code=201,
+        content={"message": "You successfully reported this user", "status": "report"},
+    )
+
+def block_success():
+    return JSONResponse(
+        status_code=201,
+        content={"message": "You successfully blocked this user", "status": "block"},
+    )
+
+def skip_success():
+    return JSONResponse(
+        status_code=201,
+        content={"message": "You successfully skipped this user", "status": "skip"},
+    )

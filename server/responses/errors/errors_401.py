@@ -52,7 +52,7 @@ def already_liked():
 
 def user_blocked():
     return JSONResponse(
-        status_code=401, content={"message": "You have blocked this user"}
+        status_code=401, content={"message": "This user is blocked"}
     )
 
 

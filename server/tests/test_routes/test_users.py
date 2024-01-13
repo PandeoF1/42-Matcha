@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 import dotenv
-from conftest import str, generate_token
+from conftest import str, generate_token, TAGS
 
 dotenv.load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -282,7 +282,7 @@ def test_update_profile_random():
 
 
 @pytest.mark.order(4)
-def test_update_profile():
+def test_update_profile_invalid_tags():
     data = {
         "email": "%s@nofoobar.com" % str,
         "lastName": "Theo",
@@ -301,8 +301,32 @@ def test_update_profile():
         json.dumps(data),
         headers={"authorization": "Bearer %s" % generate_token()},
     )
+    assert response.status_code == 422
+    assert response.json() == {"message": "Invalid tags"}
+
+@pytest.mark.order(4)
+def test_update_profile():
+    data = {
+        "email": "%s@nofoobar.com" % str,
+        "lastName": "Theo",
+        "firstName": "Nard",
+        "images": [
+            "https://back-matcha.pandeo.fr/image/0c86c1d7-2b84-453e-9a32-978d576fc552"
+        ],
+        "bio": "Oui",
+        "tags": TAGS,
+        "age": 20,
+        "orientation": "heterosexual",
+        "gender": "male",
+    }
+    response = requests.put(
+        "https://back-matcha.pandeo.fr/user",
+        json.dumps(data),
+        headers={"authorization": "Bearer %s" % generate_token()},
+    )
     assert response.status_code == 200
     assert response.json() == {"message": "Your profile has been updated"}
+
 
 
 @pytest.mark.order(100)
