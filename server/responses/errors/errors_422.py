@@ -35,3 +35,9 @@ def invalid_tags():
         status_code=422,
         content={"message": "Invalid tags"},
     )
+
+def invalid_geoloc():
+    return JSONResponse(
+        status_code=422,
+        content={"message": "Invalid geolocation"},
+    )

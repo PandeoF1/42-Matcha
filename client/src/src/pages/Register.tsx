@@ -17,8 +17,8 @@ const RegisterPage = ({ setErrorAlert, setSuccessAlert }: RegisterPageProps) => 
     const emailError = !!form.email.length && (validator.isEmail(form.email) ? false : true)
     const passwordError = !!form.password.length && !(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&])[A-Za-z\d#@$!%*?&]{8,30}$/).test(form.password)
     const usernameError = !!form.username.length && !(/^[a-zA-Z0-9]{3,16}$/).test(form.username)
-    const firstnameError = !!form.firstName.length && !(/^[a-zA-Z]{3,16}$/).test(form.firstName)
-    const lastnameError = !!form.lastName.length && !(/^[a-zA-Z]{3,16}$/).test(form.lastName)
+    const firstnameError = !!form.firstName.length && !(/^[a-zA-Z\u00C0-\u00FF]{3,16}$/).test(form.firstName)
+    const lastnameError = !!form.lastName.length && !(/^[a-zA-Z\u00C0-\u00FF]{3,16}$/).test(form.lastName)
 
     const navigate = useNavigate()
 
@@ -59,7 +59,7 @@ const RegisterPage = ({ setErrorAlert, setSuccessAlert }: RegisterPageProps) => 
     return (
         <div className="registerPage container">
             <div className="row justify-content-center p-4 w-100">
-                <Card className="col-xs-12 col-sm-8 col-md-6 col-lg-5 col-xl-4 col-xxl-3 p-4">
+                <Card className="col-xs-12 col-sm-8 col-md-6 col-lg-5 col-xl-4 col-xxl-3 p-4" elevation={6}>
                     <div className="row justify-content-center ">
                         <div className="col-12">
                             <TextField

@@ -60,7 +60,7 @@ async def get_profiles_unfiltered(db, user):
                 striped.append(await strip_profile(dict(i)))
 
         for j in blacklist:
-            if i["type"] == "block" and i["id"] == j["origin"]:
+            if j["type"] == "block" and i["id"] == j["origin"]:
                 striped.pop()
             elif i["id"] == j["origin"] or i["id"] == j["recipient"]:
                 striped.pop()
@@ -73,6 +73,9 @@ async def get_profiles_unfiltered(db, user):
             geopy.distance.distance(user["geoloc"], x["geoloc"]).km,
         )
     )
+    # add distance to each profile
+    for i in striped:
+        i["distance"] = geopy.distance.distance(user["geoloc"], i["geoloc"]).km
     # for i in result:
     # check distance between two geoloc
     # print("%skm, %s %s %s %s %s %s" % (geopy.distance.distance(user["geoloc"], i["geoloc"]).km, user["gender"], i["gender"], user["orientation"], i["orientation"], user["age"], i["age"]))

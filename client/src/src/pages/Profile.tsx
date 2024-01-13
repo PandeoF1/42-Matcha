@@ -23,8 +23,8 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
         firstName: '', lastName: '', email: '', gender: '', orientation: '', bio: '', age: 18, tags: {}, images: []
     })
     const emailError = !form.email.length || (validator.isEmail(form.email) ? false : true)
-    const firstnameError = !form.firstName.length || !(/^[a-zA-Z]{3,16}$/).test(form.firstName)
-    const lastnameError = !form.lastName.length || !(/^[a-zA-Z]{3,16}$/).test(form.lastName)
+    const firstnameError = !form.firstName.length || !(/^[a-zA-Z\u00C0-\u00FF]{3,16}$/).test(form.firstName)
+    const lastnameError = !form.lastName.length || !(/^[a-zA-Z\u00C0-\u00FF]{3,16}$/).test(form.lastName)
 
     const [isPageLoading, setIsPageLoading] = useState(true)
     const [imgAreLoading, setImgAreLoading] = useState<number[]>([])
@@ -127,10 +127,10 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
 
 
     return (
-        <div className="RegisterPage container">
+        <div className="profilePage container">
             {isPageLoading ? <CircularProgress color="secondary" className="mt-4" /> :
                 <div className="row justify-content-center p-4">
-                    <Card className="col-xs-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 col-xxl-4 p-4">
+                    <Card className="col-xs-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 col-xxl-5 p-4" elevation={6}>
                         <div className="row justify-content-center">
                             <h5 className="fw-bold">PROFILE</h5>
                         </div>

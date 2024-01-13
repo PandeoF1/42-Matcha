@@ -108,6 +108,14 @@ TAGS = {
   "#adventure": False
 }
 
+images = [
+    "https://back-matcha.pandeo.fr/image/c319776c-41e6-4af7-b3c7-edf10cbcb58d",
+    "https://back-matcha.pandeo.fr/image/6028d1e6-ed7b-49a5-9a5f-ea198d78a267",
+    "https://back-matcha.pandeo.fr/image/5b5f0ee0-82a1-409a-abe2-c9abd689cf37",
+    "https://back-matcha.pandeo.fr/image/8be086da-82b9-4eda-8465-e0715ff080c8",
+    "https://back-matcha.pandeo.fr/image/5eb8b985-9f7f-4d99-8885-82a114d4e307"
+  ]
+
 async def randomize():
     # Change age, geoloc and elo of all user in database
     db = await asyncpg.connect('postgresql://matchadmin:matchapasspas@localhost/matcha')
@@ -133,7 +141,7 @@ async def randomize():
             tags[tag] = True if random.randint(0,6) == 5 else False
 
         print(user['id'], geoloc, age, elo, gender, orientation, tags)
-        await db.execute("UPDATE users SET (age, geoloc, elo, orientation, gender, tags) = ($1, $2, $3, $4, $5, $6) WHERE id = $7", age, geoloc, elo, orientation, gender, json.dumps(tags), user['id'])
+        await db.execute("UPDATE users SET (age, geoloc, elo, orientation, gender, tags, images) = ($1, $2, $3, $4, $5, $6, $7) WHERE id = $8", age, geoloc, elo, orientation, gender, json.dumps(tags), images, user['id'])
 
 if __name__ == "__main__":
 #    for i in range(10):

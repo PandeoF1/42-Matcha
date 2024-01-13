@@ -6,6 +6,7 @@ from controllers.user_controller import user_controller
 from controllers.profiles_controller import profiles_controller
 from controllers.email_controller import email_controller
 from controllers.image_controller import image_controller
+from controllers.geoloc_controller import geoloc_controller
 
 app = FastAPI()
 
@@ -31,6 +32,7 @@ app.include_router(user_controller)
 app.include_router(email_controller)
 app.include_router(profiles_controller)
 app.include_router(image_controller)
+app.include_router(geoloc_controller)
 
 
 if __name__ == "__main__":

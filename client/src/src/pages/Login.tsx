@@ -52,7 +52,7 @@ const LoginPage = ({ setErrorAlert }: LoginPageProps) => {
     return (
         <div className="loginPage container">
             <div className="row justify-content-center p-4 w-100">
-                <Card className="col-xs-12 col-sm-8 col-md-6 col-lg-5 col-xl-4 col-xxl-3 p-4">
+                <Card className="col-xs-12 col-sm-8 col-md-6 col-lg-5 col-xl-4 col-xxl-3 p-4" elevation={6}>
                     <div className="row justify-content-center">
                         <div className="col-12">
                             <TextField

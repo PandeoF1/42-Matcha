@@ -22,21 +22,38 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: calc(100vh - 56px);
+  height: calc(100vh - 64px);
 }
 
 .loginPage {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: calc(100vh - 56px);
+  height: calc(100vh - 64px);
 }
 
 .registerPage {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: calc(100vh - 56px);
+  height: calc(100vh - 64px);
+}
+
+.profilePage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 64px);
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+.homePage {
+  display: flex;
+  justify-content: center;
+  height: calc(100vh - 64px);
 }
 
 .header {
@@ -44,7 +61,7 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  height: 56px;
+  height: 64px;
 }
 
 .badgeCross {
@@ -60,6 +77,23 @@
   object-position: center;
   border-radius: 6px;
   color: transparent;
+}
+
+.imgProfile {
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 6px;
+  color: transparent;
+}
+
+.profileViewer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 500px;
+  overflow-y: scroll;
 }
 
 .imgMosaicContainer {
@@ -109,6 +143,8 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background-color: #0b1f30 !important;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 h1 {

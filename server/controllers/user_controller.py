@@ -35,6 +35,7 @@ async def profile(request: Request, db=Depends(get_database)):
             "tags",
             "orientation",
             "gender",
+            "geoloc"
         ],
     )
     if validator is not None:

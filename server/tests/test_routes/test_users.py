@@ -22,6 +22,7 @@ def test_create_user():
         "lastName": "test",
     }
     response = requests.post("https://back-matcha.pandeo.fr/user", json.dumps(data))
+    print(response.json())
     assert response.status_code == 201
 
 
@@ -261,6 +262,7 @@ def test_update_profile_without_token():
         "age": 20,
         "orientation": "heterosexual",
         "gender": "male",
+        "geoloc": "0,0"
     }
     response = requests.put("https://back-matcha.pandeo.fr/user", json.dumps(data))
     assert response.status_code == 401
@@ -277,7 +279,7 @@ def test_update_profile_random():
     print(response.json())
     assert response.status_code == 400
     assert response.json() == {
-        "message": "Missing key(s): ['email', 'lastName', 'firstName', 'images', 'bio', 'tags', 'orientation', 'gender']"
+        "message": "Missing key(s): ['email', 'lastName', 'firstName', 'images', 'bio', 'tags', 'orientation', 'gender', 'geoloc']"
     }
 
 
@@ -295,6 +297,7 @@ def test_update_profile_invalid_tags():
         "age": 20,
         "orientation": "heterosexual",
         "gender": "male",
+        "geoloc": "0,0"
     }
     response = requests.put(
         "https://back-matcha.pandeo.fr/user",
@@ -318,6 +321,7 @@ def test_update_profile():
         "age": 20,
         "orientation": "heterosexual",
         "gender": "male",
+        "geoloc": "0,0"
     }
     response = requests.put(
         "https://back-matcha.pandeo.fr/user",

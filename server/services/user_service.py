@@ -52,14 +52,14 @@ def check_username(username):
 
 
 def check_last_name(last_name):
-    regex = r"^[a-zA-Z]{3,16}$"
+    regex = r"^[a-zA-Z\u00C0-\u00FF]{3,16}$"
     if not re.match(regex, last_name):
         return invalid_last_name()
     return None
 
 
 def check_first_name(first_name):
-    regex = r"^[a-zA-Z]{3,16}$"
+    regex = r"^[a-zA-Z\u00C0-\u00FF]{3,16}$"
     if not re.match(regex, first_name):
         return invalid_first_name()
     return None
@@ -362,6 +362,9 @@ async def update_user(db, user, body):
         if body["gender"] != user["gender"]:
             if body["gender"] != "male" and body["gender"] != "female":
                 return invalid_gender()
+        regex = "^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$"
+        if not re.match(regex, body["geoloc"]):
+            return invalid_geoloc()
         if body["email"] != user["email"]:
             email = await db.fetchrow(
                 """SELECT id, email FROM users WHERE email = $1""", body["email"]
@@ -397,7 +400,7 @@ async def update_user(db, user, body):
                 + token_id,
             )
         await db.execute(
-            """UPDATE users SET first_name = $1, last_name = $2, age = $3, orientation = $4, gender = $5, bio = $6, tags = $7, images = $8 WHERE id = $9""",
+            """UPDATE users SET first_name = $1, last_name = $2, age = $3, orientation = $4, gender = $5, bio = $6, tags = $7, images = $8, geoloc = $9 WHERE id = $10""",
             body["firstName"],
             body["lastName"],
             body["age"],
@@ -406,8 +409,19 @@ async def update_user(db, user, body):
             body["bio"],
             json.dumps(body["tags"]),
             body["images"],
+            body["geoloc"],
             user["id"],
         )
+        if user["completion"] == 1:
+            _user = await search_user_by_id(db, user["id"])
+            if _user is None:
+                return user_not_found()
+            if len(_user["images"]) > 0:
+                if _user["bio"] != "":
+                    if _user["geoloc"] != "0,0":
+                        await db.execute(
+                            """UPDATE users SET completion = 2 WHERE id = $1""", _user["id"]
+                        )
         return update_success()
     except Exception as e:
         print(e)
