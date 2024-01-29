@@ -26,7 +26,7 @@ async def get_geoloc(request: Request, db=Depends(get_database)):
             ip = await client.get(f"http://ip-api.com/json/{client_ip}")
         loc = ip.json()
     except Exception:
-        return {"lat": 0, "lon": 0}
+        return {"lat": 0, "lng": 0}
     if loc["status"] == "fail":
         loc = {"lat": 0, "lon": 0}
-    return {"lat": loc["lat"], "lon": loc["lon"]}
+    return {"lat": loc["lat"], "lng": loc["lon"]}

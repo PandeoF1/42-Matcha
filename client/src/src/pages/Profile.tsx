@@ -1,6 +1,6 @@
 import { Badge, Button, Card, Chip, CircularProgress, FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography } from "@mui/material"
 import { UpdateForm } from "./models/UpdateForm"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import _ from "lodash"
 import validator from "validator"
 import addImage from "../../assets/add-image2.png"
@@ -9,6 +9,11 @@ import instance from "../api/Instance"
 import { useNavigate } from "react-router-dom"
 import { LoadingButton } from "@mui/lab"
 import { UserModel } from "./models/UserModel"
+import { MapContainer, TileLayer, Marker } from 'react-leaflet'
+import L, { LatLngExpression } from "leaflet"
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import LocationSearchingIcon from '@mui/icons-material/LocationSearching';
+import 'leaflet/dist/leaflet.css';
 
 interface ProfilePageProps {
     setErrorAlert: (message: string) => void
@@ -17,18 +22,24 @@ interface ProfilePageProps {
 
 const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
     const [formBackup, setFormBackup] = useState<UpdateForm>({
-        firstName: '', lastName: '', email: '', gender: '', orientation: '', bio: '', age: 18, tags: {}, images: []
+        firstName: '', lastName: '', email: '', gender: '', orientation: '', bio: '', age: 18, tags: {}, images: [], geoloc: ''
     })
     const [form, setForm] = useState<UpdateForm>({
-        firstName: '', lastName: '', email: '', gender: '', orientation: '', bio: '', age: 18, tags: {}, images: []
+        firstName: '', lastName: '', email: '', gender: '', orientation: '', bio: '', age: 18, tags: {}, images: [], geoloc: ''
     })
     const emailError = !form.email.length || (validator.isEmail(form.email) ? false : true)
     const firstnameError = !form.firstName.length || !(/^[a-zA-Z\u00C0-\u00FF]{3,16}$/).test(form.firstName)
     const lastnameError = !form.lastName.length || !(/^[a-zA-Z\u00C0-\u00FF]{3,16}$/).test(form.lastName)
+    const geolocError = !form.geoloc.length || form.geoloc.split(',').length !== 2 || form.geoloc === "0,0"
 
     const [isPageLoading, setIsPageLoading] = useState(true)
     const [imgAreLoading, setImgAreLoading] = useState<number[]>([])
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isMapOpened, setIsMapOpened] = useState(false)
+
+    const [currentPosition, setCurrentPosition] = useState<LatLngExpression>({ lat: 0, lng: 0 })
+
+    const mapRef = useRef<L.Map>(null);
 
     const navigate = useNavigate();
 
@@ -58,15 +69,32 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
         }
     }
 
+    interface Position {
+        coords: {
+            latitude: number
+            longitude: number
+        }
+    }
+
+    const handlePositionChange = (position: Position) => {
+        setCurrentPosition({ lat: position.coords.latitude, lng: position.coords.longitude })
+        setForm({ ...form, geoloc: `${position.coords.latitude},${position.coords.longitude}` })
+    }
+
     const getUser = async () => {
         await instance.get<UserModel>('/user').then((res) => {
             const imgLoadingArray = []
             for (let i = 0; i < res.data.images.length; i++) {
                 imgLoadingArray.push(i)
             }
-            const { id, username, geoloc, completion, ...filteredData } = res.data
+            const { id, username, completion, ...filteredData } = res.data
             setFormBackup(filteredData)
             setForm(filteredData)
+            const parsedGeoloc = filteredData.geoloc.split(',')
+            if (parsedGeoloc.length === 2) {
+                setCurrentPosition({ lat: parseFloat(parsedGeoloc[0]), lng: parseFloat(parsedGeoloc[1]) })
+                mapRef.current?.setView({ lat: parseFloat(parsedGeoloc[0]), lng: parseFloat(parsedGeoloc[1]) }, 13)
+            }
             setIsPageLoading(false)
         }).catch(() => {
             localStorage.removeItem("token")
@@ -115,6 +143,52 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
             await handleImgUpload(files[i])
         }
     }
+
+    const getLocation = () => {
+        const success = (position: Position) => {
+            handlePositionChange(position)
+            mapRef.current?.setView({ lat: position.coords.latitude, lng: position.coords.longitude }, 13)
+        };
+
+        const error = () => {
+            instance.get('/geoloc').then((res) => {
+                if (res.data.lat === 0 && res.data.lng === 0) {
+                    setErrorAlert("Failed to retrieve your location, please check your browser settings")
+                    return
+                }
+                handlePositionChange({ coords: { latitude: res.data.lat, longitude: res.data.lng } })
+                mapRef.current?.setView(res.data, 13)
+            }).catch((e) => {
+                setErrorAlert("Failed to retrieve your location, please check your browser settings")
+            })
+        };
+
+        if (!navigator.geolocation) {
+            setErrorAlert("Geolocation is not supported by your browser")
+            error()
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(success, error);
+    };
+
+    const DraggableMarker = () => {
+        return (
+            <Marker
+                draggable
+                position={currentPosition}
+                eventHandlers={
+                    {
+                        dragend: (e) => {
+                            const latLng = e.target.getLatLng()
+                            handlePositionChange({ coords: { latitude: latLng.lat, longitude: latLng.lng } })
+                            mapRef.current?.setView(e.target.getLatLng(), 13)
+                        }
+                    }
+                }
+            />
+        );
+    };
 
     useEffect(() => {
         if (localStorage.getItem("token")) {
@@ -255,6 +329,32 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
                                     </Typography>
                                 </div>
                             </div>
+                            <div className="col-12 p-0 pt-2 px-2">
+                                {isMapOpened ?
+                                    <div className="mapContainer position-relative">
+                                        <MapContainer center={currentPosition} zoom={13} style={{ height: '400px', width: '100%' }} ref={mapRef}>
+                                            <TileLayer
+                                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                            />
+                                            <DraggableMarker />
+                                        </MapContainer>
+                                        <div className="position-absolute bottom-0 end-0" style={{ zIndex: 1000, marginBottom: "64px", marginRight: "10px" }} >
+                                            <LocationSearchingIcon onClick={() => mapRef.current?.setView(currentPosition, 13)} style={{ backgroundColor: "white", borderRadius: "50%", padding: "5px", width: "35px", height: "35px", cursor: "pointer" }} />
+                                        </div>
+                                        <div className="position-absolute bottom-0 end-0" style={{ zIndex: 1000, marginBottom: "22px", marginRight: "10px" }}>
+                                            <LocationOnIcon onClick={() => getLocation()} style={{ backgroundColor: "white", borderRadius: "50%", padding: "5px", width: "35px", height: "35px", cursor: "pointer" }} />
+                                        </div>
+                                    </div> : null}
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    size="small"
+                                    className="mt-2 w-100"
+                                    onClick={() => setIsMapOpened(prev => !prev)}
+                                >
+                                    {isMapOpened ? "Close map" : "Open map"}
+                                </Button>
+                            </div>
                         </div>
                         <div className="justify-content-center align-items-center pt-2 d-flex flex-colum">
                             <hr className="w-100" />
@@ -334,7 +434,7 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
                             <LoadingButton
                                 variant="contained"
                                 color="primary"
-                                disabled={_.isEqual(form, formBackup) || emailError || firstnameError || lastnameError || form.images.length < 1}
+                                disabled={_.isEqual(form, formBackup) || emailError || firstnameError || lastnameError || geolocError || form.images.length < 1}
                                 loading={isSubmitting}
                                 size="medium"
                                 style={{ width: "fit-content" }}

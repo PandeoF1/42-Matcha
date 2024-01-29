@@ -8,4 +8,5 @@ export interface UpdateForm {
     age : number
     tags: {[key: string]: boolean}
     images: string[]
+    geoloc : string
 }
