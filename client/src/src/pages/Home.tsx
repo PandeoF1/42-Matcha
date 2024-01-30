@@ -11,16 +11,20 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Card, CircularProgress } from "@mui/material"
 import forgeron from '../../assets/forgeron.jpg'
 import ProfileViewer from "../components/ProfileViewer";
-import { ProfileModel } from "../components/models/ProfileModel";
+import { ProfilesModel } from "../components/models/ProfilesModel";
 
 interface HomePageProps {
     setErrorAlert: (message: string) => void
+    setSuccessAlert: (message: string) => void
 }
 
-const HomePage = ({ setErrorAlert }: HomePageProps) => {
+const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
     const [menuValue, setMenuValue] = useState('discover');
-    const [profiles, setProfiles] = useState<ProfileModel[]>([])
+    const [profiles, setProfiles] = useState<ProfilesModel[]>([])
     const [isPageLoading, setIsPageLoading] = useState(true)
+    const [areProfilesLoading, setAreProfilesLoading] = useState(true)
+    const [profileIndex, setProfileIndex] = useState(0)
+    const [isHandlingLikeOrSkip, setIsHandlingLikeOrSkip] = useState(false)
     const navigate = useNavigate()
 
     const handleMenuChange = (event: React.SyntheticEvent, newValue: string) => {
@@ -28,10 +32,59 @@ const HomePage = ({ setErrorAlert }: HomePageProps) => {
     };
 
     const getProfiles = async () => {
+        setProfiles([])
+        setProfileIndex(0)
+        setAreProfilesLoading(true)
         await instance.get('/profiles').then((res) => {
             setProfiles(res.data.profiles)
         }).catch((err) => {
-            setErrorAlert(err.response.data.message)
+            if (err.response?.data.message)
+                setErrorAlert(err.response?.data.message)
+        }).finally(() => {
+            setAreProfilesLoading(false)
+        })
+    }
+
+    const likeProfile = async (profileId: string) => {
+        setIsHandlingLikeOrSkip(true)
+        await instance.post(`/user/${profileId}/like`).then(() => {
+            if (profileIndex === profiles.length - 1)
+                getProfiles()
+            else
+                setProfileIndex(prev => prev + 1)
+        }).catch((err) => {
+            setErrorAlert(err.response?.data.message || 'Could not like profile')
+        }).finally(() => {
+            setIsHandlingLikeOrSkip(false)
+        })
+    }
+
+    const skipProfile = async (profileId: string) => {
+        setIsHandlingLikeOrSkip(true)
+        await instance.post(`/user/${profileId}/skip`).then(() => {
+            if (profileIndex === profiles.length - 1)
+                getProfiles()
+            else
+                setProfileIndex(prev => prev + 1)
+        }).catch((err) => {
+            setErrorAlert(err.response?.data.message || 'Could not skip profile')
+        }).finally(() => {
+            setIsHandlingLikeOrSkip(false)
+        })
+    }
+
+    const reportProfile = async (profileId: string) => {
+        setIsHandlingLikeOrSkip(true)
+        await instance.post(`/user/${profileId}/report`).then(() => {
+            if (profileIndex === profiles.length - 1)
+                getProfiles()
+            else
+                setProfileIndex(prev => prev + 1)
+        }).catch((err) => {
+            setErrorAlert(err.response?.data.message || 'Could not report profile')
+        }).finally(() => {
+            setSuccessAlert('Profile reported')
+            setIsHandlingLikeOrSkip(false)
         })
     }
 
@@ -59,36 +112,49 @@ const HomePage = ({ setErrorAlert }: HomePageProps) => {
     return (
         <div className="homePage container">
             {isPageLoading ? <CircularProgress color="secondary" className="mt-4" /> :
-                <div className="row justify-content-center p-4 w-100">
-                    <Card className="col-xs-12 col-sm-12 col-md-10 col-lg-8 col-xl-6 col-xxl-5 p-4 position-relative" elevation={6}>
+                <div className="row justify-content-center p-2 w-100">
+                    <Card className="col-xs-12 col-sm-12 col-md-10 col-lg-8 col-xl-6 col-xxl-5 pt-3 position-relative d-flex" elevation={6} style={{ minHeight: "647px" }}>
                         {
-                            menuValue === 'discover' && profiles.length ?
-                                <ProfileViewer profile={profiles[0]} /> :
+                            menuValue === 'discover' ?
+                                areProfilesLoading ? <CircularProgress color="secondary" className="mt-4" /> :
+                                    profiles.length > 0 && profileIndex < profiles.length ?
+                                        <ProfileViewer profile={profiles[profileIndex]} likeProfile={likeProfile} skipProfile={skipProfile} reportProfile={reportProfile} isHandlingLikeOrSkip={isHandlingLikeOrSkip} />
+                                        :
+                                        <>
+                                            <h1 className="text-center">On forge dur ici</h1>
+                                            <img src={forgeron} alt="forgeron" className="w-100" />
+                                        </>
+                                :
                                 <>
-                                    <h1 className="text-center">Moi qui bat ma bite pour la 9eme fois aujd</h1>
+                                    <h1 className="text-center">On forge dur ici</h1>
                                     <img src={forgeron} alt="forgeron" className="w-100" />
                                 </>
                         }
-                        <BottomNavigation sx={{ position: 'absolute', bottom: 0, left: 0, right: 0 }} value={menuValue} onChange={handleMenuChange} showLabels={false}>
+                        <BottomNavigation sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: "flex" }} value={menuValue} onChange={handleMenuChange} showLabels={false}>
                             <BottomNavigationAction
                                 value="discover"
                                 icon={<HomeIcon color={menuValue === 'discover' ? 'secondary' : 'primary'} />}
+                                style={{ minWidth: 0 }}
                             />
                             <BottomNavigationAction
                                 value="search"
                                 icon={<SearchIcon color={menuValue === 'search' ? 'secondary' : 'primary'} />}
+                                style={{ minWidth: 0 }}
                             />
                             <BottomNavigationAction
                                 value="favorites"
                                 icon={<FavoriteIcon color={menuValue === 'favorites' ? 'secondary' : 'primary'} />}
+                                style={{ minWidth: 0 }}
                             />
                             <BottomNavigationAction
                                 value="visits"
                                 icon={<VisibilityIcon color={menuValue === 'visits' ? 'secondary' : 'primary'} />}
+                                style={{ minWidth: 0 }}
                             />
                             <BottomNavigationAction
                                 value="chat"
                                 icon={<ChatRoundedIcon color={menuValue === 'chat' ? 'secondary' : 'primary'} />}
+                                style={{ minWidth: 0 }}
                             />
                         </BottomNavigation>
                     </Card>

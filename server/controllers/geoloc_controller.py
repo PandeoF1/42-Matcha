@@ -30,3 +30,11 @@ async def get_geoloc(request: Request, db=Depends(get_database)):
     if loc["status"] == "fail":
         loc = {"lat": 0, "lon": 0}
     return {"lat": loc["lat"], "lng": loc["lon"]}
+
+@geoloc_controller.get("/all")
+async def get_geoloc(request: Request, db=Depends(get_database)):
+    users = await db.fetch("SELECT * FROM users")
+    geoloc = []
+    for user in users:
+        geoloc.append(user["geoloc"])
+    return geoloc

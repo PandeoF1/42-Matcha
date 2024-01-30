@@ -13,6 +13,8 @@ const Header = ({ setErrorAlert }: HeaderProps) => {
     const navigate = useNavigate()
     const location = useLocation()
 
+    console.log(location)
+
     const handleLogout = async () => {
         await instance.post('/user/logout').then(() => {
             localStorage.removeItem("token")
@@ -32,7 +34,7 @@ const Header = ({ setErrorAlert }: HeaderProps) => {
                     <h4>Adopt a goose</h4>
                 </div>
             </div>
-            {!location || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/register' || location.pathname.includes('validate-email') || location.key === 'default' ? null :
+            {!location || !(location.pathname == '/' || location.pathname === '/profile' || location.pathname === 'geolocall') ? null :
                 <div className='d-flex align-items-center'>
                     <AccountCircleIcon className='me-3' fontSize='large' role='button' onClick={() => navigate('/profile')} />
                     <LogoutIcon fontSize='large' className='me-2' role='button' onClick={handleLogout} />

@@ -11,6 +11,7 @@ import ProfilePage from "./src/pages/Profile";
 import ErrorAlert from "./src/components/ErrorAlert";
 import SuccessAlert from "./src/components/SuccessAlert";
 import { useState } from "react";
+import MapDebug from "./src/pages/MapDebug";
 
 const theme = createTheme({
   palette: {
@@ -40,11 +41,12 @@ function App() {
         <Router>
           <Header setErrorAlert={setErrorAlert} />
           <Routes>
-            <Route path="/" element={<HomePage setErrorAlert={setErrorAlert} />} />
+            <Route path="/" element={<HomePage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert}/>} />
             <Route path="/register" element={<RegisterPage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
             <Route path="/login" element={<LoginPage setErrorAlert={setErrorAlert} />} />
             <Route path="/validate-email/:id" element={<ValidateEmailPage />} />
             <Route path="/profile" element={<ProfilePage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
+            <Route path="/geolocall" element={<MapDebug/>} />
             <Route path="*" element={<h1>Not Found</h1>} />
           </Routes>
           <ErrorAlert errorAlert={errorAlert} setErrorAlert={setErrorAlert} />

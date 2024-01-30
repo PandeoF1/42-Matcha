@@ -44,28 +44,28 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
     const navigate = useNavigate();
 
     const handleFieldChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setForm({ ...form, [event.target.id]: event.target.value })
+        setForm(prev => ({ ...prev, [event.target.id]: event.target.value }))
     }
 
     const handleSelectChange = (event: SelectChangeEvent) => {
-        setForm({ ...form, [event.target.name]: event.target.value })
+        setForm(prev => ({ ...prev, [event.target.name]: event.target.value }))
     }
 
     const handleSelectNumberChange = (event: SelectChangeEvent) => {
-        setForm({ ...form, [event.target.name]: parseInt(event.target.value) })
+        setForm(prev => ({ ...prev, [event.target.name]: parseInt(event.target.value) }))
     }
 
     const handleDeleteImg = (index: number) => {
         const images = _.cloneDeep(form.images)
         images.splice(index, 1)
-        setForm({ ...form, images })
+        setForm(prev => ({ ...prev, images }))
     }
 
     const handleTagChange = (key: string, value: boolean) => {
         const tags = _.cloneDeep(form.tags)
         if (Object.keys(tags).includes(key)) {
             tags[key] = value
-            setForm({ ...form, tags })
+            setForm(prev => ({ ...prev, tags }))
         }
     }
 
@@ -78,7 +78,7 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
 
     const handlePositionChange = (position: Position) => {
         setCurrentPosition({ lat: position.coords.latitude, lng: position.coords.longitude })
-        setForm({ ...form, geoloc: `${position.coords.latitude},${position.coords.longitude}` })
+        setForm(prev => ({ ...prev, geoloc: `${position.coords.latitude},${position.coords.longitude}` }))
     }
 
     const getUser = async () => {
@@ -145,12 +145,14 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
     }
 
     const getLocation = () => {
+        console.log("getlocation")
         const success = (position: Position) => {
             handlePositionChange(position)
             mapRef.current?.setView({ lat: position.coords.latitude, lng: position.coords.longitude }, 13)
         };
 
         const error = () => {
+
             instance.get('/geoloc').then((res) => {
                 if (res.data.lat === 0 && res.data.lng === 0) {
                     setErrorAlert("Failed to retrieve your location, please check your browser settings")
@@ -158,7 +160,7 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
                 }
                 handlePositionChange({ coords: { latitude: res.data.lat, longitude: res.data.lng } })
                 mapRef.current?.setView(res.data, 13)
-            }).catch((e) => {
+            }).catch(() => {
                 setErrorAlert("Failed to retrieve your location, please check your browser settings")
             })
         };
@@ -169,7 +171,7 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
             return;
         }
 
-        navigator.geolocation.getCurrentPosition(success, error);
+        navigator.geolocation.getCurrentPosition(success, error, { enableHighAccuracy: true, timeout: 10000});
     };
 
     const DraggableMarker = () => {

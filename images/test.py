@@ -93,8 +93,8 @@ TAGS = {
 }
 
 gender = "male"
-age = "26-35"
-number = 200
+age = "19-25"
+number = 1000
 
 async def get_images():
     for i in range(0, number):
@@ -108,7 +108,7 @@ async def get_images():
         
 async def get_profiles():
     rand = random.randint(0, 1000000)
-    male_26_35 = requests.get("https://randomuser.me/api/?gender=%s&results=%s" % (gender, number * 20))
+    male_26_35 = requests.get("https://randomuser.me/api/?gender=%s&results=%s" % (gender, number * 2))
     u = 0
     for i in male_26_35.json()["results"]: # male
         # print(i["name"]["first"], i["name"]["last"], i["email"], "bot%s%s" % (random, u), "Qw@rty123456")
@@ -148,11 +148,11 @@ async def get_profiles():
             if (image_request.json()["message"] == "Image uploaded successfully"):
                 print("image uploaded: %s/%s" % (u + 1, number))
                 images.append(image_request.json()["url"])
-            #else:
-            #    print("Error %s/%s %s %s" % (u + 1, number, image_request.json(), token))
+            else:
+                print("Error %s/%s %s %s" % (u + 1, number, image_request.json(), token))
 
-            images.append("https://cdn.discordapp.com/attachments/905365556306264105/1201844384816168970/German-Shepherd-dog-Alsatian.png")
-            images.append("https://cdn.discordapp.com/attachments/905365556306264105/1201844557118181406/smallwhitefluffydogsmilingatthecamerainclose-up-min.png")
+            images.append("https://back-matcha.pandeo.fr/image/7033b0af-5467-4cdd-90b2-a39f0ee8b2a2")
+            images.append("https://back-matcha.pandeo.fr/image/83ecbdc7-c659-48f7-8be1-c726c919367b")
             bio = lorem.sentence()
             tags = {}
             for tag in TAGS:
@@ -181,8 +181,8 @@ async def get_profiles():
             if (update.json()["message"] == "Your profile has been updated"):
                 u = u + 1
                 print ("updated: %s/%s" % (u, number), i["name"]["first"], i["name"]["last"], i["email"], "bot%s%s" % (rand, u), "Qw@rty123456", geoloc["lat"], geoloc["lon"])
-            #else:
-            #    print("Error %s/%s %s" % (u + 1, number, update.json()))
+            else:
+                print("Error %s/%s %s" % (u + 1, number, update.json()))
             # u = u + 1
             #print ("updated: %s/200" % u, i["name"]["first"], i["name"]["last"], i["email"], "bot%s%s" % (random, u), "Qw@rty123456")
         if (u == number):

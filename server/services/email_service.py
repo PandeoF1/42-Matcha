@@ -7,7 +7,7 @@ from email.mime.multipart import MIMEMultipart
 
 async def send_email(email, subject, body):
     try:
-        if "@nofoobar.com" in email:
+        if "@nofoobar.com" in email or "@example.com" in email:
             return True
         msg = MIMEMultipart()
         msg.preamble = subject

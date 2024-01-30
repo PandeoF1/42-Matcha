@@ -147,7 +147,7 @@ async def randomize():
             tags[tag] = True if random.randint(0,6) == 5 else False
 
         print(user['id'], geoloc, age, elo, gender, orientation, tags)
-        await db.execute("UPDATE users SET (age, geoloc, elo, orientation, gender, tags, images, completion) = ($1, $2, $3, $4, $5, $6, $7, 2) WHERE id = $8", age, geoloc, elo, orientation, gender, json.dumps(tags), _images, user['id'])
+        await db.execute("UPDATE users SET (age, geoloc, elo, orientation, gender, tags, images, completion, bio) = ($1, $2, $3, $4, $5, $6, $7, 2, 'Dolore aliquam quaerat dolor.Dolore aliquam quaerat dolor.Dolore aliquam quaerat dolor.Dolore aliquam quaerat dolor.') WHERE id = $8", age, geoloc, elo, orientation, gender, json.dumps(tags), _images, user['id'])
 
 if __name__ == "__main__":
 #    for i in range(10):
