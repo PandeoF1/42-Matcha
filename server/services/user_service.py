@@ -490,6 +490,10 @@ async def like(db, origin, recipient):
             datetime.datetime.now().timestamp(),
         )
         print("send notification")
+        # Update elo
+        await db.execute("""UPDATE users SET elo = elo + 1. WHERE id = $1""", recipient["id"])
+        if origin["elo"] > 0.25:
+            await db.execute("""UPDATE users SET elo = elo - 0.25 WHERE id = $1""", origin["id"])
         # send notification
         if await is_liked(db, recipient, origin) and await is_liked(
             db, origin, recipient
@@ -507,6 +511,10 @@ async def unlike(db, origin, recipient):
         if await is_liked(db, recipient, origin):
             print("unmatched delete chat")
             # remove chat
+
+        if recipient["elo"] > 1:
+            await db.execute("""UPDATE users SET elo = elo - 1. WHERE id = $1""", recipient["id"])
+        await db.execute("""UPDATE users SET elo = elo + 0.25 WHERE id = $1""", origin["id"])
 
         await db.execute(
             """DELETE FROM interactions WHERE origin = $1 AND recipient = $2 AND type = 'like'""",
@@ -592,8 +600,8 @@ async def unblock(db, origin, recipient):
 
 async def report(db, origin, recipient):
     try:
-        #        id = str(uuid.uuid4())
-        #        await db.execute("""INSERT INTO interactions (id, origin, recipient, type, date) VALUES ($1, $2, $3, $4, $5)""", id, origin["id"], recipient["id"], "report", datetime.datetime.now().timestamp())
+        id = str(uuid.uuid4())
+        await db.execute("""INSERT INTO interactions (id, origin, recipient, type, date) VALUES ($1, $2, $3, $4, $5)""", id, origin["id"], recipient["id"], "report", datetime.datetime.now().timestamp())
         await send_email(
             "theo.nard18@gmail.com",
             "Report",

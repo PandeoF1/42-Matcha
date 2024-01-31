@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request
 from database.database import *
 from responses.errors.errors_404 import user_not_found
-from services.profiles_service import get_profiles_unfiltered
+from services.profiles_service import get_profiles_filtered
 from services.user_service import *
 from utils.parse_request import *
 from responses.errors.errors_422 import *

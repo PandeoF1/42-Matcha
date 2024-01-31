@@ -12,6 +12,7 @@ import { Card, CircularProgress } from "@mui/material"
 import forgeron from '../../assets/forgeron.jpg'
 import ProfileViewer from "../components/ProfileViewer";
 import { ProfilesModel } from "../components/models/ProfilesModel";
+import _ from "lodash";
 
 interface HomePageProps {
     setErrorAlert: (message: string) => void
@@ -25,6 +26,14 @@ const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
     const [areProfilesLoading, setAreProfilesLoading] = useState(true)
     const [profileIndex, setProfileIndex] = useState(0)
     const [isHandlingLikeOrSkip, setIsHandlingLikeOrSkip] = useState(false)
+    const defaultFilterParams = {
+        minAge: 18,
+        maxAge: 99,
+        minElo: 0,
+        maxElo: 1000,
+        distance: 50,
+        minTags: 1,
+    }
     const navigate = useNavigate()
 
     const handleMenuChange = (event: React.SyntheticEvent, newValue: string) => {
@@ -32,13 +41,36 @@ const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
     };
 
     const getProfiles = async () => {
+        checkFilterParams()
         setProfiles([])
         setProfileIndex(0)
         setAreProfilesLoading(true)
-        await instance.get('/profiles').then((res) => {
+        let filterParams = defaultFilterParams
+        // try {
+        //     filterParams = JSON.parse(localStorage.getItem("filterParams") || "{}")
+        // }
+        // catch (err) {
+        //     localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+        // }
+        await instance.post('/profiles/queries',
+            {
+                min_age: filterParams.minAge,
+                max_age: filterParams.maxAge,
+                min_elo: filterParams.minElo,
+                // max_elo: filterParams.maxElo,
+                // distance: filterParams.distance,
+                // min_tags: filterParams.minTags,
+            }
+        ).then((res) => {
             setProfiles(res.data.profiles)
         }).catch((err) => {
             if (err.response?.data.message)
+            {
+                if (String(err.response?.data.message).includes('Missing key(s)'))
+                    checkFilterParams()
+                else
+                    setErrorAlert(err.response?.data.message)
+            }
                 setErrorAlert(err.response?.data.message)
         }).finally(() => {
             setAreProfilesLoading(false)
@@ -86,6 +118,48 @@ const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
             setSuccessAlert('Profile reported')
             setIsHandlingLikeOrSkip(false)
         })
+    }
+
+    const checkFilterParams = () => {
+        if (localStorage.getItem("filterParams")) {
+            try {
+                // const filterParams = JSON.parse(localStorage.getItem("filterParams") || "")
+
+
+                // const filterParamsKeys = Object.keys(filterParams)
+                // const defaultFilterParamsKeys = Object.keys(defaultFilterParams)
+
+                // // i need something else than isEqual because if one of the object has more keys than the other, it will return true
+
+                // console.log(filterParamsKeys)
+                // console.log(defaultFilterParamsKeys)
+                // console.log(_.isEqual(filterParamsKeys, defaultFilterParamsKeys))
+
+                // if (_.isEqual(filterParamsKeys, defaultFilterParamsKeys) && filterParamsKeys.every((key) => typeof filterParams[key] === 'number'))
+                //     if (filterParams.minAge < 18 || filterParams.minAge > 99 || filterParams.maxAge < 18 || filterParams.maxAge > 99 || filterParams.minAge > filterParams.maxAge)
+                //         localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+                //     else if (filterParams.minElo < 0 || filterParams.minElo > 1000 || filterParams.maxElo < 0 || filterParams.maxElo > 1000 || filterParams.minElo > filterParams.maxElo)
+                //         localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+                //     else if (filterParams.distance < 0 || filterParams.distance > 200)
+                //         localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+                //     else if (filterParams.minTags < 1 || filterParams.minTags > 20)
+                //         localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+                // else
+                // {
+                //     console.log('here')
+                //     localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+                // }
+
+            }
+            catch (err) {
+                console.log(err)
+                localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+            }
+        }
+        else {
+            localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+        }
+
     }
 
     useEffect(() => {

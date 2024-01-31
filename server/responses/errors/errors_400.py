@@ -51,13 +51,14 @@ def empty_keys(received_keys: dict):
     response = []
     try:
         for key in received_keys:
-            if key != "age" and not len(received_keys[key]):
+            if not isinstance(received_keys[key], int) and key != "age" and not len(received_keys[key]):
                 response.append(key)
         if len(response):
             return JSONResponse(
                 status_code=400, content={"message": f"Empty key(s): {response}"}
             )
-    except Exception:
+    except Exception as e:
+        print(e)
         return JSONResponse(status_code=400, content={"message": "Empty key(s)"})
     return None
 
@@ -88,11 +89,31 @@ def header_validator(headers):
 
 def image_invalid():
     return JSONResponse(
-        status_code=422, content={"message": "The provided image is invalid"}
+        status_code=400, content={"message": "The provided image is invalid"}
     )
 
 
 def too_many_images():
     return JSONResponse(
-        status_code=422, content={"message": "You can only upload 5 images"}
+        status_code=400, content={"message": "You can only upload 5 images"}
+    )
+
+def invalid_age():
+    return JSONResponse(
+        status_code=400, content={"message": "Invalid age range"}
+    )
+
+def invalid_elo():
+    return JSONResponse(
+        status_code=400, content={"message": "Invalid elo range"}
+    )
+
+def invalid_distance():
+    return JSONResponse(
+        status_code=400, content={"message": "Invalid distance"}
+    )
+
+def invalid_tags():
+    return JSONResponse(
+        status_code=400, content={"message": "Invalid tags"}
     )

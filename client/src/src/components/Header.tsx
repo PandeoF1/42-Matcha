@@ -13,8 +13,6 @@ const Header = ({ setErrorAlert }: HeaderProps) => {
     const navigate = useNavigate()
     const location = useLocation()
 
-    console.log(location)
-
     const handleLogout = async () => {
         await instance.post('/user/logout').then(() => {
             localStorage.removeItem("token")
