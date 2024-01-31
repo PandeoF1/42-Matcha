@@ -602,6 +602,8 @@ async def report(db, origin, recipient):
     try:
         id = str(uuid.uuid4())
         await db.execute("""INSERT INTO interactions (id, origin, recipient, type, date) VALUES ($1, $2, $3, $4, $5)""", id, origin["id"], recipient["id"], "report", datetime.datetime.now().timestamp())
+        id = str(uuid.uuid4())
+        await db.execute("""INSERT INTO interactions (id, origin, recipient, type, date) VALUES ($1, $2, $3, $4, $5)""", id, origin["id"], recipient["id"], "block", datetime.datetime.now().timestamp())
         await send_email(
             "theo.nard18@gmail.com",
             "Report",
@@ -610,3 +612,47 @@ async def report(db, origin, recipient):
         return report_success()
     except Exception as e:
         print(e)
+
+async def get_views_by_user(db, user):
+    try:
+        result = await db.fetch(
+            """SELECT * FROM interactions WHERE recipient = $1""",
+            user["id"],
+        )
+        if not result:
+            return []
+        parsed = []
+        for view in result:
+            user = await search_user_by_id(db, view["origin"])
+            _user = {
+                'image': user["images"][0] if user["images"] else "",
+                'firstName': user["first_name"],
+                'age': user["age"],
+                'id': user["id"],
+            }
+            parsed.append(_user)
+        return parsed
+    except Exception:
+        return []
+
+async def get_likes_by_user(db, user):
+    try:
+        result = await db.fetch(
+            """SELECT * FROM interactions WHERE recipient = $1 AND (type = 'like')""",
+            user["id"],
+        )
+        if not result:
+            return []
+        parsed = []
+        for view in result:
+            user = await search_user_by_id(db, view["origin"])
+            _user = {
+                'image': user["images"][0] if user["images"] else "",
+                'firstName': user["first_name"],
+                'age': user["age"],
+                'id': user["id"],
+            }
+            parsed.append(_user)
+        return parsed
+    except Exception:
+        return []

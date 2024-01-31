@@ -93,6 +93,29 @@ async def logout(request: Request, db=Depends(get_database)):
         return invalid_token()
     return await logout_user(db, get_token(data["headers"]))
 
+@user_controller.get("/views")
+async def get_views(request: Request, db=Depends(get_database)):
+    data = await parse_request(request)
+    token = get_token(data["headers"])
+    if token is None:
+        return empty_token()
+
+    user = await search_user_by_token(db, token)
+    if not user:
+        return authentication_required()
+    return await get_views_by_user(db, user)
+
+@user_controller.get("/likes")
+async def get_views(request: Request, db=Depends(get_database)):
+    data = await parse_request(request)
+    token = get_token(data["headers"])
+    if token is None:
+        return empty_token()
+
+    user = await search_user_by_token(db, token)
+    if not user:
+        return authentication_required()
+    return await get_likes_by_user(db, user)
 
 @user_controller.get("/{id}")
 async def get_specific_user(id, request: Request, db=Depends(get_database)):

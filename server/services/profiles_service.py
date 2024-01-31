@@ -40,9 +40,8 @@ async def get_profiles_filtered(db, user, _filter):
         return invalid_elo()
     if (_filter["min_age"] < 18 or _filter["min_age"] > 100 or _filter["max_age"] < 18 or _filter["max_age"] > 99):
         return invalid_age()
-    if (_filter["distance"] > 200 or _filter["distance"] < 5):
+    if (_filter["distance"] > 200 or _filter["distance"] < 1):
         return invalid_distance()
-
     # elo <- tags <- distance 
     result = await db.fetch(
         "SELECT * FROM users WHERE id != $1 AND completion = $2 AND age >= $3 AND age <= $4 AND elo >= $5 AND elo <= $6",
@@ -86,7 +85,7 @@ async def get_profiles_filtered(db, user, _filter):
                     user["orientation"] == "heterosexual" and user["gender"] != i["gender"]
                 ):
                     striped.append(_tmp)
-        if len(striped) >= 20:
+        if len(striped) >= 50:
             break
     # remove key geoloc and username
     for i in striped:
@@ -94,14 +93,13 @@ async def get_profiles_filtered(db, user, _filter):
         i.pop("geoloc")
         i.pop("username")
         i.pop("lastName")
-        i.pop("tags")
         if (i["distance"] <= 1):
             i["distance"] = 1
 
     # sort in first by elo, then by tags, then by distance
-    striped.sort(key=lambda x: x["elo"], reverse=True)
-    striped.sort(key=lambda x: x["common_tags_number"], reverse=True)
-    striped.sort(key=lambda x: x["distance"], reverse=False)
+    #striped.sort(key=lambda x: x["elo"], reverse=True)
+    #striped.sort(key=lambda x: x["common_tags_number"], reverse=True)
+    #striped.sort(key=lambda x: x["distance"], reverse=False)
 
     # add distance to each profile
 

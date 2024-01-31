@@ -7,6 +7,7 @@ from utils.parse_request import *
 from responses.errors.errors_422 import *
 from responses.errors.errors_400 import *
 import httpx
+import geopy.distance
 
 geoloc_controller = APIRouter(prefix="/geoloc", tags=["geoloc"])
 
@@ -34,7 +35,41 @@ async def get_geoloc(request: Request, db=Depends(get_database)):
 @geoloc_controller.get("/all")
 async def get_geoloc(request: Request, db=Depends(get_database)):
     users = await db.fetch("SELECT * FROM users")
+    _user = await search_user_by_token(db, get_token(request.headers))
     geoloc = []
     for user in users:
-        geoloc.append(user["geoloc"])
+        data = {}
+        data["firstName"] = user["first_name"]
+        data["lastName"] = user["last_name"]
+        data["id"] = user["id"]
+        data["geoloc"] = user["geoloc"]
+        data["image"] = user["images"][0] if user["images"] is not None and len(user["images"]) > 0 else ""
+        data["elo"] = user["elo"]
+        distance = geopy.distance.distance(user["geoloc"], _user["geoloc"]).km
+        if distance < 50:
+            data["icon"] = "https://cdn.discordapp.com/attachments/1117526565258010745/1202237628653510686/zQ2iHlRAAAASElEQVR4nO3BMQEAAADCoPVPbQlPoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADBsXcAAGLPH6gAAAAAElFTkSuQmCC.png"
+        else:
+            data["icon"] = "https://cdn.discordapp.com/attachments/1117526565258010745/1202237654603935805/pngbase64iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAA1BMVEX5AwOvS3f8AAAASElEQVR4nO3BgQAAAADDoPlTXAIVQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwDcaiAAFXD1ujAAAAAElFTkSuQmCC.png"
+        geoloc.append(data)
+    return geoloc
+
+@geoloc_controller.get("/all/{_distance}")
+async def get_geoloc(_distance, request: Request, db=Depends(get_database)):
+    users = await db.fetch("SELECT * FROM users")
+    _user = await search_user_by_token(db, get_token(request.headers))
+    geoloc = []
+    for user in users:
+        data = {}
+        data["firstName"] = user["first_name"]
+        data["lastName"] = user["last_name"]
+        data["id"] = user["id"]
+        data["geoloc"] = user["geoloc"]
+        data["image"] = user["images"][0] if user["images"] is not None and len(user["images"]) > 0 else ""
+        data["elo"] = user["elo"]
+        distance = geopy.distance.distance(user["geoloc"], _user["geoloc"]).km
+        if distance < int(_distance):
+            data["icon"] = "https://cdn.discordapp.com/attachments/1117526565258010745/1202237628653510686/zQ2iHlRAAAASElEQVR4nO3BMQEAAADCoPVPbQlPoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADBsXcAAGLPH6gAAAAAElFTkSuQmCC.png"
+        else:
+            data["icon"] = "https://cdn.discordapp.com/attachments/1117526565258010745/1202237654603935805/pngbase64iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAA1BMVEX5AwOvS3f8AAAASElEQVR4nO3BgQAAAADDoPlTXAIVQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwDcaiAAFXD1ujAAAAAElFTkSuQmCC.png"
+        geoloc.append(data)
     return geoloc
