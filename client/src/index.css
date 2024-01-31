@@ -57,6 +57,21 @@ body::-webkit-scrollbar {
   align-items: center;
 }
 
+.homePage .filtersButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0;
+  min-width: 0 !important;
+}
+
+.filtersModal {
+  position: absolute;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-47%, -50%)!important;
+}
+
 .header {
   background-color: #143857 !important;
   position: sticky;
@@ -101,20 +116,22 @@ body::-webkit-scrollbar {
   flex-direction: column;
   width: 100%;
   height: 632px;
+  margin-top: 38px;
   overflow-y: scroll;
 }
 
 .profileViewer .reportButton {
   position: absolute;
-  padding : 0;
+  padding: 0;
   margin-top: 10px;
   margin-left: 10px;
   left: 0;
   top: 0;
-  min-width: 0!important;
-  color : #ff000049;
+  min-width: 0 !important;
+  color: #ff000049;
+
   &:hover {
-    color : #ff0000;
+    color: #ff0000;
   }
 }
 
@@ -126,10 +143,11 @@ body::-webkit-scrollbar {
   padding-right: 0;
   padding-top: 10px;
   padding-bottom: 10px;
-  color : #fff;
+  color: #fff;
   border-radius: 0 120px 120px 0;
   background-color: rgba(0, 0, 0, 0.2);
-  min-width: 0!important;
+  min-width: 0 !important;
+
   &:hover {
     background-color: rgba(0, 0, 0, 0.4);
   }
@@ -143,31 +161,32 @@ body::-webkit-scrollbar {
   padding-right: 0;
   padding-top: 10px;
   padding-bottom: 10px;
-  color : #fff;
+  color: #fff;
   border-radius: 120px 0 0 120px;
   background-color: rgba(0, 0, 0, 0.2);
-  min-width: 0!important;
+  min-width: 0 !important;
+
   &:hover {
     background-color: rgba(0, 0, 0, 0.4);
   }
 }
 
 .profileViewer .skipLikeButtons .skipButton {
-  color : #ff0000;
+  color: #ff0000;
   background-color: rgb(255, 255, 255);
   border: 1px solid #ff0000;
   border-radius: 360px;
-  padding : 8px;
-  min-width: 0!important;
+  padding: 8px;
+  min-width: 0 !important;
 }
 
 .profileViewer .skipLikeButtons .likeButton {
-  color : #22ff00;
+  color: #22ff00;
   background-color: rgb(255, 255, 255);
   border: 1px solid #22ff00;
   border-radius: 360px;
-  padding : 8px;
-  min-width: 0!important;
+  padding: 8px;
+  min-width: 0 !important;
 }
 
 .profileViewer .skipLikeButtons {

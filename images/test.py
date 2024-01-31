@@ -94,7 +94,7 @@ TAGS = {
 
 gender = "male"
 age = "19-25"
-number = 1000
+number = 1500
 
 async def get_images():
     for i in range(0, number):
@@ -110,7 +110,8 @@ async def get_profiles():
     rand = random.randint(0, 1000000)
     male_26_35 = requests.get("https://randomuser.me/api/?gender=%s&results=%s" % (gender, number * 2))
     u = 0
-    for i in male_26_35.json()["results"]: # male
+    list = male_26_35.json()["results"]
+    for i in list: # male
         # print(i["name"]["first"], i["name"]["last"], i["email"], "bot%s%s" % (random, u), "Qw@rty123456")
         r = requests.post("https://back-matcha.pandeo.fr/user", json={
             "username": "bot%s%s" % (rand, u),
@@ -123,73 +124,78 @@ async def get_profiles():
         if (r.json()["message"] == "Account created successfully, please check your email"):
             u = u + 1
             print ("created: %s/%s" % (u, number), i["name"]["first"], i["name"]["last"], i["email"], "bot%s%s" % (rand, u), "Qw@rty123456")
+        else:
+            list.remove(i)
         if (u == number):
             break
 
     db = await asyncpg.connect('postgresql://matchadmin:matchapasspas@localhost/matcha')
     await db.execute("UPDATE users SET completion = 1 WHERE completion = 0")
     u = 0
-    for i in male_26_35.json()["results"]:
+    for i in list:
         # login 
-        r = requests.post("https://back-matcha.pandeo.fr/user/login", json={
-            "username": "bot%s%s" % (rand, u),
-            "password": "Qw@rty123456"
-        })
-        if (r.json()["message"] == "Login Success"):
-            # update 
-            token = "Bearer " + r.json()["token"]
-            # upload images
-            image_request = requests.post("https://back-matcha.pandeo.fr/image/upload", files={
-                "image": open("images/%s.jpg" % u, "rb")
-            }, headers={
-                "Authorization": token
+        try:
+            r = requests.post("https://back-matcha.pandeo.fr/user/login", json={
+                "username": "bot%s%s" % (rand, u),
+                "password": "Qw@rty123456"
             })
-            images = []
-            if (image_request.json()["message"] == "Image uploaded successfully"):
-                print("image uploaded: %s/%s" % (u + 1, number))
-                images.append(image_request.json()["url"])
-            else:
-                print("Error %s/%s %s %s" % (u + 1, number, image_request.json(), token))
+            if (r.json()["message"] == "Login Success"):
+                # update 
+                token = "Bearer " + r.json()["token"]
+                # upload images
+                image_request = requests.post("https://back-matcha.pandeo.fr/image/upload", files={
+                    "image": open("images/%s.jpg" % u, "rb")
+                }, headers={
+                    "Authorization": token
+                })
+                images = []
+                if (image_request.json()["message"] == "Image uploaded successfully"):
+                    print("image uploaded: %s/%s" % (u + 1, number))
+                    images.append(image_request.json()["url"])
+                else:
+                    print("Error %s/%s %s %s" % (u + 1, number, image_request.json(), token))
 
-            images.append("https://back-matcha.pandeo.fr/image/7033b0af-5467-4cdd-90b2-a39f0ee8b2a2")
-            images.append("https://back-matcha.pandeo.fr/image/83ecbdc7-c659-48f7-8be1-c726c919367b")
-            bio = lorem.sentence()
-            tags = {}
-            for tag in TAGS:
-                tags[tag] = True if random.randint(0,6) == 5 else False
-            orientation = "bisexual" if random.randint(0,1) == 1 else "heterosexual"
-            orientation = orientation if random.randint(0,1) == 1 else "homosexual"
-            # random geoloc in France
-            geoloc = {
-                "lat": random.uniform(41.0, 51.0),
-                "lon": random.uniform(-5.0, 9.0)
-            }
-            update = requests.put("https://back-matcha.pandeo.fr/user", json={
-                "email": i["email"],
-                "lastName": i["name"]["last"],
-                "firstName": i["name"]["first"],
-                "images": images,
-                "bio": bio,
-                "tags": tags,
-                "age": random.randint(18, 35) if age == "26-35" else random.randint(50, 80),
-                "orientation": orientation,
-                "gender": gender,
-                "geoloc": "%s,%s" % (geoloc["lat"], geoloc["lon"])
-            }, headers={
-                "Authorization": token
-            })
-            if (update.json()["message"] == "Your profile has been updated"):
-                u = u + 1
-                print ("updated: %s/%s" % (u, number), i["name"]["first"], i["name"]["last"], i["email"], "bot%s%s" % (rand, u), "Qw@rty123456", geoloc["lat"], geoloc["lon"])
-            else:
-                print("Error %s/%s %s" % (u + 1, number, update.json()))
-            # u = u + 1
-            #print ("updated: %s/200" % u, i["name"]["first"], i["name"]["last"], i["email"], "bot%s%s" % (random, u), "Qw@rty123456")
-        if (u == number):
-            break
+                images.append("https://back-matcha.pandeo.fr/image/7033b0af-5467-4cdd-90b2-a39f0ee8b2a2")
+                images.append("https://back-matcha.pandeo.fr/image/83ecbdc7-c659-48f7-8be1-c726c919367b")
+                bio = lorem.sentence()
+                tags = {}
+                for tag in TAGS:
+                    tags[tag] = True if random.randint(0,6) == 5 else False
+                orientation = "bisexual" if random.randint(0,1) == 1 else "heterosexual"
+                orientation = orientation if random.randint(0,1) == 1 else "homosexual"
+                # random geoloc in France
+                geoloc = {
+                    "lat": random.uniform(41.0, 51.0),
+                    "lon": random.uniform(-5.0, 9.0)
+                }
+                update = requests.put("https://back-matcha.pandeo.fr/user", json={
+                    "email": i["email"],
+                    "lastName": i["name"]["last"],
+                    "firstName": i["name"]["first"],
+                    "images": images,
+                    "bio": bio,
+                    "tags": tags,
+                    "age": random.randint(18, 35) if age == "26-35" else random.randint(50, 80),
+                    "orientation": orientation,
+                    "gender": gender,
+                    "geoloc": "%s,%s" % (geoloc["lat"], geoloc["lon"])
+                }, headers={
+                    "Authorization": token
+                })
+                if (update.json()["message"] == "Your profile has been updated"):
+                    u = u + 1
+                    print ("updated: %s/%s" % (u, number), i["name"]["first"], i["name"]["last"], i["email"], "bot%s%s" % (rand, u), "Qw@rty123456", geoloc["lat"], geoloc["lon"])
+                else:
+                    print("Error %s/%s %s" % (u + 1, number, update.json()))
+                # u = u + 1
+                #print ("updated: %s/200" % u, i["name"]["first"], i["name"]["last"], i["email"], "bot%s%s" % (random, u), "Qw@rty123456")
+            if (u == number):
+                break
+        except:
+            print("Error %s/%s" % (u + 1, number))
 
 if __name__ == "__main__":
-    asyncio.run(get_images())
+    #asyncio.run(get_images())
     asyncio.run(get_profiles())
 
              #       body["orientation"] != "biseuxal"

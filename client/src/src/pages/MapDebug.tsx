@@ -3,15 +3,18 @@ import instance from "../api/Instance"
 import { useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
 import L, { LatLngExpression } from "leaflet"
+import { Button } from "@mui/material"
 
 const MapDebug = () => {
     const navigate = useNavigate()
-    const [allPosition, setAllPosition] = useState([])
+    const [allUsers, setAllUsers] = useState([])
+    const [hoveredPosition, setHoveredPosition] = useState<string | null>(null)
+    const [hoveredUser, setHoveredUser] = useState<any | null>(null)
 
     const getAllPosition = async () => {
-        await instance.get('/geoloc/all').then((res) => {
+        await instance.get('/geoloc/all/' + JSON.parse(localStorage.getItem("filterParams") || "").distance).then((res) => {
             console.log(res.data)
-            setAllPosition(res.data)
+            setAllUsers(res.data)
         }).catch(() => {
             localStorage.removeItem("token")
             navigate('/login')
@@ -26,15 +29,43 @@ const MapDebug = () => {
 
     return (
         <div className="mapContainer position-relative">
+            <img src={hoveredUser ? hoveredUser.image : ''} style={{ width: "50px", height: "50px" }} loading="lazy" onError={(e) => { e.currentTarget.src = '' }} />
+            <p>
+                {hoveredUser ? hoveredUser.firstName : ''} {hoveredUser ? hoveredUser.lastName : ''}
+            </p>
+            <p>
+                {hoveredUser ? hoveredUser.id : ''}
+            </p>
+            <p>
+                {hoveredUser ? hoveredUser.geoloc : ''}
+            </p>
+            <Button color="primary" variant="contained"
+            onClick={() => {
+                getAllPosition()
+            }}>
+                Refresh
+            </Button>
             <MapContainer center={[0, 0]} zoom={13} style={{ height: '800px', width: '100%' }}>
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                {allPosition.map((position : string) => {
-                    const positionTyped : LatLngExpression = {lat: parseFloat(position.split(',')[0]), lng: parseFloat(position.split(',')[1])}
+                {allUsers.map((user: Any, index: number) => {
+                    const positionTyped: LatLngExpression = { lat: parseFloat(user.geoloc.split(',')[0]), lng: parseFloat(user.geoloc.split(',')[1]) }
                     return (
                         <Marker
+                            key={index}
                             position={positionTyped}
+                            icon={L.icon({
+                                iconUrl: user.icon,
+                                iconSize: [15, 15],
+                            })}
+                            eventHandlers={
+                                {
+                                    mouseover: () => {
+                                        setHoveredUser(user)
+                                    }
+                                }
+                            }
                         />
                     )
                 })}

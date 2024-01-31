@@ -8,10 +8,12 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import ChatRoundedIcon from '@mui/icons-material/ChatRounded';
 import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Card, CircularProgress } from "@mui/material"
+import { Button, Card, CircularProgress, Modal, Slider, Typography } from "@mui/material"
 import forgeron from '../../assets/forgeron.jpg'
 import ProfileViewer from "../components/ProfileViewer";
 import { ProfilesModel } from "../components/models/ProfilesModel";
+import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
+import CloseIcon from '@mui/icons-material/Close';
 import _ from "lodash";
 
 interface HomePageProps {
@@ -26,6 +28,10 @@ const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
     const [areProfilesLoading, setAreProfilesLoading] = useState(true)
     const [profileIndex, setProfileIndex] = useState(0)
     const [isHandlingLikeOrSkip, setIsHandlingLikeOrSkip] = useState(false)
+    const [isFiltersModalOpened, setIsFiltersModalOpened] = useState(false)
+    const [ageSliderValue, setAgeSliderValue] = useState<number[]>([18, 99])
+    const [eloSliderValue, setEloSliderValue] = useState<number[]>([0, 1000])
+    const [distanceSliderValue, setDistanceSliderValue] = useState<number>(50)
     const defaultFilterParams = {
         minAge: 18,
         maxAge: 99,
@@ -46,32 +52,28 @@ const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
         setProfileIndex(0)
         setAreProfilesLoading(true)
         let filterParams = defaultFilterParams
-        // try {
-        //     filterParams = JSON.parse(localStorage.getItem("filterParams") || "{}")
-        // }
-        // catch (err) {
-        //     localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
-        // }
+        try {
+            filterParams = JSON.parse(localStorage.getItem("filterParams") || "{}")
+        }
+        catch (err) {
+            localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+        }
         await instance.post('/profiles/queries',
             {
                 min_age: filterParams.minAge,
                 max_age: filterParams.maxAge,
                 min_elo: filterParams.minElo,
-                // max_elo: filterParams.maxElo,
-                // distance: filterParams.distance,
-                // min_tags: filterParams.minTags,
+                max_elo: filterParams.maxElo,
+                distance: filterParams.distance,
+                min_tags: filterParams.minTags,
             }
         ).then((res) => {
             setProfiles(res.data.profiles)
         }).catch((err) => {
-            if (err.response?.data.message)
-            {
+            if (err.response?.data.message) {
                 if (String(err.response?.data.message).includes('Missing key(s)'))
                     checkFilterParams()
-                else
-                    setErrorAlert(err.response?.data.message)
             }
-                setErrorAlert(err.response?.data.message)
         }).finally(() => {
             setAreProfilesLoading(false)
         })
@@ -105,9 +107,11 @@ const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
         })
     }
 
-    const reportProfile = async (profileId: string) => {
+    const reportProfile = async (profileId: string, message: string) => {
         setIsHandlingLikeOrSkip(true)
-        await instance.post(`/user/${profileId}/report`).then(() => {
+        await instance.post(`/user/${profileId}/report`, {
+            message: message
+        }).then(() => {
             if (profileIndex === profiles.length - 1)
                 getProfiles()
             else
@@ -123,36 +127,33 @@ const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
     const checkFilterParams = () => {
         if (localStorage.getItem("filterParams")) {
             try {
-                // const filterParams = JSON.parse(localStorage.getItem("filterParams") || "")
+                const filterParams = JSON.parse(localStorage.getItem("filterParams") || "")
 
 
-                // const filterParamsKeys = Object.keys(filterParams)
-                // const defaultFilterParamsKeys = Object.keys(defaultFilterParams)
+                const filterParamsKeys = Object.keys(filterParams)
+                const defaultFilterParamsKeys = Object.keys(defaultFilterParams)
 
-                // // i need something else than isEqual because if one of the object has more keys than the other, it will return true
-
-                // console.log(filterParamsKeys)
-                // console.log(defaultFilterParamsKeys)
-                // console.log(_.isEqual(filterParamsKeys, defaultFilterParamsKeys))
-
-                // if (_.isEqual(filterParamsKeys, defaultFilterParamsKeys) && filterParamsKeys.every((key) => typeof filterParams[key] === 'number'))
-                //     if (filterParams.minAge < 18 || filterParams.minAge > 99 || filterParams.maxAge < 18 || filterParams.maxAge > 99 || filterParams.minAge > filterParams.maxAge)
-                //         localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
-                //     else if (filterParams.minElo < 0 || filterParams.minElo > 1000 || filterParams.maxElo < 0 || filterParams.maxElo > 1000 || filterParams.minElo > filterParams.maxElo)
-                //         localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
-                //     else if (filterParams.distance < 0 || filterParams.distance > 200)
-                //         localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
-                //     else if (filterParams.minTags < 1 || filterParams.minTags > 20)
-                //         localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
-                // else
-                // {
-                //     console.log('here')
-                //     localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
-                // }
+                if (_.isEqual(filterParamsKeys, defaultFilterParamsKeys) && filterParamsKeys.every((key) => typeof filterParams[key] === 'number')) {
+                    if (filterParams.minAge < 18 || filterParams.minAge > 99 || filterParams.maxAge < 18 || filterParams.maxAge > 99 || filterParams.minAge > filterParams.maxAge)
+                        localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+                    else if (filterParams.minElo < 0 || filterParams.minElo > 1000 || filterParams.maxElo < 0 || filterParams.maxElo > 1000 || filterParams.minElo > filterParams.maxElo)
+                        localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+                    else if (filterParams.distance < 1 || filterParams.distance > 200)
+                        localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+                    else if (filterParams.minTags < 0 || filterParams.minTags > 20)
+                        localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+                    else {
+                        setAgeSliderValue([filterParams.minAge, filterParams.maxAge])
+                        setEloSliderValue([filterParams.minElo, filterParams.maxElo])
+                        setDistanceSliderValue(filterParams.distance)
+                    }
+                }
+                else {
+                    localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+                }
 
             }
-            catch (err) {
-                console.log(err)
+            catch {
                 localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
             }
         }
@@ -185,9 +186,110 @@ const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
 
     return (
         <div className="homePage container">
+            <Modal
+                open={isFiltersModalOpened}
+                onClose={() => { setIsFiltersModalOpened(false); getProfiles() }}
+            >
+                <div className="row justify-content-center p-0 p-2 filtersModal">
+                    <Card className="col-xs-12 col-sm-12 col-md-10 col-lg-8 col-xl-6 col-xxl-5 pt-3 d-flex w-100 flex-column" elevation={6}>
+                        <div className="d-flex justify-content-end align-items-center w-100">
+                            <Button className="mb-4 min-width-0" style={{ minWidth: 0 }} onClick={() => { setIsFiltersModalOpened(false); getProfiles() }}>
+                                <CloseIcon color="primary" />
+                            </Button>
+                        </div>
+                        <div className="d-flex align-items-center w-100">
+                            <Typography id="age-slider" style={{ marginLeft: "24px", marginRight: "24px" }}>
+                                Age range
+                            </Typography>
+                            <Slider
+                                getAriaLabel={() => 'Age range'}
+                                min={18}
+                                max={99}
+                                style={{ width: "210px", margin: "24px" }}
+                                value={ageSliderValue}
+                                onChange={(event, newValue) => {
+                                    if (localStorage.getItem("filterParams")) {
+                                        const filterParams = JSON.parse(localStorage.getItem("filterParams") || "{}")
+                                        if (typeof newValue === "number")
+                                            return
+                                        filterParams.minAge = newValue[0] ? newValue[0] : defaultFilterParams.minAge
+                                        filterParams.maxAge = newValue[1] ? newValue[1] : defaultFilterParams.maxAge
+                                        localStorage.setItem("filterParams", JSON.stringify(filterParams))
+                                        setAgeSliderValue(newValue)
+                                    }
+                                    else
+                                        localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+                                }
+                                }
+                                valueLabelDisplay="on"
+                                aria-labelledby="age-slider"
+                            />
+                        </div>
+                        <div className="d-flex align-items-center w-100">
+                            <Typography id="elo-slider" style={{ marginLeft: "24px", marginRight: "24px" }}>
+                                Elo range
+                            </Typography>
+                            <Slider
+                                getAriaLabel={() => 'Elo range'}
+                                min={0}
+                                max={1000}
+                                step={10}
+                                style={{ width: "210px", margin: "24px" }}
+                                value={eloSliderValue}
+                                onChange={(event, newValue) => {
+                                    if (localStorage.getItem("filterParams")) {
+                                        const filterParams = JSON.parse(localStorage.getItem("filterParams") || "{}")
+                                        if (typeof newValue === "number")
+                                            return
+                                        filterParams.minElo = newValue[0] ? newValue[0] : defaultFilterParams.minElo
+                                        filterParams.maxElo = newValue[1] ? newValue[1] : defaultFilterParams.maxElo
+                                        localStorage.setItem("filterParams", JSON.stringify(filterParams))
+                                        setEloSliderValue(newValue)
+                                    }
+                                    else
+                                        localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+                                }
+                                }
+                                valueLabelDisplay="on"
+                                aria-labelledby="elo-slider"
+                            />
+                        </div>
+                        <div className="d-flex align-items-center w-100">
+                            <Typography id="distance-slider" style={{ marginLeft: "24px", marginRight: "24px" }}>
+                                Distance max
+                            </Typography>
+                            <Slider
+                                getAriaLabel={() => 'Distance max'}
+                                min={1}
+                                max={200}
+                                style={{ width: "210px", margin: "24px" }}
+                                valueLabelDisplay="on"
+                                aria-labelledby="distance-slider"
+                                value={distanceSliderValue}
+                                onChange={(event, newValue) => {
+                                    if (localStorage.getItem("filterParams")) {
+                                        const filterParams = JSON.parse(localStorage.getItem("filterParams") || "{}")
+                                        if (typeof newValue !== "number")
+                                            return
+                                        filterParams.distance = newValue ? newValue : defaultFilterParams.distance
+                                        localStorage.setItem("filterParams", JSON.stringify(filterParams))
+                                        setDistanceSliderValue(newValue)
+                                    }
+                                    else
+                                        localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+                                }
+                                }
+                            />
+                        </div>
+                    </Card>
+                </div>
+            </Modal>
             {isPageLoading ? <CircularProgress color="secondary" className="mt-4" /> :
-                <div className="row justify-content-center p-2 w-100">
+                <div className="row justify-content-center p-0 p-2 w-100">
                     <Card className="col-xs-12 col-sm-12 col-md-10 col-lg-8 col-xl-6 col-xxl-5 pt-3 position-relative d-flex" elevation={6} style={{ minHeight: "647px" }}>
+                        <Button className="filtersButton me-3 mt-3" onClick={() => { checkFilterParams(); setIsFiltersModalOpened(true) }} title="Filters">
+                            <TuneRoundedIcon color="primary" />
+                        </Button>
                         {
                             menuValue === 'discover' ?
                                 areProfilesLoading ? <CircularProgress color="secondary" className="mt-4" /> :
