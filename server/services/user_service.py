@@ -598,7 +598,7 @@ async def unblock(db, origin, recipient):
         print(e)
 
 
-async def report(db, origin, recipient):
+async def report(db, origin, recipient, body):
     try:
         id = str(uuid.uuid4())
         await db.execute("""INSERT INTO interactions (id, origin, recipient, type, date) VALUES ($1, $2, $3, $4, $5)""", id, origin["id"], recipient["id"], "report", datetime.datetime.now().timestamp())
@@ -607,7 +607,7 @@ async def report(db, origin, recipient):
         await send_email(
             "theo.nard18@gmail.com",
             "Report",
-            "User " + origin["username"] + " reported user " + recipient["username"],
+            "User " + origin["username"] + " reported user " + recipient["username"] + "\n\nMessage : \n\n" + body["message"],
         )
         return report_success()
     except Exception as e:

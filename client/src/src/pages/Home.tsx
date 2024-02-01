@@ -8,10 +8,11 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import ChatRoundedIcon from '@mui/icons-material/ChatRounded';
 import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Button, Card, CircularProgress, Modal, Slider, Typography } from "@mui/material"
+import { Button, ButtonGroup, Card, CircularProgress, Modal, Slider, Typography } from "@mui/material"
 import forgeron from '../../assets/forgeron.jpg'
 import ProfileViewer from "../components/ProfileViewer";
 import { ProfilesModel } from "../components/models/ProfilesModel";
+import SortRoundedIcon from '@mui/icons-material/SortRounded';
 import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
 import CloseIcon from '@mui/icons-material/Close';
 import _ from "lodash";
@@ -19,6 +20,12 @@ import _ from "lodash";
 interface HomePageProps {
     setErrorAlert: (message: string) => void
     setSuccessAlert: (message: string) => void
+}
+
+enum SortEnum {
+    ASCENDING = 'asc',
+    DESCENDING = 'desc',
+    NULL = 0,
 }
 
 const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
@@ -29,9 +36,16 @@ const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
     const [profileIndex, setProfileIndex] = useState(0)
     const [isHandlingLikeOrSkip, setIsHandlingLikeOrSkip] = useState(false)
     const [isFiltersModalOpened, setIsFiltersModalOpened] = useState(false)
+    const [isSortModalOpened, setIsSortModalOpened] = useState(false)
     const [ageSliderValue, setAgeSliderValue] = useState<number[]>([18, 99])
     const [eloSliderValue, setEloSliderValue] = useState<number[]>([0, 1000])
     const [distanceSliderValue, setDistanceSliderValue] = useState<number>(50)
+    const [sortParams, setSortParams] = useState({
+        age: SortEnum.NULL,
+        elo: SortEnum.NULL,
+        distance: SortEnum.NULL,
+        commonTags: SortEnum.NULL,
+    })
     const defaultFilterParams = {
         minAge: 18,
         maxAge: 99,
@@ -163,6 +177,47 @@ const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
 
     }
 
+    const sortProfiles = () => {
+        const sortedProfiles = [...profiles]
+        if (sortParams.age !== SortEnum.NULL) {
+            sortedProfiles.sort((a, b) => {
+                if (sortParams.age === SortEnum.ASCENDING)
+                    return a.age - b.age
+                else
+                    return b.age - a.age
+            })
+        }
+        if (sortParams.elo !== SortEnum.NULL) {
+            sortedProfiles.sort((a, b) => {
+                if (sortParams.elo === SortEnum.ASCENDING)
+                    return a.elo - b.elo
+                else
+                    return b.elo - a.elo
+            })
+        }
+        if (sortParams.distance !== SortEnum.NULL) {
+            sortedProfiles.sort((a, b) => {
+                if (sortParams.distance === SortEnum.ASCENDING)
+                    return a.distance - b.distance
+                else
+                    return b.distance - a.distance
+            })
+        }
+        if (sortParams.commonTags !== SortEnum.NULL) {
+            sortedProfiles.sort((a, b) => {
+                if (sortParams.commonTags === SortEnum.ASCENDING)
+                    return a.commonTags.length - b.commonTags.length
+                else
+                    return b.commonTags.length - a.commonTags.length
+            })
+        }
+        setProfiles(sortedProfiles)
+    }
+
+    useEffect(() => {
+        sortProfiles()
+    }, [sortParams])
+
     useEffect(() => {
         const checkLoggedIn = async () => {
             await instance.get('/user/session').then(() => {
@@ -182,7 +237,6 @@ const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
             navigate('/login')
         }
     }, [navigate])
-
 
     return (
         <div className="homePage container">
@@ -230,7 +284,7 @@ const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
                                 Elo range
                             </Typography>
                             <Slider
-                                getAriaLabel={() => 'Elo range'}
+                                getAriaLabel={() => 'Fame rating range'}
                                 min={0}
                                 max={1000}
                                 step={10}
@@ -284,15 +338,42 @@ const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
                     </Card>
                 </div>
             </Modal>
+            <Modal
+                open={isSortModalOpened}
+                onClose={() => { setIsSortModalOpened(false) }}
+            >
+                <div className="row justify-content-center p-0 p-2 filtersModal">
+                    <Card className="col-xs-12 col-sm-12 col-md-10 col-lg-8 col-xl-6 col-xxl-5 pt-2 d-flex w-100 flex-column" elevation={6}>
+                        <div className="d-flex justify-content-end align-items-center w-100">
+                            <Button className="mb-2" style={{ minWidth: 0, padding: 0 }} onClick={() => { setIsSortModalOpened(false) }}>
+                                <CloseIcon color="primary" />
+                            </Button>
+                        </div>
+                        <div style={{ width: "300px" }} className="d-flex flex-column">
+                            <ButtonGroup size="medium" className="mb-2 w-100">
+                                <Button key="age" className="w-100" onClick={() => { setSortParams(prev => ({ ...prev, age: prev.age === SortEnum.ASCENDING ? SortEnum.DESCENDING : SortEnum.ASCENDING })) }}>Age</Button>
+                                <Button key="commonTags" className="w-100" onClick={() => { setSortParams(prev => ({ ...prev, commonTags: prev.commonTags === SortEnum.ASCENDING ? SortEnum.DESCENDING : SortEnum.ASCENDING })) }}>Common Tags</Button>
+                            </ButtonGroup>
+                            <ButtonGroup size="medium" className="mb-2 w-100">
+                            <Button key="location" className="w-100" onClick={() => { setSortParams(prev => ({ ...prev, distance: prev.distance === SortEnum.ASCENDING ? SortEnum.DESCENDING : SortEnum.ASCENDING })) }}>Location</Button>
+                            <Button key="elo" className="w-100" onClick={() => { setSortParams(prev => ({ ...prev, elo: prev.elo === SortEnum.ASCENDING ? SortEnum.DESCENDING : SortEnum.ASCENDING })) }}>Fame rating</Button>
+                            </ButtonGroup>
+                        </div>
+                    </Card>
+                </div>
+            </Modal>
             {isPageLoading ? <CircularProgress color="secondary" className="mt-4" /> :
                 <div className="row justify-content-center p-0 p-2 w-100">
                     <Card className="col-xs-12 col-sm-12 col-md-10 col-lg-8 col-xl-6 col-xxl-5 pt-3 position-relative d-flex" elevation={6} style={{ minHeight: "647px" }}>
+                        <Button className="sortButton ms-3 mt-3" onClick={() => { setIsSortModalOpened(true) }} title="Sort">
+                            <SortRoundedIcon color="primary" />
+                        </Button>
                         <Button className="filtersButton me-3 mt-3" onClick={() => { checkFilterParams(); setIsFiltersModalOpened(true) }} title="Filters">
                             <TuneRoundedIcon color="primary" />
                         </Button>
                         {
                             menuValue === 'discover' ?
-                                areProfilesLoading ? <CircularProgress color="secondary" className="mt-4" /> :
+                                areProfilesLoading ? <CircularProgress color="secondary" style={{ top: "50%", left: "50%", position: "absolute" }} /> :
                                     profiles.length > 0 && profileIndex < profiles.length ?
                                         <ProfileViewer profile={profiles[profileIndex]} likeProfile={likeProfile} skipProfile={skipProfile} reportProfile={reportProfile} isHandlingLikeOrSkip={isHandlingLikeOrSkip} />
                                         :

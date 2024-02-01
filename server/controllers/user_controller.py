@@ -237,6 +237,9 @@ async def report_user(id, request: Request, db=Depends(get_database)):
     token = get_token(data["headers"])
     if token is None:
         return empty_token()
+    validator = body_validator(data["body"], ["message"], str)
+    if validator is not None:
+        return validator
     origin = await search_user_by_token(db, token)
     if not origin:
         return authentication_required()
@@ -245,4 +248,4 @@ async def report_user(id, request: Request, db=Depends(get_database)):
         return user_not_found()
     if origin["id"] == recipient["id"]:
         return no_self_interact()
-    return await report(db, origin, recipient)
+    return await report(db, origin, recipient, data["body"])

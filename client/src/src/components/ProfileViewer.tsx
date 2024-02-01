@@ -19,7 +19,7 @@ interface ProfileViewerProps {
 	profile: ProfilesModel
 	likeProfile: (profileId: string) => Promise<void> | null
 	skipProfile: (profileId: string) => Promise<void> | null
-	reportProfile?: (profileId: string, message : string) => Promise<void> | null
+	reportProfile?: (profileId: string, message: string) => Promise<void> | null
 	isHandlingLikeOrSkip?: boolean
 }
 
@@ -66,11 +66,12 @@ const ProfileViewer = ({ profile, likeProfile, skipProfile, reportProfile, isHan
 									label="Report reason"
 									id="reportReason"
 									variant="outlined"
-									className="w-100"
+									className="w-100 pt-2"
 									multiline
 									value={reportReason}
-									inputProps={{ maxLength: 200, minLength: 1 }}
-									InputLabelProps={{ shrink: true, className: 'mx-2' }}
+									inputProps={{ maxLength: 200, minLength: 1}}
+									style={{ maxHeight: "500px" , overflowY: "scroll"}}
+									InputLabelProps={{ shrink: true, className: 'mt-2' }}
 									onChange={(e) => setReportReason(e.target.value)}
 								/>
 								<Typography
@@ -79,7 +80,7 @@ const ProfileViewer = ({ profile, likeProfile, skipProfile, reportProfile, isHan
 									{reportReason.length}/{200}
 								</Typography>
 							</div>
-							<Button className="my-2 w-100" onClick={() => { if (reportProfile) {reportProfile(profile.id, reportReason);setIsReportModalOpened(false);setReportReason("")} }} variant="contained" color="primary">
+							<Button className="my-2 w-100" disabled={reportReason.length < 1} onClick={() => { if (reportProfile) { reportProfile(profile.id, reportReason); setIsReportModalOpened(false); setReportReason("") } }} variant="contained" color="primary">
 								Send
 							</Button>
 						</div>
@@ -133,7 +134,11 @@ const ProfileViewer = ({ profile, likeProfile, skipProfile, reportProfile, isHan
 					<Stack direction="row" spacing={1} className="flex-wrap">
 						{profile.tags && Object.entries(profile.tags).map(([key, value], index) => {
 							return value ?
-								<Chip key={index} label={key} variant="filled" color="primary" className="fw-bold m-0 me-1 mb-1" />
+							profile.commonTags && profile.commonTags.includes(key) ?
+									
+									<Chip key={index} label={key} variant="filled" color="primary" className="fw-bold m-0 me-1 mb-1" />
+									:
+									<Chip key={index} label={key} variant="outlined" color="primary" className="fw-bold m-0 me-1 mb-1" />
 								:
 								null
 						})}

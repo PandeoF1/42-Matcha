@@ -75,7 +75,7 @@ async def get_profiles_filtered(db, user, _filter):
                     common_tags.add(k)
             if avoid == False and len(common_tags) >= _filter["min_tags"]:
                 _tmp = await strip_profile(dict(i))
-                _tmp["common_tags"] = common_tags
+                _tmp["commonTags"] = common_tags
                 _tmp["common_tags_number"] = len(common_tags)
                 if user["orientation"] == "bisexual":
                     striped.append(_tmp)
@@ -89,6 +89,7 @@ async def get_profiles_filtered(db, user, _filter):
             break
     # remove key geoloc and username
     for i in striped:
+        i.pop("common_tags_number")
         i["distance"] = geopy.distance.distance(user["geoloc"], i["geoloc"]).km
         i.pop("geoloc")
         i.pop("username")
