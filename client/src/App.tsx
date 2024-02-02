@@ -10,7 +10,7 @@ import ValidateEmailPage from "./src/pages/ValidateEmail";
 import ProfilePage from "./src/pages/Profile";
 import ErrorAlert from "./src/components/ErrorAlert";
 import SuccessAlert from "./src/components/SuccessAlert";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import MapDebug from "./src/pages/MapDebug";
 
 const theme = createTheme({
@@ -35,18 +35,27 @@ function App() {
   const [errorAlert, setErrorAlert] = useState<string>("")
   const [successAlert, setSuccessAlert] = useState<string>("")
 
+  const socketNotifications = useMemo(() => {
+    return new WebSocket("wss://back-matcha.pandeo.fr/notifications?token=" + localStorage.getItem("token")!)
+  }, [])
+  socketNotifications.onmessage = (event) => {
+    console.log(event.data)
+    const data = JSON.parse(event.data)
+    setSuccessAlert(data.message)
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <div className="App w-100">
         <Router>
           <Header setErrorAlert={setErrorAlert} />
           <Routes>
-            <Route path="/" element={<HomePage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert}/>} />
+            <Route path="/" element={<HomePage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
             <Route path="/register" element={<RegisterPage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
             <Route path="/login" element={<LoginPage setErrorAlert={setErrorAlert} />} />
             <Route path="/validate-email/:id" element={<ValidateEmailPage />} />
             <Route path="/profile" element={<ProfilePage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
-            <Route path="/geolocall" element={<MapDebug/>} />
+            <Route path="/geolocall" element={<MapDebug />} />
             <Route path="*" element={<h1>Not Found</h1>} />
           </Routes>
           <ErrorAlert errorAlert={errorAlert} setErrorAlert={setErrorAlert} />

@@ -28,6 +28,7 @@ def type_keys(received_keys, type=str):
             and key != "images"
             and key != "tags"
             and key != "age"
+            and key != "wanted_tags"
         ):
             response.append(key)
         if key == "images":
@@ -40,6 +41,9 @@ def type_keys(received_keys, type=str):
         if key == "age":
             if not isinstance(received_keys[key], int):
                 response.append(key)
+        if key == "wanted_tags":
+            if not isinstance(received_keys[key], list):
+                response.append(key)
     if len(response):
         return JSONResponse(
             status_code=400, content={"message": f"Wrong type key(s): {response}"}
@@ -51,7 +55,7 @@ def empty_keys(received_keys: dict):
     response = []
     try:
         for key in received_keys:
-            if not isinstance(received_keys[key], int) and key != "age" and not len(received_keys[key]):
+            if not isinstance(received_keys[key], int) and key != "age" and not len(received_keys[key]) and key != "wanted_tags":
                 response.append(key)
         if len(response):
             return JSONResponse(

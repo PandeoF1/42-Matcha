@@ -9,4 +9,5 @@ export interface UpdateForm {
     tags: {[key: string]: boolean}
     images: string[]
     geoloc : string
+    elo : number
 }

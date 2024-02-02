@@ -76,3 +76,9 @@ def unblock_success():
             "status": "unblock",
         },
     )
+
+def message_sent():
+    return JSONResponse(
+        status_code=200,
+        content={"message": "Your message has been sent"},
+    )

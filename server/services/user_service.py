@@ -8,6 +8,7 @@ from responses.errors.errors_401 import *
 from constants.domain import URL_BACK, URL_FRONT
 from responses.errors.errors_404 import user_not_found
 from constants.tags import TAGS
+from controllers.notifications_controller import notification
 from services.email_service import *
 import re
 import datetime
@@ -15,7 +16,6 @@ import bcrypt
 import uuid
 import random
 import string
-
 
 def strip_user(user):
     if not user:
@@ -34,6 +34,7 @@ def strip_user(user):
         "bio": user["bio"] if user["bio"] else "",
         "geoloc": user["geoloc"],
         "age": user["age"],
+        "elo": user["elo"]
     }
 
 
@@ -346,7 +347,7 @@ async def update_user(db, user, body):
                 return too_many_images()
         if body["orientation"] != user["orientation"]:
             if (
-                body["orientation"] != "biseuxal"
+                body["orientation"] != "bisexual"
                 and body["orientation"] != "heterosexual"
                 and body["orientation"] != "homosexual"
             ):
@@ -478,8 +479,6 @@ async def like(db, origin, recipient):
             return user_blocked()
         if await is_blocked(db, recipient, origin):
             return user_blocked_you()
-        if await is_skipped(db, origin, recipient):
-            return user_skipped()
         id = str(uuid.uuid4())
         await db.execute(
             """INSERT INTO interactions (id, origin, recipient, type, date) VALUES ($1, $2, $3, $4, $5)""",
@@ -489,16 +488,25 @@ async def like(db, origin, recipient):
             "like",
             datetime.datetime.now().timestamp(),
         )
-        print("send notification")
         # Update elo
         await db.execute("""UPDATE users SET elo = elo + 1. WHERE id = $1""", recipient["id"])
         if origin["elo"] > 0.25:
             await db.execute("""UPDATE users SET elo = elo - 0.25 WHERE id = $1""", origin["id"])
-        # send notification
+        
         if await is_liked(db, recipient, origin) and await is_liked(
             db, origin, recipient
         ):
+            await notification(origin["id"], {'message': 'Match'})
+            await notification(recipient["id"], {'message': 'Match'})
+            await db.execute(
+                """INSERT INTO chat (id, user_1, user_2) VALUES ($1, $2, $3)""",
+                str(uuid.uuid4()),
+                origin["id"],
+                recipient["id"],
+            )
             return match_success()
+        else:
+            await notification(recipient["id"], {'message': 'Ta like'})
         return like_success()
     except Exception as e:
         print(e)
@@ -509,12 +517,31 @@ async def unlike(db, origin, recipient):
         if not await is_liked(db, origin, recipient):
             return not_liked()
         if await is_liked(db, recipient, origin):
-            print("unmatched delete chat")
+            await db.execute(
+                """DELETE FROM chat WHERE (user_1 = $1 AND user_2 = $2) OR (user_1 = $2 AND user_2 = $1)""",
+                origin["id"],
+                recipient["id"]
+            )
             # remove chat
 
+        await notification(recipient["id"], {'message': '%s unliked your profile' % origin["username"]})
         if recipient["elo"] > 1:
             await db.execute("""UPDATE users SET elo = elo - 1. WHERE id = $1""", recipient["id"])
-        await db.execute("""UPDATE users SET elo = elo + 0.25 WHERE id = $1""", origin["id"])
+        if await is_skipped(db, origin, recipient):
+            await db.execute(
+                """DELETE FROM interactions WHERE origin = $1 AND recipient = $2 AND type = 'skip'""",
+                origin["id"],
+                recipient["id"],
+            )
+        if await is_liked(db, recipient, origin):
+            if origin["elo"] > 1:
+                await db.execute("""UPDATE users SET elo = elo - 1. WHERE id = $1""", origin["id"])
+            await db.execute(
+                """DELETE FROM interactions WHERE origin = $2 AND recipient = $1 AND type = 'like'""",
+                origin["id"],
+                recipient["id"],
+            )
+
 
         await db.execute(
             """DELETE FROM interactions WHERE origin = $1 AND recipient = $2 AND type = 'like'""",
@@ -524,7 +551,36 @@ async def unlike(db, origin, recipient):
         return unlike_success()
     except Exception as e:
         print(e)
+async def is_viewed(db, origin, recipient):
+    try:
+        result = await db.fetchrow(
+            """SELECT * FROM interactions WHERE origin = $1 AND recipient = $2 AND type = 'view'""",
+            origin["id"],
+            recipient["id"],
+        )
+        if not result:
+            return False
+        return True
+    except Exception:
+        return False
 
+async def view(db, origin, recipient):
+    try:
+        if await is_viewed(db, origin, recipient):
+            return
+        id = str(uuid.uuid4())
+        await db.execute(
+            """INSERT INTO interactions (id, origin, recipient, type, date) VALUES ($1, $2, $3, $4, $5)""",
+            id,
+            origin["id"],
+            recipient["id"],
+            "view",
+            datetime.datetime.now().timestamp(),
+        )
+        await notification(recipient["id"], {'message': '%s saw your profile' % origin["username"]})
+        return skip_success()
+    except Exception as e:
+        print(e)
 
 async def skip(db, origin, recipient):
     try:
@@ -545,10 +601,10 @@ async def skip(db, origin, recipient):
             "skip",
             datetime.datetime.now().timestamp(),
         )
+        await view(db, origin, recipient)
         return skip_success()
     except Exception as e:
         print(e)
-
 
 async def unskip(db, origin, recipient):
     try:
@@ -562,7 +618,6 @@ async def unskip(db, origin, recipient):
         return unskip_success()
     except Exception as e:
         print(e)
-
 
 async def block(db, origin, recipient):
     try:
@@ -579,6 +634,7 @@ async def block(db, origin, recipient):
             "block",
             datetime.datetime.now().timestamp(),
         )
+        await view(db, origin, recipient)
         return block_success()
     except Exception as e:
         print(e)
@@ -593,6 +649,7 @@ async def unblock(db, origin, recipient):
             origin["id"],
             recipient["id"],
         )
+        await view(db, origin, recipient)
         return unblock_success()
     except Exception as e:
         print(e)
@@ -602,13 +659,13 @@ async def report(db, origin, recipient, body):
     try:
         id = str(uuid.uuid4())
         await db.execute("""INSERT INTO interactions (id, origin, recipient, type, date) VALUES ($1, $2, $3, $4, $5)""", id, origin["id"], recipient["id"], "report", datetime.datetime.now().timestamp())
-        id = str(uuid.uuid4())
-        await db.execute("""INSERT INTO interactions (id, origin, recipient, type, date) VALUES ($1, $2, $3, $4, $5)""", id, origin["id"], recipient["id"], "block", datetime.datetime.now().timestamp())
+        await block(db, origin, recipient)
         await send_email(
             "theo.nard18@gmail.com",
             "Report",
             "User " + origin["username"] + " reported user " + recipient["username"] + "\n\nMessage : \n\n" + body["message"],
         )
+        await view(db, origin, recipient)
         return report_success()
     except Exception as e:
         print(e)
@@ -630,7 +687,9 @@ async def get_views_by_user(db, user):
                 'age': user["age"],
                 'id': user["id"],
             }
-            parsed.append(_user)
+            # check if not already in parsed
+            if _user not in parsed:
+                parsed.append(_user)
         return parsed
     except Exception:
         return []
@@ -652,7 +711,8 @@ async def get_likes_by_user(db, user):
                 'age': user["age"],
                 'id': user["id"],
             }
-            parsed.append(_user)
+            if _user not in parsed:
+                parsed.append(_user)
         return parsed
     except Exception:
         return []

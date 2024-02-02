@@ -12,4 +12,5 @@ export interface UserModel {
     images: string[]
     completion : number
     geoloc : string
+    elo : number
 }

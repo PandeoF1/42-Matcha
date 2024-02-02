@@ -22,10 +22,10 @@ interface ProfilePageProps {
 
 const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
     const [formBackup, setFormBackup] = useState<UpdateForm>({
-        firstName: '', lastName: '', email: '', gender: '', orientation: '', bio: '', age: 18, tags: {}, images: [], geoloc: ''
+        firstName: '', lastName: '', email: '', gender: '', orientation: '', bio: '', age: 18, tags: {}, images: [], geoloc: '', elo: 0
     })
     const [form, setForm] = useState<UpdateForm>({
-        firstName: '', lastName: '', email: '', gender: '', orientation: '', bio: '', age: 18, tags: {}, images: [], geoloc: ''
+        firstName: '', lastName: '', email: '', gender: '', orientation: '', bio: '', age: 18, tags: {}, images: [], geoloc: '', elo: 0
     })
     const emailError = !form.email.length || (validator.isEmail(form.email) ? false : true)
     const firstnameError = !form.firstName.length || !(/^[a-zA-Z\u00C0-\u00FF]{3,16}$/).test(form.firstName)
@@ -118,7 +118,7 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
 
     const handleSubmit = async () => {
         setIsSubmitting(true)
-        const formToSend = _.cloneDeep(form)
+        const {elo, ...formToSend} = _.cloneDeep(form)
         if (!formToSend.bio) {
             formToSend.bio = " "
         }

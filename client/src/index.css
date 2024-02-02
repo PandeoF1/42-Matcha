@@ -53,8 +53,8 @@ body::-webkit-scrollbar {
 .homePage {
   display: flex;
   justify-content: center;
-  height: calc(100vh - 64px);
   align-items: center;
+  height: calc(100vh - 64px);
 }
 
 .homePage .filtersButton {
@@ -71,6 +71,25 @@ body::-webkit-scrollbar {
   left: 0;
   padding: 0;
   min-width: 0 !important;
+}
+
+.genericButton {
+  padding: 0;
+  margin: 0;
+  min-width: 0 !important;
+}
+
+.likeListItemParent {
+  width: 50%!important;
+  padding: 4px;
+}
+
+.likeListItem {
+  border: 1px solid #143857;
+  border-radius: 8px;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
 }
 
 .filtersModal {
@@ -126,6 +145,35 @@ body::-webkit-scrollbar {
   height: 632px;
   margin-top: 38px;
   overflow-y: scroll;
+  margin-bottom: 56px;
+}
+
+.likeListParent .closeButton {
+  position: absolute;
+  padding: 0;
+  right: 0;
+  min-width: 0 !important;
+  margin-right: 12px;
+}
+
+.likeList {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: start;
+  overflow-y: scroll;
+  height: 670px;
+  margin-bottom: 56px!important;
+}
+
+.skeletonHeight {
+  width: 100%;
+  justify-content: center;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  height: 670px;
+  margin-bottom: 56px!important;
 }
 
 .profileViewer .reportButton {
@@ -181,16 +229,16 @@ body::-webkit-scrollbar {
 
 .profileViewer .skipLikeButtons .skipButton {
   color: #ff0000;
-  background-color: rgb(255, 255, 255);
+  background-color: rgba(255, 255, 255, 0);
   border: 1px solid #ff0000;
   border-radius: 360px;
   padding: 8px;
   min-width: 0 !important;
 }
 
-.profileViewer .skipLikeButtons .likeButton {
+.profileViewer .likeButton {
   color: #22ff00;
-  background-color: rgb(255, 255, 255);
+  background-color: rgba(255, 255, 255, 0)!important;
   border: 1px solid #22ff00;
   border-radius: 360px;
   padding: 8px;
@@ -200,11 +248,38 @@ body::-webkit-scrollbar {
 .profileViewer .skipLikeButtons {
   display: flex;
   justify-content: space-between;
-  width: 126px;
+  width: 140px;
   position: absolute;
   bottom: 0;
   left: calc(50% - 63px);
   margin-bottom: 10px;
+  padding: 4px;
+  border-radius: 360px;
+  border: 1px solid white;
+  background-color: white;
+}
+
+.profileViewer .oneInteractionButton {
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 10px;
+  padding: 4px;
+  border-radius: 360px;
+  border: 1px solid white;
+  background-color: white;
+}
+
+.profileViewer .oneInteractionButton .unblockButton {
+  color: #ff0000;
+  background-color: #ffffff00;
+  border: 1px solid #ff0000;
+  border-radius: 360px;
+  padding: 8px;
+  min-width: 0 !important;
 }
 
 .imgMosaicContainer {

@@ -21,7 +21,7 @@ async def get_profiles(request: Request, db=Depends(get_database)):
         return authentication_required()
     if user["completion"] < 2:
         return incomplete_profile()
-    validator = body_validator(data["body"], ["min_age", "max_age", "min_elo", "max_elo", "distance", "min_tags"], int)
+    validator = body_validator(data["body"], ["min_age", "max_age", "min_elo", "max_elo", "distance", "min_tags", "wanted_tags"], int)
     if validator is not None:
         return validator
     return await get_profiles_filtered(db, user, data["body"])

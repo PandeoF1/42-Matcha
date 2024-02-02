@@ -6,6 +6,7 @@ from responses.errors.errors_409 import *
 from responses.errors.errors_422 import *
 from responses.errors.errors_401 import *
 from responses.errors.errors_404 import no_profile
+from constants.tags import TAGS
 from services.user_service import strip_user
 import geopy.distance
 
@@ -42,6 +43,9 @@ async def get_profiles_filtered(db, user, _filter):
         return invalid_age()
     if (_filter["distance"] > 200 or _filter["distance"] < 1):
         return invalid_distance()
+    for tag in _filter["wanted_tags"]:
+        if (tag not in TAGS):
+            return invalid_tags()
     # elo <- tags <- distance 
     result = await db.fetch(
         "SELECT * FROM users WHERE id != $1 AND completion = $2 AND age >= $3 AND age <= $4 AND elo >= $5 AND elo <= $6",
@@ -88,26 +92,20 @@ async def get_profiles_filtered(db, user, _filter):
         if len(striped) >= 50:
             break
     # remove key geoloc and username
+    new_list = []
     for i in striped:
-        i.pop("common_tags_number")
-        i["distance"] = geopy.distance.distance(user["geoloc"], i["geoloc"]).km
-        i.pop("geoloc")
-        i.pop("username")
-        i.pop("lastName")
-        if (i["distance"] <= 1):
-            i["distance"] = 1
-
-    # sort in first by elo, then by tags, then by distance
-    #striped.sort(key=lambda x: x["elo"], reverse=True)
-    #striped.sort(key=lambda x: x["common_tags_number"], reverse=True)
-    #striped.sort(key=lambda x: x["distance"], reverse=False)
-
-    # add distance to each profile
-
-    # for i in result:
-    # check distance between two geoloc
-    # print("%skm, %s %s %s %s %s %s" % (geopy.distance.distance(user["geoloc"], i["geoloc"]).km, user["gender"], i["gender"], user["orientation"], i["orientation"], user["age"], i["age"]))
-    
-    if len(striped) == 0:
+        good = False
+        for tag in _filter["wanted_tags"]:
+            if tag in i["tags"] and i["tags"][tag] == True:
+                good = True
+        if (good == True or len(_filter["wanted_tags"]) == 0):
+            new_list.append({
+            'id': i['id'],
+            'distance': geopy.distance.distance(user["geoloc"], i["geoloc"]).km,
+            'commonTags': i['commonTags'],
+            'age': i['age'],
+            'elo': i['elo']
+            })
+    if len(new_list) == 0:
         return no_profile()
-    return {"count": len(striped), "profiles": striped}
+    return {"count": len(new_list), "profiles": new_list}

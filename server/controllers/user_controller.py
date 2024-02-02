@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Request
+import geopy
 from database.database import *
 from responses.errors.errors_404 import user_not_found
 from services.user_service import *
@@ -106,7 +107,7 @@ async def get_views(request: Request, db=Depends(get_database)):
     return await get_views_by_user(db, user)
 
 @user_controller.get("/likes")
-async def get_views(request: Request, db=Depends(get_database)):
+async def get_likes(request: Request, db=Depends(get_database)):
     data = await parse_request(request)
     token = get_token(data["headers"])
     if token is None:
@@ -123,10 +124,31 @@ async def get_specific_user(id, request: Request, db=Depends(get_database)):
     token = get_token(data["headers"])
     if token is None:
         return empty_token()
+    me = await search_user_by_token(db, token)
+    if not me:
+        return authentication_required()
     user = await search_user_by_id(db, id)
     if not user:
         return user_not_found()
-    return strip_user(user)
+    striped_user = strip_user(user)
+    striped_user.pop("username")
+    striped_user.pop("email")
+    striped_user.pop("geoloc")
+    striped_user.pop("lastName")
+    striped_user.pop("completion")
+    striped_user["liked"] = await is_liked(db, me, user)
+    striped_user["skipped"] = await is_skipped(db, me, user)
+    striped_user["blocked"] = await is_blocked(db, me, user)
+    striped_user["distance"] = geopy.distance.distance(me["geoloc"], user["geoloc"]).km
+    striped_user["commonTags"] = []
+    me_tags = json.loads(me["tags"])
+    user_tags = json.loads(user["tags"])
+    for tag in me_tags:
+        if me_tags[tag] and user_tags[tag]:
+            striped_user["commonTags"].append(tag)
+    if await is_viewed(db, me, user) is False:
+        await view(db, me, user)
+    return striped_user
 
 
 @user_controller.post("/{id}/like")
