@@ -139,6 +139,11 @@ async def get_specific_user(id, request: Request, db=Depends(get_database)):
     striped_user["liked"] = await is_liked(db, me, user)
     striped_user["skipped"] = await is_skipped(db, me, user)
     striped_user["blocked"] = await is_blocked(db, me, user)
+    # if match
+    if await is_liked(db, user, me) and await is_liked(db, me, user):
+        striped_user["matched"] = True
+    else:
+        striped_user["matched"] = False
     striped_user["distance"] = geopy.distance.distance(me["geoloc"], user["geoloc"]).km
     striped_user["commonTags"] = []
     me_tags = json.loads(me["tags"])

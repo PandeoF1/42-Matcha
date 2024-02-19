@@ -262,13 +262,16 @@ async def ask_reset_password(db, user):
 
 
 def get_token(headers):
-    if (
-        "authorization" not in headers
-        or len(headers["authorization"].split(" ")) != 2
-        or headers["authorization"].split(" ")[1] is None
-    ):
+    try:
+        if (
+            "authorization" not in headers
+            or len(headers["authorization"].split(" ")) != 2
+            or headers["authorization"].split(" ")[1] is None
+        ):
+            return None
+        return headers["authorization"].split(" ")[1]
+    except:
         return None
-    return headers["authorization"].split(" ")[1]
 
 
 async def check_token(db, token):
@@ -634,6 +637,11 @@ async def block(db, origin, recipient):
             "block",
             datetime.datetime.now().timestamp(),
         )
+        try:
+            await unlike(db, origin, recipient)
+            await unlike(db, recipient, origin)
+        except:
+            pass
         await view(db, origin, recipient)
         return block_success()
     except Exception as e:

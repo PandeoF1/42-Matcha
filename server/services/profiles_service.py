@@ -95,16 +95,22 @@ async def get_profiles_filtered(db, user, _filter):
     new_list = []
     for i in striped:
         good = False
+        _common_tags = []
         for tag in _filter["wanted_tags"]:
-            if tag in i["tags"] and i["tags"][tag] == True:
-                good = True
-        if (good == True or len(_filter["wanted_tags"]) == 0):
+            if tag in i["tags"] and i["tags"][tag]:
+                _common_tags.append(tag)
+            
+        if len(_common_tags) == len(_filter["wanted_tags"]):
+            good = True
+        if (good or len(_filter["wanted_tags"]) == 0):
+            print(good)
             new_list.append({
             'id': i['id'],
             'distance': geopy.distance.distance(user["geoloc"], i["geoloc"]).km,
             'commonTags': i['commonTags'],
             'age': i['age'],
-            'elo': i['elo']
+            'elo': i['elo'],
+            'image': i['images'][0] if len(i['images']) else None,
             })
     if len(new_list) == 0:
         return no_profile()

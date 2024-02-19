@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Card, Chip, CircularProgress, Modal, Slider, Stack, Typography } from '@mui/material'
+import { Button, Card, Chip, CircularProgress, Grid, Modal, Slider, Stack, Typography } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import TuneRoundedIcon from '@mui/icons-material/TuneRounded'
 import SortProfilesComponent from './sortProfiles'
@@ -7,78 +7,14 @@ import { checkFilterParams } from '../utils/filtersUtils'
 import { ProfilesModel } from './models/ProfilesModel'
 import { defaultFilterParams } from '../utils/filtersUtils'
 import instance from '../api/Instance'
+import goose from '../../assets/goose.jpg'
+import ProfileViewer from './ProfileViewer'
 
-const TAGS = [
-    "#cinema",
-    "#music",
-    "#bar",
-    "#hiking",
-    "#biking",
-    "#cooking",
-    "#photography",
-    "#gaming",
-    "#reading",
-    "#dancing",
-    "#painting",
-    "#skiing",
-    "#traveling",
-    "#yoga",
-    "#gardening",
-    "#fishing",
-    "#surfing",
-    "#golfing",
-    "#wine",
-    "#beer",
-    "#coffee",
-    "#tea",
-    "#running",
-    "#writing",
-    "#knitting",
-    "#crafting",
-    "#theater",
-    "#karaoke",
-    "#camping",
-    "#beach",
-    "#concerts",
-    "#museums",
-    "#boardgames",
-    "#puzzles",
-    "#astronomy",
-    "#stargazing",
-    "#fitness",
-    "#meditation",
-    "#poetry",
-    "#DIY",
-    "#technology",
-    "#vintage",
-    "#cars",
-    "#pets",
-    "#sailing",
-    "#rockclimbing",
-    "#foodie",
-    "#fashion",
-    "#history",
-    "#languages",
-    "#filmlovers",
-    "#musicians",
-    "#outdoorlife",
-    "#bookclub",
-    "#gamer",
-    "#literature",
-    "#art",
-    "#winetasting",
-    "#brewerytour",
-    "#teatime",
-    "#journaling",
-    "#campfire",
-    "#livemusic",
-    "#museum",
-    "#games",
-    "#mindfulness",
-    "#adventure",
-]
+interface SearchProps {
+    setSuccessAlert: (message: string) => void
+}
 
-const Search = () => {
+const Search = ({ setSuccessAlert }: SearchProps) => {
     const [isFiltersModalOpened, setIsFiltersModalOpened] = useState(false)
     const [ageSliderValue, setAgeSliderValue] = useState<number[]>([18, 99])
     const [eloSliderValue, setEloSliderValue] = useState<number[]>([20, 1000])
@@ -87,6 +23,28 @@ const Search = () => {
     const [areProfilesLoading, setAreProfilesLoading] = useState(true)
     const [profiles, setProfiles] = useState<ProfilesModel[]>([])
     const [wantedTags, setWantedTags] = useState<string[]>([])
+    const [images, setImages] = useState<HTMLImageElement[]>([])
+    const [profileId, setProfileId] = useState<string | null>(null)
+    const [isHandlingInteraction, setIsHandlingInteraction] = useState(false)
+    const [allTags, setAllTags] = useState<string[]>([])
+
+    const preloadImages = (images: string[]) => {
+        const imgArray: HTMLImageElement[] = []
+        images.forEach((image) => {
+            const img = new Image()
+            img.src = image
+            imgArray.push(img)
+        })
+        setImages(imgArray)
+    }
+
+    const getTags = async () => {
+        await instance.get('/tags').then((res) => {
+            setAllTags(res.data.tags)
+        }).catch(() => {
+            setAllTags([])
+        })
+    }
 
     const getProfiles = async () => {
         checkFilterParams(setAgeSliderValue, setEloSliderValue, setDistanceSliderValue, setMinTagsSliderValue)
@@ -107,9 +65,10 @@ const Search = () => {
                 max_elo: filterParams.maxElo,
                 distance: filterParams.distance,
                 min_tags: filterParams.minTags,
-                wanted_tags: []
+                wanted_tags: wantedTags,
             }
         ).then((res) => {
+            preloadImages(res.data.profiles.map((profile: ProfilesModel) => profile.image))
             setProfiles(res.data.profiles)
         }).catch((err) => {
             if (err.response?.data.message) {
@@ -117,16 +76,69 @@ const Search = () => {
                     checkFilterParams(setAgeSliderValue, setEloSliderValue, setDistanceSliderValue, setMinTagsSliderValue)
             }
         }).finally(() => {
+            setProfileId(null)
             setAreProfilesLoading(false)
+        })
+    }
+
+    const likeProfile = async (profileId: string) => {
+        setIsHandlingInteraction(true)
+        await instance.post(`/user/${profileId}/like`).then(() => {
+        }).catch(() => {
+        }).finally(() => {
+            setIsHandlingInteraction(false)
+        })
+    }
+
+    const skipProfile = async (profileId: string) => {
+        setIsHandlingInteraction(true)
+        await instance.post(`/user/${profileId}/skip`).then(() => {
+        }).catch(() => {
+        }).finally(() => {
+            setProfileId(null)
+            setIsHandlingInteraction(false)
+            getProfiles();
+        })
+    }
+
+    const reportProfile = async (profileId: string, message: string) => {
+        setIsHandlingInteraction(true)
+        await instance.post(`/user/${profileId}/report`, {
+            message: message
+        }).then(() => {
+            getProfiles()
+        }).catch(() => {
+        }).finally(() => {
+            setSuccessAlert('Profile reported')
+            setIsHandlingInteraction(false)
+        })
+    }
+
+    const unblockProfile = async (profileId: string) => {
+        setIsHandlingInteraction(true)
+        await instance.delete(`/user/${profileId}/block`).then(() => {
+        }).catch(() => {
+        }).finally(() => {
+            setIsHandlingInteraction(false)
+        })
+    }
+
+    const unlikeProfile = async (profileId: string) => {
+        setIsHandlingInteraction(true)
+        await instance.delete(`/user/${profileId}/like`).then(() => {
+        }).catch(() => {
+        }).finally(() => {
+            setIsHandlingInteraction(false)
         })
     }
 
     useEffect(() => {
         getProfiles()
+        getTags()
     }, [])
 
     return (
-        <div className="BrowsingParent w-100 h-100">
+        <div className="searchParent w-100 h-100">
             <Modal
                 open={isFiltersModalOpened}
                 onClose={() => { setIsFiltersModalOpened(false); getProfiles() }}
@@ -241,7 +253,7 @@ const Search = () => {
                                         const filterParams = JSON.parse(localStorage.getItem("filterParams") || "{}")
                                         if (typeof newValue !== "number")
                                             return
-                                        filterParams.minTags = newValue ? newValue : defaultFilterParams.minTags
+                                        filterParams.minTags = newValue
                                         localStorage.setItem("filterParams", JSON.stringify(filterParams))
                                         setMinTagsSliderValue(newValue)
                                     }
@@ -251,13 +263,13 @@ const Search = () => {
                                 }
                             />
                         </div>
-                        <Typography style={{ marginLeft : "24px" }}>
+                        <Typography style={{ marginLeft: "24px", marginTop: "24px" }}>
                             Tags : {wantedTags.length}
                         </Typography>
                         <div className="overflow-y-scroll tagsContainer" style={{ height: "130px", margin: "24px" }}>
                             <Stack direction="row" spacing={1} className="flex-wrap">
-                                {TAGS.map((tag, index) => {
-                                    {tag}
+                                {allTags && allTags.map((tag, index) => {
+                                    { tag }
                                     return wantedTags.includes(tag) ?
                                         <Chip key={index} label={tag} variant="filled" color="primary" className="fw-bold m-0 me-1 mb-1" onClick={() => { }} onDelete={() => {
                                             setWantedTags(wantedTags.filter((wantedTag) => wantedTag !== tag))
@@ -266,7 +278,7 @@ const Search = () => {
                                         <Chip key={index} label={tag} variant="outlined" color="primary" className="fw-bold m-0 me-1 mb-1" onClick={() => {
                                             if (!wantedTags.includes(tag))
                                                 setWantedTags(prev => [...prev, tag])
-                                        }}/>
+                                        }} />
                                 })}
                             </Stack>
                         </div>
@@ -283,7 +295,35 @@ const Search = () => {
                         <CircularProgress color="secondary" />
                     </div>
                     :
-                    null
+                    profileId ?
+                        <div className="searchProfileViewer">
+                            <Button className="closeButton" onClick={() => { setProfileId(null) }} title="Close">
+                                <CloseIcon color="primary" />
+                            </Button>
+                            <ProfileViewer
+                                profileToGetId={profileId}
+                                likeProfile={likeProfile}
+                                skipProfile={skipProfile}
+                                reportProfile={reportProfile}
+                                unblockProfile={unblockProfile}
+                                unlikeProfile={unlikeProfile}
+                                isHandlingInteraction={isHandlingInteraction}
+                            />
+                        </div>
+                        :
+                        <div className="profileList">
+                            <Grid container spacing={2} className="flex-wrap p-0">
+                                {profiles.map((user, index) => {
+                                    return (
+                                        <Grid item xs={6} sm={4} className="mt-3 imgMosaicContainer" key={index}>
+                                            {index > images.length ? <CircularProgress color="secondary" /> :
+                                                <img src={user.image} alt="user" className="imgMosaic" onClick={() => setProfileId(user.id)} onError={(e) => { e.currentTarget.src = goose }} loading="lazy" />
+                                            }
+                                        </Grid>
+                                    )
+                                })}
+                            </Grid>
+                        </div>
             }
         </div>
     )

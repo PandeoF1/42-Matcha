@@ -67,7 +67,7 @@ const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
                                             <LikeList setSuccessAlert={setSuccessAlert} likesOrViews="views" refresh={false} />
                                             :
                                             menuValue === 'search' ?
-                                                <Search />
+                                                <Search setSuccessAlert={setSuccessAlert}/>
                                                 :
                                                 <>
                                                     <h1 className="text-center">On forge dur ici</h1>

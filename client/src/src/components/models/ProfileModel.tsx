@@ -7,4 +7,5 @@ export interface ProfileModel extends Omit<UserModel, "email" | "completion" | "
     liked: boolean
     skipped: boolean
     blocked: boolean
+    matched: boolean
 }

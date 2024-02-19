@@ -73,6 +73,21 @@ body::-webkit-scrollbar {
   min-width: 0 !important;
 }
 
+.searchParent .searchProfileViewer {
+  position: relative;
+}
+
+.searchParent .searchProfileViewer .closeButton {
+  position: absolute;
+  padding: 0;
+  right: 0;
+  min-width: 0 !important;
+  z-index: 10;
+  background-color: #ffffff;
+  margin-right: 8px;
+  margin-top: 8px;
+}
+
 .genericButton {
   padding: 0;
   margin: 0;
@@ -163,6 +178,17 @@ body::-webkit-scrollbar {
   align-content: start;
   overflow-y: scroll;
   height: 670px;
+  margin-bottom: 56px!important;
+}
+
+.profileList {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: start;
+  overflow-y: scroll;
+  height: 648px;
+  margin-top: 22px;
   margin-bottom: 56px!important;
 }
 
@@ -327,6 +353,7 @@ body {
   background-color: #0b1f30 !important;
   -ms-overflow-style: none;
   scrollbar-width: none;
+
 }
 
 h1 {

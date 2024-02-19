@@ -39,12 +39,11 @@ const LikeList = ({ setSuccessAlert, likesOrViews, refresh }: LikeListProps) => 
             if (res.data.length)
                 preloadImages(res.data.map(like => like.image))
             setLikes(res.data)
-            setProfileId(null)
         }).catch(() => {
             setLikes([])
-            setProfileId(null)
         }).finally(() => {
             setIsLoading(false)
+            setProfileId(null)
         })
     }
 

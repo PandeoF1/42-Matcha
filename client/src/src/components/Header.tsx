@@ -14,34 +14,22 @@ interface HeaderProps {
 const Header = ({ setErrorAlert, setSuccessAlert }: HeaderProps) => {
     const navigate = useNavigate()
     const location = useLocation()
-    const [socketNotifications, setSocketNotifications] = useState<WebSocket>()
-    const [socketStatus, setSocketStatus] = useState<WebSocket>()
 
     useEffect(() => {
         if (!localStorage.getItem("token"))
           return
 
-        if (socketNotifications)
-          socketNotifications.close()
-        if (socketStatus)
-            socketStatus.close()
-        const _socketNotifications = new WebSocket("wss://back-matcha.pandeo.fr/notifications?token=" + localStorage.getItem("token")!)
-        const _socketStatus = new WebSocket("wss://back-matcha.pandeo.fr/status?token=" + localStorage.getItem("token")!)
+        const socketNotifications = new WebSocket(import.meta.env.VITE_WS_API + "/notifications?token=" + localStorage.getItem("token")!)
+        const socketStatus = new WebSocket(import.meta.env.VITE_WS_API + "/status?token=" + localStorage.getItem("token")!)
         
-        setSocketNotifications(_socketNotifications)
-        setSocketStatus(_socketStatus)
-
-        _socketNotifications ? _socketNotifications.onmessage = (event) => {
-          console.log(event.data)
+        socketNotifications ? socketNotifications.onmessage = (event) => {
           const data = JSON.parse(event.data)
           setSuccessAlert(data.message)
         }
         : null
       
-        _socketStatus ? _socketStatus.onmessage = (event) => {
-          console.log(event.data)
-          const data = JSON.parse(event.data)
-          setErrorAlert(data.message)
+        socketStatus ? socketStatus.onmessage = (event) => {
+          // console.log(event.data)
         }
         : null
 

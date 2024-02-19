@@ -4,19 +4,17 @@ import { TextField } from "@mui/material"
 
 const Chat = () => {
     const socketChat = useMemo(() => {
-        return new WebSocket("wss://back-matcha.pandeo.fr/chat?token=" + localStorage.getItem("token")!)
+        return new WebSocket(import.meta.env.VITE_WS_API + "/chat?token=" + localStorage.getItem("token")!)
     }, [])
     const [data, setData] = useState<any>()
     const [roomId, setRoomId] = useState<any>()
     const [messages, setMessages] = useState<any>([])
     socketChat.onmessage = (event) => {
-      console.log(event.data)
       setMessages([event.data, ...messages])
     }
     const [message, setMessage] = useState<string>("")
     const getChat = async () => {
         await instance.get('/chat').then((res) => {
-            console.log(res.data)
             setData(res.data)
         }).catch((err) => {
             console.log(err)

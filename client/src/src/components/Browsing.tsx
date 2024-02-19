@@ -235,6 +235,34 @@ const Browsing = ({ setErrorAlert, setSuccessAlert }: BrowsingProps) => {
                                 }
                             />
                         </div>
+                        <div className="d-flex align-items-center justify-content-center w-100">
+                            <Typography id="min-tags-slider" style={{ margin : "24px" }}>
+                                Minimum common tags
+                            </Typography>
+                            <Slider
+                                getAriaLabel={() => 'Minimum common tags'}
+                                min={0}
+                                max={20}
+                                style={{ minWidth: "190px", margin: "24px" }}
+                                valueLabelDisplay="on"
+                                aria-labelledby="min-tags-slider"
+                                value={minTagsSliderValue}
+                                onChange={(event, newValue) => {
+
+                                    if (localStorage.getItem("filterParams")) {
+                                        const filterParams = JSON.parse(localStorage.getItem("filterParams") || "{}")
+                                        if (typeof newValue !== "number")
+                                            return
+                                        filterParams.minTags = newValue
+                                        localStorage.setItem("filterParams", JSON.stringify(filterParams))
+                                        setMinTagsSliderValue(newValue)
+                                    }
+                                    else
+                                        localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+                                }
+                                }
+                            />
+                        </div>
                     </Card>
                 </div>
             </Modal>

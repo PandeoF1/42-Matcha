@@ -1,5 +1,5 @@
 import goose from '../../assets/goose.jpg'
-import { useEffect, useState } from "react"
+import { Profiler, useEffect, useState } from "react"
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
@@ -8,13 +8,14 @@ import StarIcon from '@mui/icons-material/Star';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
-import { Button, Card, Chip, Modal, Stack, TextField, Typography } from "@mui/material";
+import { Button, Card, Chip, CircularProgress, Modal, Stack, TextField, Typography } from "@mui/material";
 import ClearIcon from '@mui/icons-material/Clear';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ReportIcon from '@mui/icons-material/Report';
 import CloseIcon from '@mui/icons-material/Close';
 import BlockIcon from '@mui/icons-material/Block';
 import HeartBrokenIcon from '@mui/icons-material/HeartBroken';
+import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
 import instance from "../api/Instance";
 import { ProfileModel } from "./models/ProfileModel";
 
@@ -40,6 +41,7 @@ const ProfileViewer = ({ profileToGetId, likeProfile, skipProfile, reportProfile
 		await instance.get<ProfileModel>('/user/' + id).then((res) => {
 			preloadImages(res.data.images)
 			setProfile(res.data)
+			console.log(res.data)
 		}).catch(() => {
 			setProfile(null)
 		})
@@ -51,7 +53,7 @@ const ProfileViewer = ({ profileToGetId, likeProfile, skipProfile, reportProfile
 	}
 
 	const preloadImages = (images: string[]) => {
-		const imgArray : HTMLImageElement[] = []
+		const imgArray: HTMLImageElement[] = []
 		images.forEach((image) => {
 			const img = new Image()
 			img.src = image
@@ -60,7 +62,7 @@ const ProfileViewer = ({ profileToGetId, likeProfile, skipProfile, reportProfile
 		setImages(imgArray)
 	}
 
-	const resetAndCallFunction = (func : () => Promise<void>) => {
+	const resetAndCallFunction = (func: () => Promise<void>) => {
 		func().then(() => {
 			reset()
 		})
@@ -84,7 +86,7 @@ const ProfileViewer = ({ profileToGetId, likeProfile, skipProfile, reportProfile
 
 	return (
 		<div className="profileViewer">
-			{profile &&
+			{profile ?
 				<>
 					<Modal
 						open={isReportModalOpened}
@@ -140,33 +142,40 @@ const ProfileViewer = ({ profileToGetId, likeProfile, skipProfile, reportProfile
 						{likeProfile && skipProfile && unblockProfile && unlikeProfile &&
 							(profile.blocked ?
 								<div className="oneInteractionButton">
-									<Button className="unblockButton" onClick={() => resetAndCallFunction(() => unblockProfile(profile.id))} title="Unblock">
+									<Button className="unblockButton" disabled={isHandlingInteraction} onClick={() => resetAndCallFunction(() => unblockProfile(profile.id))} title="Unblock">
 										<BlockIcon fontSize="large" />
 									</Button>
 								</div>
 								:
-								profile.liked ?
+								profile.liked && profile.matched ?
 									<div className="oneInteractionButton">
-										<Button className="unblockButton" onClick={() => resetAndCallFunction(() => unlikeProfile(profile.id))} title="Unlike">
+										<Button className="unblockButton" disabled={isHandlingInteraction} onClick={() => resetAndCallFunction(() => unlikeProfile(profile.id))} title="Unlike">
 											<HeartBrokenIcon fontSize="large" />
 										</Button>
 									</div>
 									:
-									profile.skipped ?
+									profile.liked ?
 										<div className="oneInteractionButton">
-											<Button className="likeButton" onClick={() => resetAndCallFunction(() => likeProfile(profile.id))} title="Like">
-												<FavoriteIcon fontSize="large" />
+											<Button className="unblockButton" disabled={isHandlingInteraction} onClick={() => resetAndCallFunction(() => unlikeProfile(profile.id))} title="Unlike">
+												<ScheduleSendIcon fontSize="large" />
 											</Button>
 										</div>
 										:
-										<div className="skipLikeButtons">
-											<Button className="skipButton" disabled={isHandlingInteraction} onClick={() => resetAndCallFunction(() => skipProfile(profile.id))} title="Skip">
-												<ClearIcon fontSize="large" />
-											</Button>
-											<Button className="likeButton" disabled={isHandlingInteraction} onClick={() => resetAndCallFunction(() => likeProfile(profile.id))} title="Like">
-												<FavoriteIcon fontSize="large" />
-											</Button>
-										</div>
+										profile.skipped ?
+											<div className="oneInteractionButton">
+												<Button className="likeButton" disabled={isHandlingInteraction} onClick={() => resetAndCallFunction(() => likeProfile(profile.id))} title="Like">
+													<FavoriteIcon fontSize="large" />
+												</Button>
+											</div>
+											:
+											<div className="skipLikeButtons">
+												<Button className="skipButton" disabled={isHandlingInteraction} onClick={() => resetAndCallFunction(() => skipProfile(profile.id))} title="Skip">
+													<ClearIcon fontSize="large" />
+												</Button>
+												<Button className="likeButton" disabled={isHandlingInteraction} onClick={() => resetAndCallFunction(() => likeProfile(profile.id))} title="Like">
+													<FavoriteIcon fontSize="large" />
+												</Button>
+											</div>
 							)
 						}
 					</div>
@@ -206,6 +215,12 @@ const ProfileViewer = ({ profileToGetId, likeProfile, skipProfile, reportProfile
 						</div>
 					</div>
 				</>
+
+				:
+
+				<div className="skeletonHeight">
+					<CircularProgress color="secondary" />
+				</div>
 			}
 		</div>
 
