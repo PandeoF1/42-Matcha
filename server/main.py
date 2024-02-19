@@ -9,6 +9,8 @@ from controllers.image_controller import image_controller
 from controllers.geoloc_controller import geoloc_controller
 from controllers.notifications_controller import notifications_controller
 from controllers.chat_controller import chat_controller
+from controllers.status_controller import status_controller
+from controllers.tags_controller import tags_controller
 
 app = FastAPI()
 
@@ -35,6 +37,8 @@ app.include_router(image_controller)
 app.include_router(geoloc_controller)
 app.include_router(notifications_controller)
 app.include_router(chat_controller)
+app.include_router(status_controller)
+app.include_router(tags_controller)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8765, reload=True)

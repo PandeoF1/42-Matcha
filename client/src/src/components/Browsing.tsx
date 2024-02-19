@@ -25,6 +25,7 @@ const Browsing = ({ setErrorAlert, setSuccessAlert }: BrowsingProps) => {
     const [ageSliderValue, setAgeSliderValue] = useState<number[]>([18, 99])
     const [eloSliderValue, setEloSliderValue] = useState<number[]>([20, 1000])
     const [distanceSliderValue, setDistanceSliderValue] = useState<number>(50)
+    const [minTagsSliderValue, setMinTagsSliderValue] = useState<number>(1)
 
     const likeProfile = async (profileId: string) => {
         setIsHandlingInteraction(true)
@@ -100,7 +101,7 @@ const Browsing = ({ setErrorAlert, setSuccessAlert }: BrowsingProps) => {
     }
 
     const getProfiles = async () => {
-        checkFilterParams(setAgeSliderValue, setEloSliderValue, setDistanceSliderValue)
+        checkFilterParams(setAgeSliderValue, setEloSliderValue, setDistanceSliderValue, setMinTagsSliderValue)
         setProfiles([])
         setProfileIndex(0)
         setAreProfilesLoading(true)
@@ -126,7 +127,7 @@ const Browsing = ({ setErrorAlert, setSuccessAlert }: BrowsingProps) => {
         }).catch((err) => {
             if (err.response?.data.message) {
                 if (String(err.response?.data.message).includes('Missing key(s)'))
-                    checkFilterParams(setAgeSliderValue, setEloSliderValue, setDistanceSliderValue)
+                    checkFilterParams(setAgeSliderValue, setEloSliderValue, setDistanceSliderValue, setMinTagsSliderValue)
             }
         }).finally(() => {
             setAreProfilesLoading(false)
@@ -238,7 +239,7 @@ const Browsing = ({ setErrorAlert, setSuccessAlert }: BrowsingProps) => {
                 </div>
             </Modal>
             <SortProfilesComponent profiles={profiles} setProfiles={setProfiles} />
-            <Button className="filtersButton me-3 mt-3" onClick={() => { checkFilterParams(setAgeSliderValue, setEloSliderValue, setDistanceSliderValue); setIsFiltersModalOpened(true) }} title="Filters">
+            <Button className="filtersButton me-3 mt-3" onClick={() => { checkFilterParams(setAgeSliderValue, setEloSliderValue, setDistanceSliderValue, setMinTagsSliderValue); setIsFiltersModalOpened(true) }} title="Filters">
                 <TuneRoundedIcon color="primary" />
             </Button>
             {

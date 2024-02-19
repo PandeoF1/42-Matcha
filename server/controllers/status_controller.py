@@ -7,7 +7,7 @@ from responses.errors.errors_409 import *
 from responses.errors.errors_422 import *
 from responses.errors.errors_401 import *
 
-notifications_controller = APIRouter(prefix="/notifications", tags=["notifications"])
+status_controller = APIRouter(prefix="/status", tags=["status"])
 
 async def search_user_by_id(db, user_id):
     try:
@@ -42,10 +42,12 @@ class ConnectionManager:
         await websocket.accept()
         self.active_connections.append({'socket': websocket, 'user_id': user_id})
 
-    def disconnect(self, websocket: WebSocket):
+    async def disconnect(self, websocket: WebSocket):
         for connection in self.active_connections:
             if connection["socket"] == websocket:
                 self.active_connections.remove(connection)
+                users = await self.get_users()
+                await self.broadcast({"count": len(users), "users": users})
                 break
 
     async def send(self, user_id, message):
@@ -53,13 +55,23 @@ class ConnectionManager:
             if connection["user_id"] == user_id:
                 await connection["socket"].send_json(message)
 
-    async def broadcast(self, user_id, message):
+    async def broadcast(self, message):
         for connection in self.active_connections:
-            await connection["socket"].send_json(message)
+            try:
+                await connection["socket"].send_json(message)
+            except Exception as e:
+                print(e)
+    
+    async def get_users(self):
+        users = []
+        for connection in self.active_connections:
+            if str(connection["user_id"]) not in users:
+                users.append(str(connection["user_id"]))
+        return users
 
-notification_socket = ConnectionManager()
+status_socket = ConnectionManager()
 
-@notifications_controller.websocket("")
+@status_controller.websocket("")
 async def websocket_endpoint(websocket: WebSocket, db=Depends(get_database)):
     if websocket.query_params.get("token") is None:
         await websocket.close(reason="Invalid token")
@@ -68,19 +80,21 @@ async def websocket_endpoint(websocket: WebSocket, db=Depends(get_database)):
     if not user:
         await websocket.close(reason="Invalid token")
         return
-    await notification_socket.connect(websocket, user["id"])
+    await status_socket.connect(websocket, user["id"])
     try:
+        users = await status_socket.get_users()
+        await status_socket.broadcast({"count": len(users), "users": users})
         while True:
             data = await websocket.receive_text()
             #await websocket.send_text(f"Message text was: {data}")
     except WebSocketDisconnect:
-        notification_socket.disconnect(websocket)
+        await status_socket.disconnect(websocket)
         return
 
 async def notification(user_id, message):
-    await notification_socket.send(user_id, message)
+    await status_socket.send(user_id, message)
     
-@notifications_controller.get("/test")
+@status_controller.get("")
 async def test(request: Request, db=Depends(get_database)):
     # emit notification
     token = get_token(request.headers)
@@ -89,5 +103,5 @@ async def test(request: Request, db=Depends(get_database)):
     user = await search_user_by_token(db, token)
     if not user:
         return authentication_required()
-    await notification_socket.broadcast(user["id"], {'message': 'Yo le rap'})
-    return {"status": "ok"}
+    users = await status_socket.get_users()
+    return {"count": len(users), "users": users}

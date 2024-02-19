@@ -17,14 +17,27 @@ interface LikeListProps {
 const LikeList = ({ setSuccessAlert, likesOrViews, refresh }: LikeListProps) => {
 
     const [likes, setLikes] = useState<LikeModel[]>([])
+    const [images, setImages] = useState<HTMLImageElement[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [profileId, setProfileId] = useState<string | null>(null)
     const [isHandlingInteraction, setIsHandlingInteraction] = useState(false)
 
+    const preloadImages = (images: string[]) => {
+		const imgArray : HTMLImageElement[] = []
+		images.forEach((image) => {
+			const img = new Image()
+			img.src = image
+			imgArray.push(img)
+		})
+		setImages(imgArray)
+	}
+
     const getLikes = async () => {
         setIsLoading(true)
         await instance.get<LikeModel[]>(likesOrViews === "likes" ? '/user/likes' : '/user/views').then((res) => {
-            console.log(res.data)
+            // console.log(res.data)
+            if (res.data.length)
+                preloadImages(res.data.map(like => like.image))
             setLikes(res.data)
             setProfileId(null)
         }).catch(() => {
@@ -121,7 +134,7 @@ const LikeList = ({ setSuccessAlert, likesOrViews, refresh }: LikeListProps) => 
                                         <div className="likeListItemParent" key={index}>
                                             <ListItem alignItems="center" className="likeListItem" onClick={() => { setProfileId(like.id) }}>
                                                 <ListItemAvatar>
-                                                    <Avatar alt={like.firstName || "Avatar"} src={like.image ? like.image : goose} />
+                                                    <Avatar alt={like.firstName || "Avatar"} src={index < images.length && images[index] ? images[index].src : goose} />
                                                 </ListItemAvatar>
                                                 <ListItemText
                                                     primary={like.firstName || ""}

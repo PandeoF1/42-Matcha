@@ -14,6 +14,7 @@ import _ from "lodash";
 import LikeList from "../components/LikeList";
 import Chat from "../components/Chat";
 import Browsing from "../components/Browsing";
+import Search from "../components/Search";
 
 interface HomePageProps {
     setErrorAlert: (message: string) => void
@@ -28,7 +29,6 @@ const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
     const handleMenuChange = (event: React.SyntheticEvent, newValue: string) => {
         setMenuValue(newValue);
     };
-
     useEffect(() => {
         const checkLoggedIn = async () => {
             await instance.get('/user/session').then(() => {
@@ -55,7 +55,7 @@ const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
                     <Card className="col-xs-12 col-sm-12 col-md-10 col-lg-8 col-xl-6 col-xxl-5 pt-3 position-relative d-flex" elevation={6} style={{ minHeight: "647px", marginTop: "60px" }}>
                         {
                             menuValue === 'discover' ?
-                                    <Browsing setSuccessAlert={setSuccessAlert} setErrorAlert={setErrorAlert} />
+                                <Browsing setSuccessAlert={setSuccessAlert} setErrorAlert={setErrorAlert} />
                                 :
                                 menuValue === 'likes' ?
                                     <LikeList setSuccessAlert={setSuccessAlert} likesOrViews="likes" refresh={true} />
@@ -66,10 +66,13 @@ const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
                                         menuValue === 'views' ?
                                             <LikeList setSuccessAlert={setSuccessAlert} likesOrViews="views" refresh={false} />
                                             :
-                                            <>
-                                                <h1 className="text-center">On forge dur ici</h1>
-                                                <img src={forgeron} alt="forgeron" className="w-100" />
-                                            </>
+                                            menuValue === 'search' ?
+                                                <Search />
+                                                :
+                                                <>
+                                                    <h1 className="text-center">On forge dur ici</h1>
+                                                    <img src={forgeron} alt="forgeron" className="w-100" />
+                                                </>
                         }
                         <BottomNavigation sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: "flex" }} value={menuValue} onChange={handleMenuChange} showLabels={false}>
                             <BottomNavigationAction

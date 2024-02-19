@@ -9,7 +9,7 @@ export const defaultFilterParams = {
     minTags: 1,
 }
 
-export const checkFilterParams = (setAgeSliderValue: (value: number[]) => void, setEloSliderValue: (value: number[]) => void, setDistanceSliderValue: (value: number) => void) => {
+export const checkFilterParams = (setAgeSliderValue: (value: number[]) => void, setEloSliderValue: (value: number[]) => void, setDistanceSliderValue: (value: number) => void, setMinTagsSliderValue: (value: number) => void) => {
     if (localStorage.getItem("filterParams")) {
         try {
             const filterParams = JSON.parse(localStorage.getItem("filterParams") || "")
@@ -30,6 +30,7 @@ export const checkFilterParams = (setAgeSliderValue: (value: number[]) => void, 
                     setAgeSliderValue([filterParams.minAge, filterParams.maxAge])
                     setEloSliderValue([filterParams.minElo, filterParams.maxElo])
                     setDistanceSliderValue(filterParams.distance)
+                    setMinTagsSliderValue(filterParams.minTags)
                 }
             }
             else {

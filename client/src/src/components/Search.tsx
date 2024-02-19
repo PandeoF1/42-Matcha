@@ -1,11 +1,11 @@
-import React, { useState} from 'react'
-import { Button, Card, CircularProgress, Modal, Slider, Typography } from '@mui/material'
+import React, { useEffect, useState } from 'react'
+import { Button, Card, Chip, CircularProgress, Modal, Slider, Stack, Typography } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import TuneRoundedIcon from '@mui/icons-material/TuneRounded'
 import SortProfilesComponent from './sortProfiles'
 import { checkFilterParams } from '../utils/filtersUtils'
 import { ProfilesModel } from './models/ProfilesModel'
-import defaultFilterParams from '../utils/defaultFilterParams'
+import { defaultFilterParams } from '../utils/filtersUtils'
 import instance from '../api/Instance'
 
 const TAGS = [
@@ -83,12 +83,13 @@ const Search = () => {
     const [ageSliderValue, setAgeSliderValue] = useState<number[]>([18, 99])
     const [eloSliderValue, setEloSliderValue] = useState<number[]>([20, 1000])
     const [distanceSliderValue, setDistanceSliderValue] = useState<number>(50)
+    const [minTagsSliderValue, setMinTagsSliderValue] = useState<number>(1)
     const [areProfilesLoading, setAreProfilesLoading] = useState(true)
     const [profiles, setProfiles] = useState<ProfilesModel[]>([])
-    const [wantedTags, setWantedTags] = useState([])
+    const [wantedTags, setWantedTags] = useState<string[]>([])
 
     const getProfiles = async () => {
-        checkFilterParams(setAgeSliderValue, setEloSliderValue, setDistanceSliderValue)
+        checkFilterParams(setAgeSliderValue, setEloSliderValue, setDistanceSliderValue, setMinTagsSliderValue)
         setProfiles([])
         setAreProfilesLoading(true)
         let filterParams = defaultFilterParams
@@ -113,12 +114,16 @@ const Search = () => {
         }).catch((err) => {
             if (err.response?.data.message) {
                 if (String(err.response?.data.message).includes('Missing key(s)'))
-                    checkFilterParams(setAgeSliderValue, setEloSliderValue, setDistanceSliderValue)
+                    checkFilterParams(setAgeSliderValue, setEloSliderValue, setDistanceSliderValue, setMinTagsSliderValue)
             }
         }).finally(() => {
             setAreProfilesLoading(false)
         })
     }
+
+    useEffect(() => {
+        getProfiles()
+    }, [])
 
     return (
         <div className="BrowsingParent w-100 h-100">
@@ -133,7 +138,7 @@ const Search = () => {
                                 <CloseIcon color="primary" />
                             </Button>
                         </div>
-                        <div className="d-flex align-items-center w-100">
+                        <div className="d-flex align-items-center justify-content-center w-100">
                             <Typography id="age-slider" style={{ marginLeft: "24px", marginRight: "24px" }}>
                                 Age range
                             </Typography>
@@ -141,7 +146,7 @@ const Search = () => {
                                 getAriaLabel={() => 'Age range'}
                                 min={18}
                                 max={99}
-                                style={{ width: "210px", margin: "24px" }}
+                                style={{ minWidth: "190px", margin: "24px" }}
                                 value={ageSliderValue}
                                 onChange={(event, newValue) => {
                                     if (localStorage.getItem("filterParams")) {
@@ -161,7 +166,7 @@ const Search = () => {
                                 aria-labelledby="age-slider"
                             />
                         </div>
-                        <div className="d-flex align-items-center w-100">
+                        <div className="d-flex align-items-center justify-content-center w-100">
                             <Typography id="elo-slider" style={{ marginLeft: "24px", marginRight: "24px" }}>
                                 Elo range
                             </Typography>
@@ -170,7 +175,7 @@ const Search = () => {
                                 min={0}
                                 max={1000}
                                 step={10}
-                                style={{ width: "210px", margin: "24px" }}
+                                style={{ minWidth: "190px", margin: "24px" }}
                                 value={eloSliderValue}
                                 onChange={(event, newValue) => {
                                     if (localStorage.getItem("filterParams")) {
@@ -190,7 +195,7 @@ const Search = () => {
                                 aria-labelledby="elo-slider"
                             />
                         </div>
-                        <div className="d-flex align-items-center w-100">
+                        <div className="d-flex align-items-center justify-content-center w-100">
                             <Typography id="distance-slider" style={{ marginLeft: "24px", marginRight: "24px" }}>
                                 Distance max
                             </Typography>
@@ -198,11 +203,12 @@ const Search = () => {
                                 getAriaLabel={() => 'Distance max'}
                                 min={1}
                                 max={200}
-                                style={{ width: "210px", margin: "24px" }}
+                                style={{ minWidth: "190px", margin: "24px" }}
                                 valueLabelDisplay="on"
                                 aria-labelledby="distance-slider"
                                 value={distanceSliderValue}
                                 onChange={(event, newValue) => {
+
                                     if (localStorage.getItem("filterParams")) {
                                         const filterParams = JSON.parse(localStorage.getItem("filterParams") || "{}")
                                         if (typeof newValue !== "number")
@@ -217,11 +223,58 @@ const Search = () => {
                                 }
                             />
                         </div>
+                        <div className="d-flex align-items-center justify-content-center w-100">
+                            <Typography id="min-tags-slider" style={{ marginLeft: "24px", marginRight: "24px" }}>
+                                Minimum common tags
+                            </Typography>
+                            <Slider
+                                getAriaLabel={() => 'Minimum common tags'}
+                                min={0}
+                                max={20}
+                                style={{ minWidth: "190px", margin: "24px" }}
+                                valueLabelDisplay="on"
+                                aria-labelledby="min-tags-slider"
+                                value={minTagsSliderValue}
+                                onChange={(event, newValue) => {
+
+                                    if (localStorage.getItem("filterParams")) {
+                                        const filterParams = JSON.parse(localStorage.getItem("filterParams") || "{}")
+                                        if (typeof newValue !== "number")
+                                            return
+                                        filterParams.minTags = newValue ? newValue : defaultFilterParams.minTags
+                                        localStorage.setItem("filterParams", JSON.stringify(filterParams))
+                                        setMinTagsSliderValue(newValue)
+                                    }
+                                    else
+                                        localStorage.setItem("filterParams", JSON.stringify(defaultFilterParams))
+                                }
+                                }
+                            />
+                        </div>
+                        <Typography style={{ marginLeft : "24px" }}>
+                            Tags : {wantedTags.length}
+                        </Typography>
+                        <div className="overflow-y-scroll tagsContainer" style={{ height: "130px", margin: "24px" }}>
+                            <Stack direction="row" spacing={1} className="flex-wrap">
+                                {TAGS.map((tag, index) => {
+                                    {tag}
+                                    return wantedTags.includes(tag) ?
+                                        <Chip key={index} label={tag} variant="filled" color="primary" className="fw-bold m-0 me-1 mb-1" onClick={() => { }} onDelete={() => {
+                                            setWantedTags(wantedTags.filter((wantedTag) => wantedTag !== tag))
+                                        }} />
+                                        :
+                                        <Chip key={index} label={tag} variant="outlined" color="primary" className="fw-bold m-0 me-1 mb-1" onClick={() => {
+                                            if (!wantedTags.includes(tag))
+                                                setWantedTags(prev => [...prev, tag])
+                                        }}/>
+                                })}
+                            </Stack>
+                        </div>
                     </Card>
                 </div>
             </Modal>
             <SortProfilesComponent profiles={profiles} setProfiles={setProfiles} />
-            <Button className="filtersButton me-3 mt-3" onClick={() => { checkFilterParams(setAgeSliderValue, setEloSliderValue, setDistanceSliderValue); setIsFiltersModalOpened(true) }} title="Filters">
+            <Button className="filtersButton me-3 mt-3" onClick={() => { checkFilterParams(setAgeSliderValue, setEloSliderValue, setDistanceSliderValue, setMinTagsSliderValue); setIsFiltersModalOpened(true) }} title="Filters">
                 <TuneRoundedIcon color="primary" />
             </Button>
             {

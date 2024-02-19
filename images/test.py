@@ -6,95 +6,78 @@ import random
 import lorem
 
 TAGS = {
-  "#cinema": False,
-  "#music": False,
-  "#bar": False,
-  "#hiking": False,
-  "#biking": False,
-  "#cooking": False,
-  "#photography": False,
-  "#gaming": False,
-  "#reading": False,
-  "#dancing": False,
-  "#painting": False,
-  "#skiing": False,
-  "#traveling": False,
-  "#yoga": False,
-  "#gardening": False,
-  "#fishing": False,
-  "#surfing": False,
-  "#golfing": False,
-  "#wine": False,
-  "#beer": False,
-  "#coffee": False,
-  "#tea": False,
-  "#running": False,
-  "#writing": False,
-  "#knitting": False,
-  "#crafting": False,
-  "#theater": False,
-  "#karaoke": False,
-  "#camping": False,
-  "#beach": False,
-  "#concerts": False,
-  "#museums": False,
-  "#boardgames": False,
-  "#puzzles": False,
-  "#astronomy": False,
-  "#stargazing": False,
-  "#fitness": False,
-  "#meditation": False,
-  "#poetry": False,
-  "#DIY": False,
-  "#technology": False,
-  "#vintage": False,
-  "#cars": False,
-  "#pets": False,
-  "#sailing": False,
-  "#rockclimbing": False,
-  "#foodie": False,
-  "#fashion": False,
-  "#history": False,
-  "#languages": False,
-  "#poetry": False,
-  "#filmlovers": False,
-  "#musicians": False,
-  "#gaming": False,
-  "#outdoorlife": False,
-  "#bookclub": False,
-  "#photography": False,
-  "#gamer": False,
-  "#literature": False,
-  "#art": False,
-  "#traveling": False,
-  "#winetasting": False,
-  "#brewerytour": False,
-  "#coffee": False,
-  "#teatime": False,
-  "#running": False,
-  "#journaling": False,
-  "#theater": False,
-  "#campfire": False,
-  "#beach": False,
-  "#livemusic": False,
-  "#museum": False,
-  "#games": False,
-  "#mindfulness": False,
-  "#fishing": False,
-  "#surfing": False,
-  "#golfing": False,
-  "#wine": False,
-  "#beer": False,
-  "#coffee": False,
-  "#yoga": False,
-  "#fashion": False,
-  "#art": False,
-  "#adventure": False
+    "#cinema" : False,
+    "#music" : False,
+    "#bar" : False,
+    "#hiking" : False,
+    "#biking" : False,
+    "#cooking" : False,
+    "#photography" : False,
+    "#gaming" : False,
+    "#reading" : False,
+    "#dancing" : False,
+    "#painting" : False,
+    "#skiing" : False,
+    "#traveling" : False,
+    "#yoga" : False,
+    "#gardening" : False,
+    "#fishing" : False,
+    "#surfing" : False,
+    "#golfing" : False,
+    "#wine" : False,
+    "#beer" : False,
+    "#coffee" : False,
+    "#tea" : False,
+    "#running" : False,
+    "#writing" : False,
+    "#knitting" : False,
+    "#crafting" : False,
+    "#theater" : False,
+    "#karaoke" : False,
+    "#camping" : False,
+    "#beach" : False,
+    "#concerts" : False,
+    "#museums" : False,
+    "#boardgames" : False,
+    "#puzzles" : False,
+    "#astronomy" : False,
+    "#stargazing" : False,
+    "#fitness" : False,
+    "#meditation" : False,
+    "#poetry" : False,
+    "#DIY" : False,
+    "#technology" : False,
+    "#vintage" : False,
+    "#cars" : False,
+    "#pets" : False,
+    "#sailing" : False,
+    "#rockclimbing" : False,
+    "#foodie" : False,
+    "#fashion" : False,
+    "#history" : False,
+    "#languages" : False,
+    "#filmlovers" : False,
+    "#musicians" : False,
+    "#outdoorlife" : False,
+    "#bookclub" : False,
+    "#gamer" : False,
+    "#literature" : False,
+    "#art" : False,
+    "#winetasting" : False,
+    "#brewerytour" : False,
+    "#teatime" : False,
+    "#journaling" : False,
+    "#campfire" : False,
+    "#livemusic" : False,
+    "#museum" : False,
+    "#games" : False,
+    "#mindfulness" : False,
+    "#adventure" : False
 }
 
-gender = "male"
-age = "19-25"
-number = 1500
+gender = "female"
+age = "18_25"
+number = 500
 
 async def get_images():
     for i in range(0, number):
@@ -187,16 +170,76 @@ async def get_profiles():
                     print ("updated: %s/%s" % (u, number), i["name"]["first"], i["name"]["last"], i["email"], "bot%s%s" % (rand, u), "Qw@rty123456", geoloc["lat"], geoloc["lon"])
                 else:
                     print("Error %s/%s %s" % (u + 1, number, update.json()))
+                #like profile
+                if (random.randint(0, 1) == 1):
+                    print("like")
+                    r = requests.post("https://back-matcha.pandeo.fr/user/ce6d8a6b-72f6-4d48-b952-82f397d13b0a/like", headers={
+                        "Authorization": token
+                    })
+                elif (random.randint(0, 1) == 1):
+                    print("skip")
+                    r = requests.post("https://back-matcha.pandeo.fr/user/ce6d8a6b-72f6-4d48-b952-82f397d13b0a/skip", headers={
+                        "Authorization": token
+                    })
+                else:
+                    print("view")
+                    r = requests.get("https://back-matcha.pandeo.fr/user/ce6d8a6b-72f6-4d48-b952-82f397d13b0a", headers={
+                    "Authorization": token
+                    })
                 # u = u + 1
                 #print ("updated: %s/200" % u, i["name"]["first"], i["name"]["last"], i["email"], "bot%s%s" % (random, u), "Qw@rty123456")
             if (u == number):
                 break
-        except:
+        except Exception as e:
             print("Error %s/%s" % (u + 1, number))
+            print(e)
+
+async def exist_profiles():
+    rand = random.randint(0, 1000000)
+    db = await asyncpg.connect('postgresql://matchadmin:matchapasspas@localhost/matcha')
+    list = await db.fetch("SELECT * FROM users WHERE completion = 2")
+    u = 0
+    for i in list:
+        # login 
+        if (u > -1):
+            try:
+                r = requests.post("https://back-matcha.pandeo.fr/user/login", json={
+                    "username": i["username"],
+                    "password": "Qw@rty123456"
+                })
+                if (r.json()["message"] == "Login Success"):
+                    # update 
+                    token = "Bearer " + r.json()["token"]
+                    # upload images
+                    #like profile
+                    if (random.randint(0, 1) == 1):
+                        print("%s/%s like" % (u, len(list)))
+                        r = requests.post("https://back-matcha.pandeo.fr/user/ce6d8a6b-72f6-4d48-b952-82f397d13b0a/like", headers={
+                            "Authorization": token
+                        })
+                    elif (random.randint(0, 1) == 1):
+                        print("%s/%s skip" % (u, len(list)))
+                        r = requests.post("https://back-matcha.pandeo.fr/user/ce6d8a6b-72f6-4d48-b952-82f397d13b0a/skip", headers={
+                            "Authorization": token
+                        })
+                    else:
+                        print("%s/%s view" % (u, len(list)))
+                        r = requests.get("https://back-matcha.pandeo.fr/user/ce6d8a6b-72f6-4d48-b952-82f397d13b0a", headers={
+                        "Authorization": token
+                        })
+                #print ("updated: %s/200" % u, i["name"]["first"], i["name"]["last"], i["email"], "bot%s%s" % (random, u), "Qw@rty123456")
+                if (u == number):
+                    break
+            except Exception as e:
+               print("Error %s/%s" % (u + 1, number))
+               print(e)
+        u = u + 1
+
 
 if __name__ == "__main__":
     #asyncio.run(get_images())
-    asyncio.run(get_profiles())
+    #asyncio.run(get_profiles())
+    asyncio.run(exist_profiles())
 
              #       body["orientation"] != "biseuxal"
              #   and body["orientation"] != "heterosexual"

@@ -34,9 +34,11 @@ const ProfileViewer = ({ profileToGetId, likeProfile, skipProfile, reportProfile
 	const [isReportModalOpened, setIsReportModalOpened] = useState(false)
 	const [reportReason, setReportReason] = useState('')
 	const [profile, setProfile] = useState<ProfileModel | null>(null)
+	const [images, setImages] = useState<HTMLImageElement[]>([])
 
 	const getProfileWithId = async (id: string) => {
 		await instance.get<ProfileModel>('/user/' + id).then((res) => {
+			preloadImages(res.data.images)
 			setProfile(res.data)
 		}).catch(() => {
 			setProfile(null)
@@ -46,6 +48,16 @@ const ProfileViewer = ({ profileToGetId, likeProfile, skipProfile, reportProfile
 	const reset = () => {
 		setImageIndex(0)
 		getProfileWithId(profileToGetId)
+	}
+
+	const preloadImages = (images: string[]) => {
+		const imgArray : HTMLImageElement[] = []
+		images.forEach((image) => {
+			const img = new Image()
+			img.src = image
+			imgArray.push(img)
+		})
+		setImages(imgArray)
 	}
 
 	const resetAndCallFunction = (func : () => Promise<void>) => {
@@ -114,7 +126,7 @@ const ProfileViewer = ({ profileToGetId, likeProfile, skipProfile, reportProfile
 						</div>
 					</Modal>
 					<div className="position-relative">
-						<img src={imageIndex < profile.images.length && profile.images[imageIndex] ? profile.images[imageIndex] : goose} alt="imgProfile" className="imgProfile" loading="lazy" onError={(e) => { e.currentTarget.src = goose }} />
+						<img src={imageIndex < images.length && images[imageIndex].src ? images[imageIndex].src : goose} alt="imgProfile" className="imgProfile" loading="lazy" onError={(e) => { e.currentTarget.src = goose }} />
 						{reportProfile &&
 							<Button className="reportButton" title="Report this profile" onClick={() => { setIsReportModalOpened(true) }}>
 								<ReportIcon fontSize="large" />

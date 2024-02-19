@@ -10,8 +10,9 @@ import ValidateEmailPage from "./src/pages/ValidateEmail";
 import ProfilePage from "./src/pages/Profile";
 import ErrorAlert from "./src/components/ErrorAlert";
 import SuccessAlert from "./src/components/SuccessAlert";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import MapDebug from "./src/pages/MapDebug";
+import { useNavigate } from "react-router-dom"
 
 const theme = createTheme({
   palette: {
@@ -35,20 +36,11 @@ function App() {
   const [errorAlert, setErrorAlert] = useState<string>("")
   const [successAlert, setSuccessAlert] = useState<string>("")
 
-  const socketNotifications = useMemo(() => {
-    return new WebSocket("wss://back-matcha.pandeo.fr/notifications?token=" + localStorage.getItem("token")!)
-  }, [])
-  socketNotifications.onmessage = (event) => {
-    console.log(event.data)
-    const data = JSON.parse(event.data)
-    setSuccessAlert(data.message)
-  }
-
   return (
     <ThemeProvider theme={theme}>
       <div className="App w-100">
         <Router>
-          <Header setErrorAlert={setErrorAlert} />
+          <Header setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />
           <Routes>
             <Route path="/" element={<HomePage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
             <Route path="/register" element={<RegisterPage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
