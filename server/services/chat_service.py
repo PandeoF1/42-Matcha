@@ -4,6 +4,8 @@ from constants.email import EMAIL
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+from services.user_service import search_user_by_id, strip_user
+
 
 async def get_chat_rooms(db, user):
     rooms = await db.fetch(
@@ -20,6 +22,14 @@ async def get_chat_rooms(db, user):
             _message = dict(message)
             _message.pop("chat_id")
             _room["messages"].append(_message)
+        for user in ['user_1', 'user_2']:
+            _user = await search_user_by_id(db, _room[user])
+            _room[user] = {
+                "id": _user["id"],
+                "firstName": _user["first_name"],
+                "image": _user["images"][0] if _user["images"] and len(_user["images"]) > 0 else None,
+            }
+            
         _rooms.append(_room)
     return _rooms
 

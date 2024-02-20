@@ -34,13 +34,6 @@
   }
 }
 
-button:not(:disabled) {
-  background-color: #646cff;
-  color: white;
-  border-color: transparent;
-  transition: background-color 0.25s;
-}
-
 .card {
   padding: 2em;
 }

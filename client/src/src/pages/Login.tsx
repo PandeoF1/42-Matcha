@@ -109,6 +109,9 @@ const LoginPage = ({ setErrorAlert }: LoginPageProps) => {
                     <div className="row justify-content-center pt-3">
                         New here ? <p onClick={() => navigate("/register")} style={{ width: "fit-content", paddingLeft: "4px", cursor: "pointer", color: "#ff6e00", marginBottom: "0px" }}>Register</p>
                     </div>
+                    <div className="row justify-content-center pt-2">
+                        Forgot password ? <p onClick={() => navigate("/reset-password")} style={{ width: "fit-content", paddingLeft: "4px", cursor: "pointer", color: "#ff6e00", marginBottom: "0px" }}>Reset</p>
+                    </div>
                 </Card>
             </div>
         </div>

@@ -95,7 +95,6 @@ body::-webkit-scrollbar {
 }
 
 .likeListItemParent {
-  width: 50% !important;
   padding: 4px;
 }
 
@@ -107,7 +106,14 @@ body::-webkit-scrollbar {
   cursor: pointer;
 }
 
+.likeListItem span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
 .filtersModal {
+  margin-top: 40px;
   position: absolute;
   top: 50% !important;
   left: 50% !important;
@@ -181,6 +187,16 @@ body::-webkit-scrollbar {
   margin-bottom: 56px !important;
 }
 
+.chatList {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: start;
+  overflow-y: scroll;
+  height: 670px;
+  margin-bottom: 56px !important;
+}
+
 .profileList {
   width: 100%;
   display: flex;
@@ -189,6 +205,7 @@ body::-webkit-scrollbar {
   overflow-y: scroll;
   height: 648px;
   margin-top: 22px;
+  padding-top: 16px;
   margin-bottom: 56px !important;
 }
 
@@ -327,6 +344,21 @@ body::-webkit-scrollbar {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.imgMosaicOverlay {
+  position: absolute;
+  display: flex;
+  align-items: flex-end;
+  bottom: 0;
+  background: #143857;
+  color: black;
+  width: inherit;
+  justify-content: space-between;
+  border-radius: 0 0 6px 6px;
+  border: 1px solid #143857;
+  padding-left: 4px;
+  padding-right: 4px;
 }
 
 .tagsContainer {

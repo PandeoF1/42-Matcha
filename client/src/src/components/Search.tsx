@@ -71,6 +71,7 @@ const Search = ({ setSuccessAlert, statusList }: SearchProps) => {
             }
         ).then((res) => {
             preloadImages(res.data.profiles.map((profile: ProfilesModel) => profile.image))
+            console.log(res.data.profiles)
             setProfiles(res.data.profiles)
         }).catch((err) => {
             if (err.response?.data.message) {
@@ -330,9 +331,15 @@ const Search = ({ setSuccessAlert, statusList }: SearchProps) => {
                             <Grid container spacing={2} className="flex-wrap p-0">
                                 {profiles.map((user, index) => {
                                     return (
-                                        <Grid item xs={6} sm={4} className="mt-3 imgMosaicContainer" key={index}>
+                                        <Grid item xs={6} sm={4} className="mt-3 imgMosaicContainer position-relative" key={index} height="177px">
                                             {index > images.length ? <CircularProgress color="secondary" /> :
-                                                <img src={user.image} alt="user" className="imgMosaic" onClick={() => setProfileId(user.id)} onError={(e) => { e.currentTarget.src = goose }} loading="lazy" />
+                                                <>
+                                                    <img src={user.image} alt="user" className="imgMosaic" style={{ position: "absolute", top: 0, borderRadius: "6px 6px 0 0" }} onClick={() => setProfileId(user.id)} onError={(e) => { e.currentTarget.src = goose }} loading="lazy" />
+                                                    <div className="imgMosaicOverlay">
+                                                        <Typography noWrap variant="h6" className="text-white">{user.firstName}</Typography>
+                                                        <Typography variant="subtitle1" className="text-white">{user.age}</Typography>
+                                                    </div>
+                                                </>
                                             }
                                         </Grid>
                                     )

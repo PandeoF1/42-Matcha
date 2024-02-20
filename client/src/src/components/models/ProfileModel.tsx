@@ -8,4 +8,5 @@ export interface ProfileModel extends Omit<UserModel, "email" | "completion" | "
     skipped: boolean
     blocked: boolean
     matched: boolean
+    last_login: number | null
 }

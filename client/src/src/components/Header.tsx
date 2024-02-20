@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import instance from '../api/Instance';
 import { useEffect, useState } from 'react';
 import { set } from 'lodash';
+import Confetti from 'react-confetti'
 
 
 interface HeaderProps {
@@ -16,7 +17,7 @@ interface HeaderProps {
 const Header = ({ setErrorAlert, setSuccessAlert, setStatusList }: HeaderProps) => {
     const navigate = useNavigate()
     const location = useLocation()
-
+    const [confetti, setConfetti] = useState(false)
     useEffect(() => {
         if (!localStorage.getItem("token"))
           return
@@ -25,9 +26,15 @@ const Header = ({ setErrorAlert, setSuccessAlert, setStatusList }: HeaderProps) 
         const socketStatus = new WebSocket(import.meta.env.VITE_WS_API + "/status?token=" + localStorage.getItem("token")!)
         
         socketNotifications ? socketNotifications.onmessage = (event) => {
-            console.log("oui")
             const data = JSON.parse(event.data)
+            console.log("oui", data)
             setSuccessAlert(data.message)
+            if (data.message.includes("Match with ")) {
+                setConfetti(true)
+                setTimeout(() => {
+                    setConfetti(false)
+                }, 5000)
+            }
         }
         : null
       
@@ -51,8 +58,18 @@ const Header = ({ setErrorAlert, setSuccessAlert, setStatusList }: HeaderProps) 
             setErrorAlert('Could not log out the user')
         })
     }
+    const { width, height } = { width: window.innerWidth, height: window.innerHeight }
 
     return (
+        <>
+        {confetti &&
+              <Confetti
+                width={width}
+                height={height}
+                numberOfPieces={1000}
+                recycle={false}
+                />
+        }
         <div className="header d-flex p-2 justify-content-between align-items-center">
             <div className='d-flex' role='button' onClick={() => navigate('/')}>
                 <div className="headerLogo">
@@ -68,6 +85,7 @@ const Header = ({ setErrorAlert, setSuccessAlert, setStatusList }: HeaderProps) 
                     <LogoutIcon fontSize='large' className='me-2' role='button' onClick={handleLogout} />
                 </div>}
         </div>
+        </>
     )
 }
 

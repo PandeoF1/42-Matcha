@@ -134,7 +134,7 @@ async def randomize():
         aujourd_hui = datetime.today()
 
         # Définition de la date de la semaine dernière
-        semaine_derniere = aujourd_hui - timedelta(days=7)
+        semaine_derniere = aujourd_hui - timedelta(days=10)
 
         # Génération d'un timestamp aléatoire entre aujourd'hui et la semaine dernière
         date = semaine_derniere + timedelta(seconds=random.randint(0, int((aujourd_hui - semaine_derniere).total_seconds())))

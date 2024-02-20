@@ -20,6 +20,7 @@ import instance from "../api/Instance";
 import { ProfileModel } from "./models/ProfileModel";
 import CircleIcon from '@mui/icons-material/Circle';
 import { StatusListModel } from '../pages/models/StatusListModel';
+import { lastActivity } from '../utils/timeUtils';
 
 interface ProfileViewerProps {
 	profileToGetId: string
@@ -107,7 +108,7 @@ const ProfileViewer = ({ profileToGetId, likeProfile, skipProfile, reportProfile
 									<Button className="my-2 w-100" onClick={() => { if (blockProfile) { blockProfile(profile.id); setIsReportModalOpened(false); setReportReason("") } }} variant="outlined" color="primary">
 										Block
 									</Button>
-									<Divider sx={{ width: "100%", fontWeight : "bold" }}>REPORT</Divider>
+									<Divider sx={{ width: "100%", fontWeight: "bold" }}>REPORT</Divider>
 									<div className="position-relative w-100">
 										<TextField
 											type="text"
@@ -137,8 +138,11 @@ const ProfileViewer = ({ profileToGetId, likeProfile, skipProfile, reportProfile
 					</Modal>
 					<div className="position-relative">
 						<img src={imageIndex < images.length && images[imageIndex].src ? images[imageIndex].src : goose} alt="imgProfile" className="imgProfile" loading="lazy" onError={(e) => { e.currentTarget.src = goose }} />
-						{statusList && statusList.users.includes(profile.id) &&
-						<Chip label="Online" className="status" icon={<CircleIcon style={{ color: "#4CAF50" }} sx={{ height: "12px", width: "12px" }} />} />}
+						{statusList && statusList.users.includes(profile.id) ?
+							<Chip label="Online" className="status" icon={<CircleIcon style={{ color: "#4CAF50" }} sx={{ height: "12px", width: "12px" }} />} />
+							:
+							<Chip label={lastActivity(profile.last_login)} className="status" icon={<CircleIcon style={{ color: "#FF0000" }} sx={{ height: "12px", width: "12px" }} />} />
+						}
 						{reportProfile &&
 							<Button className="reportButton" title="Report this profile" onClick={() => { setIsReportModalOpened(true) }}>
 								<ReportIcon fontSize="large" />
@@ -190,15 +194,17 @@ const ProfileViewer = ({ profileToGetId, likeProfile, skipProfile, reportProfile
 						}
 					</div>
 					<div style={{ padding: "8px 14px 0px 14px" }}>
-						<div className="d-flex justify-content-between">
-							<div className="d-flex align-items-end">
-								<h2 className="fw-bold mb-0">{profile.firstName}</h2>
-								<h4 className="ms-2 mb-0" style={{ paddingBottom: "2px" }}>{profile.age}</h4>
-								{profile.gender === "female" ?
-									<FemaleIcon style={{ color: "#c90076" }} fontSize="large" className="py-1" /> :
-									<MaleIcon style={{ color: "#2986CC" }} fontSize="large" className="py-1" />}
+						<div className="d-flex justify-content-between flex-wrap">
+							<div className="d-flex align-items-end flex-wrap">
+								<h2 className="fw-bold mb-0" style={{ wordWrap: "break-word", maxWidth: "230px" }} >{profile.firstName}</h2>
+								<>
+									<h4 className="ms-2 mb-0" style={{ paddingBottom: "2px" }}>{profile.age}</h4>
+									{profile.gender === "female" ?
+										<FemaleIcon style={{ color: "#c90076" }} fontSize="large" className="py-1" /> :
+										<MaleIcon style={{ color: "#2986CC" }} fontSize="large" className="py-1" />}
+								</>
 							</div>
-							<div className="d-flex align-items-center mt-2">
+							<div className="d-flex align-items-end mb-1">
 								{eloToStars(profile.elo)}
 								<h5 className="ms-1 mb-0 fw-bold">{profile.elo}</h5>
 							</div>

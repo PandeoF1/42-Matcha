@@ -110,5 +110,5 @@ async def add_message(id, request: Request, db=Depends(get_database)):
         #await chat_socket.broadcast(content)
         await chat_socket.send(other, content)
         await chat_socket.send(user["id"], content)
-        await notification_socket.send(other, {"message": f"{user['username']} sent you a message"})
+        await notification_socket.send(other, {"message": f"{user['first_name']} sent you a message", "type": "message"})
         return message_sent()

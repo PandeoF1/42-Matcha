@@ -1,9 +1,12 @@
 from fastapi import APIRouter, Depends, Request
+from pydantic import Json
 from database.database import *
 from responses.errors.errors_401 import authentication_required
+from responses.success.success_200 import email_ask_reset_password
 from services.user_service import (
     ask_reset_password,
     get_token,
+    search_user_by_email,
     search_user_by_token,
     validate_email,
     change_password,
@@ -27,12 +30,12 @@ async def confirm(request: Request, db=Depends(get_database)):
 @email_controller.post("/password/new")
 async def password(request: Request, db=Depends(get_database)):
     data = await parse_request(request)
-    token = get_token(data["headers"])
-    if token is None:
-        return empty_token()
-    user = await search_user_by_token(db, token)
+    validator = body_validator(data["body"], ["email"], str)
+    if validator is not None:
+        return validator
+    user = await search_user_by_email(db, data["body"]["email"])
     if not user:
-        return authentication_required()
+        return email_ask_reset_password()
     return await ask_reset_password(db, user)
 
 

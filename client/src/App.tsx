@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import MapDebug from "./src/pages/MapDebug";
 import back from "./assets/back.png"
 import MouseParticles from 'react-mouse-particles'
+import ResetPasswordPage from "./src/pages/ResetPassword";
 
 const theme = createTheme({
   palette: {
@@ -34,33 +35,28 @@ const theme = createTheme({
     MuiSvgIcon: {
       styleOverrides: {
         root: {
-          cursor: "url('./test.png'), pointer"
+          cursor: "url('./test.png'), auto"
         },
       },
     },
     MuiBottomNavigationAction: {
       styleOverrides: {
         root: {
-          cursor: "url('./test.png'), pointer"
+          cursor: "url('./test.png'), auto"
         },
       },
     },
 }});
-
 
 function App() {
   const [errorAlert, setErrorAlert] = useState<string>("")
   const [successAlert, setSuccessAlert] = useState<string>("")
   const [statusList, setStatusList] = useState<any>([])
 
-  useEffect(() => {
-    console.log("statusList", statusList)
-  }
-  , [statusList])
   return (
     <ThemeProvider theme={theme} >
       {/*Make the background slide to the bottom*/}
-      <div className="App w-100" style={{backgroundImage: `url(${back})`, backgroundSize: "250px 250px", animation: "fallDown 40s infinite linear"}}>
+      <div className="App w-100" style={{backgroundImage: `url(${back})`, backgroundSize: "250px 250px", animation: "fallDown 40s infinite linear", backgroundPosition: "center bottom"}}>
           <Router>
             <Header setStatusList={setStatusList} setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />
             <Routes>
@@ -68,6 +64,8 @@ function App() {
               <Route path="/register" element={<RegisterPage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
               <Route path="/login" element={<LoginPage setErrorAlert={setErrorAlert} />} />
               <Route path="/validate-email/:id" element={<ValidateEmailPage />} />
+              <Route path="/reset-password/:id" element={<ResetPasswordPage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
+              <Route path="/reset-password" element={<ResetPasswordPage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
               <Route path="/profile" element={<ProfilePage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
               <Route path="/geolocall" element={<MapDebug />} />
               <Route path="*" element={<h1>Not Found</h1>} />
@@ -76,7 +74,7 @@ function App() {
             <SuccessAlert successAlert={successAlert} setSuccessAlert={setSuccessAlert} />
           </Router>
       </div>
-      <MouseParticles g={1} num={6} color="#ff4fc4" cull="stats,image-wrapper" level={6} />
+      <MouseParticles v={2} g={1} num={3} color="#ff4fc4" cull="stats,image-wrapper" level={6} />
     </ThemeProvider >
   )
 }

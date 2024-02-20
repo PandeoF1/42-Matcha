@@ -145,8 +145,8 @@ const LikeList = ({ setSuccessAlert, likesOrViews, refresh, statusList }: LikeLi
                             <List className="likeList">
                                 {likes && likes.map((like: LikeModel, index: number) => {
                                     return (
-                                        <div className="likeListItemParent" key={index}>
-                                            <ListItem alignItems="center" className="likeListItem" onClick={() => { setProfileId(like.id) }}>
+                                        <div className="likeListItemParent col-12 col-md-6" key={index}>
+                                            <ListItem alignItems="center" className="likeListItem w-100" onClick={() => { setProfileId(like.id) }}>
                                                 <ListItemAvatar>
                                                     <Avatar alt={like.firstName || "Avatar"} src={index < images.length && images[index] ? images[index].src : goose} />
                                                 </ListItemAvatar>

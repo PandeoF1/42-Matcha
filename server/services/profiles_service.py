@@ -109,6 +109,7 @@ async def get_profiles_filtered(db, user, _filter):
             'commonTags': i['commonTags'],
             'age': i['age'],
             'elo': i['elo'],
+            'firstName': i['firstName'],
             'image': i['images'][0] if len(i['images']) else None,
             })
     if len(new_list) == 0:

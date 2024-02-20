@@ -241,6 +241,11 @@ async def ask_reset_password(db, user):
                 string.ascii_uppercase + string.digits + string.ascii_lowercase, k=64
             )
         )
+        # Destroy previous password reset tokens
+        await db.execute(
+            """DELETE FROM email_validation WHERE user_id = $1 AND type = 'password_reset'""",
+            result["id"],
+        )
         await db.execute(
             """INSERT INTO email_validation (id, creation_date, user_id, type) VALUES ($1, $2, $3, $4)""",
             token_id,
@@ -502,8 +507,8 @@ async def like(db, origin, recipient):
         if await is_liked(db, recipient, origin) and await is_liked(
             db, origin, recipient
         ):
-            await notification(origin["id"], {'message': f"Match with {recipient['username']}"})
-            await notification(recipient["id"], {'message': f"Match with {origin['username']}"})
+            await notification(origin["id"], {'message': f"Match with {recipient['first_name']}"})
+            await notification(recipient["id"], {'message': f"Match with {origin['first_name']}"})
             await db.execute(
                 """INSERT INTO chat (id, user_1, user_2) VALUES ($1, $2, $3)""",
                 str(uuid.uuid4()),
@@ -512,7 +517,7 @@ async def like(db, origin, recipient):
             )
             return match_success()
         else:
-            await notification(recipient["id"], {'message': f"{origin['username']} liked your profile"})
+            await notification(recipient["id"], {'message': f"{origin['first_name']} liked your profile"})
         return like_success()
     except Exception as e:
         print(e)
@@ -530,7 +535,7 @@ async def unlike(db, origin, recipient):
             )
             # remove chat
 
-        await notification(recipient["id"], {'message': '%s unliked your profile' % origin["username"]})
+        await notification(recipient["id"], {'message': '%s unliked your profile' % f"{origin['first_name']}"})
         if recipient["elo"] > 1:
             await db.execute("""UPDATE users SET elo = elo - 1. WHERE id = $1""", recipient["id"])
         if await is_skipped(db, origin, recipient):
@@ -583,7 +588,7 @@ async def view(db, origin, recipient):
             "view",
             datetime.datetime.now().timestamp(),
         )
-        await notification(recipient["id"], {'message': '%s saw your profile' % origin["username"]})
+        await notification(recipient["id"], {'message': '%s saw your profile' % f"{origin['first_name']}"})
         return skip_success()
     except Exception as e:
         print(e)
