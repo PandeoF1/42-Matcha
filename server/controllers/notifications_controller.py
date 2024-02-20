@@ -80,14 +80,14 @@ async def websocket_endpoint(websocket: WebSocket, db=Depends(get_database)):
 async def notification(user_id, message):
     await notification_socket.send(user_id, message)
     
-@notifications_controller.get("/test")
-async def test(request: Request, db=Depends(get_database)):
-    # emit notification
-    token = get_token(request.headers)
-    if token is None:
-        return empty_token()
-    user = await search_user_by_token(db, token)
-    if not user:
-        return authentication_required()
-    await notification_socket.broadcast(user["id"], {'message': 'Yo le rap'})
-    return {"status": "ok"}
+#@notifications_controller.get("/test")
+#async def test(request: Request, db=Depends(get_database)):
+#    # emit notification
+#   token = get_token(request.headers)
+#    if token is None:
+#        return empty_token()
+#    user = await search_user_by_token(db, token)
+#    if not user:
+#        return authentication_required()
+#    await notification_socket.broadcast(user["id"], {'message': 'Yo le rap'})
+#    return {"status": "ok"}

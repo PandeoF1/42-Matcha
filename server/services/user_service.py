@@ -314,6 +314,9 @@ async def login_user(db, body: dict):
             datetime.datetime.now().timestamp(),
             datetime.datetime.now().timestamp(),
         )
+        # Update last activity
+        await db.execute("""UPDATE users SET last_activity = $1 WHERE id = $2""", datetime.datetime.now().timestamp(), user["id"])
+        
         subject = "New connection detected"
         content = (
             "Someone just connected to your account at "
@@ -499,8 +502,8 @@ async def like(db, origin, recipient):
         if await is_liked(db, recipient, origin) and await is_liked(
             db, origin, recipient
         ):
-            await notification(origin["id"], {'message': 'Match'})
-            await notification(recipient["id"], {'message': 'Match'})
+            await notification(origin["id"], {'message': f"Match with {recipient['username']}"})
+            await notification(recipient["id"], {'message': f"Match with {origin['username']}"})
             await db.execute(
                 """INSERT INTO chat (id, user_1, user_2) VALUES ($1, $2, $3)""",
                 str(uuid.uuid4()),
@@ -509,7 +512,7 @@ async def like(db, origin, recipient):
             )
             return match_success()
         else:
-            await notification(recipient["id"], {'message': 'Ta like'})
+            await notification(recipient["id"], {'message': f"{origin['username']} liked your profile"})
         return like_success()
     except Exception as e:
         print(e)

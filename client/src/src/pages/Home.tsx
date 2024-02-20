@@ -15,13 +15,15 @@ import LikeList from "../components/LikeList";
 import Chat from "../components/Chat";
 import Browsing from "../components/Browsing";
 import Search from "../components/Search";
+import { StatusListModel } from "./models/StatusListModel";
 
 interface HomePageProps {
     setErrorAlert: (message: string) => void
     setSuccessAlert: (message: string) => void
+    statusList: StatusListModel
 }
 
-const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
+const HomePage = ({ setErrorAlert, setSuccessAlert, statusList }: HomePageProps) => {
     const [menuValue, setMenuValue] = useState('discover');
     const [isPageLoading, setIsPageLoading] = useState(true)
     const navigate = useNavigate()
@@ -55,19 +57,19 @@ const HomePage = ({ setErrorAlert, setSuccessAlert }: HomePageProps) => {
                     <Card className="col-xs-12 col-sm-12 col-md-10 col-lg-8 col-xl-6 col-xxl-5 pt-3 position-relative d-flex" elevation={6} style={{ minHeight: "647px", marginTop: "60px" }}>
                         {
                             menuValue === 'discover' ?
-                                <Browsing setSuccessAlert={setSuccessAlert} setErrorAlert={setErrorAlert} />
+                                <Browsing setSuccessAlert={setSuccessAlert} setErrorAlert={setErrorAlert} statusList={statusList} />
                                 :
                                 menuValue === 'likes' ?
-                                    <LikeList setSuccessAlert={setSuccessAlert} likesOrViews="likes" refresh={true} />
+                                    <LikeList setSuccessAlert={setSuccessAlert} likesOrViews="likes" refresh={true} statusList={statusList} />
                                     :
                                     menuValue === 'chat' ?
                                         <Chat />
                                         :
                                         menuValue === 'views' ?
-                                            <LikeList setSuccessAlert={setSuccessAlert} likesOrViews="views" refresh={false} />
+                                            <LikeList setSuccessAlert={setSuccessAlert} likesOrViews="views" refresh={false} statusList={statusList} />
                                             :
                                             menuValue === 'search' ?
-                                                <Search setSuccessAlert={setSuccessAlert}/>
+                                                <Search setSuccessAlert={setSuccessAlert} statusList={statusList} />
                                                 :
                                                 <>
                                                     <h1 className="text-center">On forge dur ici</h1>

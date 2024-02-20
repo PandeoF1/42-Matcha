@@ -13,7 +13,7 @@ from responses.errors.errors_404 import message_not_found, message_too_long, no_
 from utils.parse_request import parse_request
 from services.chat_service import check_room, get_chat_rooms
 from services.user_service import get_token, search_user_by_token
-
+from controllers.notifications_controller import notification_socket
 chat_controller = APIRouter(prefix="/chat", tags=["chat"])
 
 class ConnectionManager:
@@ -110,5 +110,5 @@ async def add_message(id, request: Request, db=Depends(get_database)):
         #await chat_socket.broadcast(content)
         await chat_socket.send(other, content)
         await chat_socket.send(user["id"], content)
-
+        await notification_socket.send(other, {"message": f"{user['username']} sent you a message"})
         return message_sent()

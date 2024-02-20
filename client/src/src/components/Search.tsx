@@ -9,12 +9,14 @@ import { defaultFilterParams } from '../utils/filtersUtils'
 import instance from '../api/Instance'
 import goose from '../../assets/goose.jpg'
 import ProfileViewer from './ProfileViewer'
+import { StatusListModel } from '../pages/models/StatusListModel'
 
 interface SearchProps {
     setSuccessAlert: (message: string) => void
+    statusList: StatusListModel
 }
 
-const Search = ({ setSuccessAlert }: SearchProps) => {
+const Search = ({ setSuccessAlert, statusList }: SearchProps) => {
     const [isFiltersModalOpened, setIsFiltersModalOpened] = useState(false)
     const [ageSliderValue, setAgeSliderValue] = useState<number[]>([18, 99])
     const [eloSliderValue, setEloSliderValue] = useState<number[]>([20, 1000])
@@ -107,9 +109,20 @@ const Search = ({ setSuccessAlert }: SearchProps) => {
             message: message
         }).then(() => {
             getProfiles()
+            setSuccessAlert('Profile reported')
         }).catch(() => {
         }).finally(() => {
-            setSuccessAlert('Profile reported')
+            setIsHandlingInteraction(false)
+        })
+    }
+
+    const blockProfile = async (profileId: string) => {
+        setIsHandlingInteraction(true)
+        await instance.post(`/user/${profileId}/block`).then(() => {
+            getProfiles()
+            setSuccessAlert('Profile blocked')
+        }).catch(() => {
+        }).finally(() => {
             setIsHandlingInteraction(false)
         })
     }
@@ -305,8 +318,10 @@ const Search = ({ setSuccessAlert }: SearchProps) => {
                                 likeProfile={likeProfile}
                                 skipProfile={skipProfile}
                                 reportProfile={reportProfile}
+                                blockProfile={blockProfile}
                                 unblockProfile={unblockProfile}
                                 unlikeProfile={unlikeProfile}
+                                statusList={statusList}
                                 isHandlingInteraction={isHandlingInteraction}
                             />
                         </div>

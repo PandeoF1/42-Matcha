@@ -8,7 +8,7 @@ import StarIcon from '@mui/icons-material/Star';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
-import { Button, Card, Chip, CircularProgress, Modal, Stack, TextField, Typography } from "@mui/material";
+import { Button, Card, Chip, CircularProgress, Divider, Modal, Stack, TextField, Typography } from "@mui/material";
 import ClearIcon from '@mui/icons-material/Clear';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ReportIcon from '@mui/icons-material/Report';
@@ -18,18 +18,22 @@ import HeartBrokenIcon from '@mui/icons-material/HeartBroken';
 import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
 import instance from "../api/Instance";
 import { ProfileModel } from "./models/ProfileModel";
+import CircleIcon from '@mui/icons-material/Circle';
+import { StatusListModel } from '../pages/models/StatusListModel';
 
 interface ProfileViewerProps {
 	profileToGetId: string
 	likeProfile?: (profileId: string) => Promise<void>
 	skipProfile?: (profileId: string) => Promise<void>
 	reportProfile?: (profileId: string, message: string) => Promise<void>
+	blockProfile?: (profileId: string) => Promise<void>
 	unblockProfile?: (profileId: string) => Promise<void>
 	unlikeProfile?: (profileId: string) => Promise<void>
+	statusList: StatusListModel
 	isHandlingInteraction?: boolean
 }
 
-const ProfileViewer = ({ profileToGetId, likeProfile, skipProfile, reportProfile, unblockProfile, unlikeProfile, isHandlingInteraction }: ProfileViewerProps) => {
+const ProfileViewer = ({ profileToGetId, likeProfile, skipProfile, reportProfile, blockProfile, unblockProfile, unlikeProfile, statusList, isHandlingInteraction }: ProfileViewerProps) => {
 
 	const [imageIndex, setImageIndex] = useState(0)
 	const [isReportModalOpened, setIsReportModalOpened] = useState(false)
@@ -100,6 +104,10 @@ const ProfileViewer = ({ profileToGetId, likeProfile, skipProfile, reportProfile
 									</Button>
 								</div>
 								<div style={{ width: "300px" }} className="d-flex align-items-center justify-content-center flex-column">
+									<Button className="my-2 w-100" onClick={() => { if (blockProfile) { blockProfile(profile.id); setIsReportModalOpened(false); setReportReason("") } }} variant="outlined" color="primary">
+										Block
+									</Button>
+									<Divider sx={{ width: "100%", fontWeight : "bold" }}>REPORT</Divider>
 									<div className="position-relative w-100">
 										<TextField
 											type="text"
@@ -129,6 +137,8 @@ const ProfileViewer = ({ profileToGetId, likeProfile, skipProfile, reportProfile
 					</Modal>
 					<div className="position-relative">
 						<img src={imageIndex < images.length && images[imageIndex].src ? images[imageIndex].src : goose} alt="imgProfile" className="imgProfile" loading="lazy" onError={(e) => { e.currentTarget.src = goose }} />
+						{statusList && statusList.users.includes(profile.id) &&
+						<Chip label="Online" className="status" icon={<CircleIcon style={{ color: "#4CAF50" }} sx={{ height: "12px", width: "12px" }} />} />}
 						{reportProfile &&
 							<Button className="reportButton" title="Report this profile" onClick={() => { setIsReportModalOpened(true) }}>
 								<ReportIcon fontSize="large" />

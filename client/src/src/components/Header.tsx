@@ -4,14 +4,16 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { useLocation, useNavigate } from 'react-router-dom';
 import instance from '../api/Instance';
 import { useEffect, useState } from 'react';
+import { set } from 'lodash';
 
 
 interface HeaderProps {
     setErrorAlert: (error: string) => void
     setSuccessAlert: (success: string) => void
+    setStatusList: (statusList: any) => void
 }
 
-const Header = ({ setErrorAlert, setSuccessAlert }: HeaderProps) => {
+const Header = ({ setErrorAlert, setSuccessAlert, setStatusList }: HeaderProps) => {
     const navigate = useNavigate()
     const location = useLocation()
 
@@ -23,13 +25,15 @@ const Header = ({ setErrorAlert, setSuccessAlert }: HeaderProps) => {
         const socketStatus = new WebSocket(import.meta.env.VITE_WS_API + "/status?token=" + localStorage.getItem("token")!)
         
         socketNotifications ? socketNotifications.onmessage = (event) => {
-          const data = JSON.parse(event.data)
-          setSuccessAlert(data.message)
+            console.log("oui")
+            const data = JSON.parse(event.data)
+            setSuccessAlert(data.message)
         }
         : null
       
         socketStatus ? socketStatus.onmessage = (event) => {
           // console.log(event.data)
+          setStatusList(JSON.parse(event.data))
         }
         : null
 

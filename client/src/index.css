@@ -95,7 +95,7 @@ body::-webkit-scrollbar {
 }
 
 .likeListItemParent {
-  width: 50%!important;
+  width: 50% !important;
   padding: 4px;
 }
 
@@ -111,7 +111,7 @@ body::-webkit-scrollbar {
   position: absolute;
   top: 50% !important;
   left: 50% !important;
-  transform: translate(-47%, -50%)!important;
+  transform: translate(-47%, -50%) !important;
 }
 
 .header {
@@ -178,7 +178,7 @@ body::-webkit-scrollbar {
   align-content: start;
   overflow-y: scroll;
   height: 670px;
-  margin-bottom: 56px!important;
+  margin-bottom: 56px !important;
 }
 
 .profileList {
@@ -189,7 +189,7 @@ body::-webkit-scrollbar {
   overflow-y: scroll;
   height: 648px;
   margin-top: 22px;
-  margin-bottom: 56px!important;
+  margin-bottom: 56px !important;
 }
 
 .skeletonHeight {
@@ -199,10 +199,25 @@ body::-webkit-scrollbar {
   display: flex;
   align-items: center;
   height: 670px;
-  margin-bottom: 56px!important;
+  margin-bottom: 56px !important;
 }
 
 .profileViewer .reportButton {
+  position: absolute;
+  padding: 0;
+  left: 0;
+  bottom: 0;
+  margin-bottom: 4px;
+  margin-left: 4px;
+  min-width: 0 !important;
+  color: #ff000049;
+
+  &:hover {
+    color: #ff0000;
+  }
+}
+
+.profileViewer .status {
   position: absolute;
   padding: 0;
   margin-top: 10px;
@@ -210,11 +225,9 @@ body::-webkit-scrollbar {
   left: 0;
   top: 0;
   min-width: 0 !important;
-  color: #ff000049;
-
-  &:hover {
-    color: #ff0000;
-  }
+  background-color: #ffffff;
+  font-weight: bold;
+  height: unset;
 }
 
 .profileViewer .beforePhotoButton {
@@ -264,7 +277,7 @@ body::-webkit-scrollbar {
 
 .profileViewer .likeButton {
   color: #22ff00;
-  background-color: rgba(255, 255, 255, 0)!important;
+  background-color: rgba(255, 255, 255, 0) !important;
   border: 1px solid #22ff00;
   border-radius: 360px;
   padding: 8px;

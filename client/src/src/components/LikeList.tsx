@@ -6,15 +6,17 @@ import { LikeModel } from "./models/LikeModel"
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import ProfileViewer from "./ProfileViewer"
 import CloseIcon from '@mui/icons-material/Close';
+import { StatusListModel } from "../pages/models/StatusListModel"
 
 
 interface LikeListProps {
     setSuccessAlert: (message: string) => void
     likesOrViews : "likes" | "views"
     refresh: boolean
+    statusList: StatusListModel
 }
 
-const LikeList = ({ setSuccessAlert, likesOrViews, refresh }: LikeListProps) => {
+const LikeList = ({ setSuccessAlert, likesOrViews, refresh, statusList }: LikeListProps) => {
 
     const [likes, setLikes] = useState<LikeModel[]>([])
     const [images, setImages] = useState<HTMLImageElement[]>([])
@@ -72,9 +74,20 @@ const LikeList = ({ setSuccessAlert, likesOrViews, refresh }: LikeListProps) => 
             message: message
         }).then(() => {
             getLikes()
+            setSuccessAlert('Profile reported')
         }).catch(() => {
         }).finally(() => {
-            setSuccessAlert('Profile reported')
+            setIsHandlingInteraction(false)
+        })
+    }
+
+    const blockProfile = async (profileId: string) => {
+        setIsHandlingInteraction(true)
+        await instance.post(`/user/${profileId}/block`).then(() => {
+            getLikes()
+            setSuccessAlert('Profile blocked')
+        }).catch(() => {
+        }).finally(() => {
             setIsHandlingInteraction(false)
         })
     }
@@ -115,8 +128,10 @@ const LikeList = ({ setSuccessAlert, likesOrViews, refresh }: LikeListProps) => 
                             likeProfile={likeProfile}
                             skipProfile={skipProfile}
                             reportProfile={reportProfile}
+                            blockProfile={blockProfile}
                             unblockProfile={unblockProfile}
                             unlikeProfile={unlikeProfile}
+                            statusList={statusList}
                             isHandlingInteraction={isHandlingInteraction}
                         />
                     </>

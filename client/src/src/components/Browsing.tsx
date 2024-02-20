@@ -9,13 +9,15 @@ import forgeron from '../../assets/forgeron.jpg'
 import { defaultFilterParams } from "../utils/filtersUtils";
 import { checkFilterParams } from "../utils/filtersUtils";
 import SortProfilesComponent from "./sortProfiles";
+import { StatusListModel } from "../pages/models/StatusListModel";
 
 interface BrowsingProps {
     setErrorAlert: (message: string) => void
     setSuccessAlert: (message: string) => void
+    statusList: StatusListModel
 }
 
-const Browsing = ({ setErrorAlert, setSuccessAlert }: BrowsingProps) => {
+const Browsing = ({ setErrorAlert, setSuccessAlert, statusList }: BrowsingProps) => {
 
     const [areProfilesLoading, setAreProfilesLoading] = useState(true)
     const [profileIndex, setProfileIndex] = useState(0)
@@ -64,10 +66,25 @@ const Browsing = ({ setErrorAlert, setSuccessAlert }: BrowsingProps) => {
                 getProfiles()
             else
                 setProfileIndex(prev => prev + 1)
+            setSuccessAlert('Profile reported')
         }).catch((err) => {
             setErrorAlert(err.response?.data.message || 'Could not report profile')
         }).finally(() => {
-            setSuccessAlert('Profile reported')
+            setIsHandlingInteraction(false)
+        })
+    }
+
+    const blockProfile = async (profileId: string) => {
+        setIsHandlingInteraction(true)
+        await instance.post(`/user/${profileId}/block`).then(() => {
+            if (profileIndex === profiles.length - 1)
+                getProfiles()
+            else
+                setProfileIndex(prev => prev + 1)
+            setSuccessAlert('Profile blocked')
+        }).catch((err) => {
+            setErrorAlert(err.response?.data.message || 'Could not block profile')
+        }).finally(() => {
             setIsHandlingInteraction(false)
         })
     }
@@ -280,8 +297,10 @@ const Browsing = ({ setErrorAlert, setSuccessAlert }: BrowsingProps) => {
                         <ProfileViewer profileToGetId={profiles[profileIndex].id}
                             likeProfile={likeProfile} skipProfile={skipProfile}
                             reportProfile={reportProfile}
+                            blockProfile={blockProfile}
                             unblockProfile={unblockProfile}
                             unlikeProfile={unlikeProfile}
+                            statusList={statusList}
                             isHandlingInteraction={isHandlingInteraction}
                         />
                         :

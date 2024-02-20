@@ -3,6 +3,7 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  cursor: url('./cursor.png'), auto;
 }
 
 .logo {
@@ -31,6 +32,13 @@
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
   }
+}
+
+button:not(:disabled) {
+  background-color: #646cff;
+  color: white;
+  border-color: transparent;
+  transition: background-color 0.25s;
 }
 
 .card {
