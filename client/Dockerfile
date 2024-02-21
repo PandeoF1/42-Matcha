@@ -1,10 +1,5 @@
 FROM node:18 as build-deps
 
-ARG ARG_VITE_URL_API
-ENV VITE_URL_API=$ARG_VITE_URL_API
-ARG ARG_VITE_WS_API
-ENV VITE_WS_API=$ARG_VITE_WS_API
-
 WORKDIR /usr/src/app
 
 COPY package.json ./
@@ -19,6 +14,11 @@ RUN pnpm install
 RUN pnpm i -g serve
 
 COPY . .
+
+ARG ARG_VITE_URL_API
+ENV VITE_URL_API=$ARG_VITE_URL_API
+ARG ARG_VITE_WS_API
+ENV VITE_WS_API=$ARG_VITE_WS_API
 
 RUN pnpm build
 

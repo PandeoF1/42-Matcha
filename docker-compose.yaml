@@ -14,7 +14,7 @@ services:
        - ARG_VITE_URL_API=${VITE_URL_API}
        - ARG_VITE_WS_API=${VITE_WS_API}
     ports:
-      - "80:80"
+      - "8080:80"
     networks:
       - matcha-network
     restart: always
@@ -42,7 +42,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    container_name: matcha
+    container_name: matcha-db
     build:
       context: ./db
       args:
