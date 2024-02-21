@@ -214,8 +214,8 @@ const Browsing = ({ setErrorAlert, setSuccessAlert, statusList }: BrowsingProps)
                                         const filterParams = JSON.parse(localStorage.getItem("filterParams") || "{}")
                                         if (typeof newValue === "number")
                                             return
-                                        filterParams.minElo = newValue[0] ? newValue[0] : defaultFilterParams.minElo
-                                        filterParams.maxElo = newValue[1] ? newValue[1] : defaultFilterParams.maxElo
+                                        filterParams.minElo = newValue[0]
+                                        filterParams.maxElo = newValue[1]
                                         localStorage.setItem("filterParams", JSON.stringify(filterParams))
                                         setEloSliderValue(newValue)
                                     }

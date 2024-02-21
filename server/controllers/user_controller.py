@@ -144,7 +144,7 @@ async def get_specific_user(id, request: Request, db=Depends(get_database)):
         striped_user["matched"] = True
     else:
         striped_user["matched"] = False
-    striped_user["distance"] = geopy.distance.distance(me["geoloc"], user["geoloc"]).km
+    striped_user["distance"] = geopy.distance.distance(me["geoloc"], user["geoloc"]).km if geopy.distance.distance(me["geoloc"], user["geoloc"]).km > 1 else 1
     striped_user["commonTags"] = []
     striped_user["last_login"] = user["last_activity"]
     me_tags = json.loads(me["tags"])

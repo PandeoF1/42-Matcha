@@ -13,7 +13,6 @@ import SuccessAlert from "./src/components/SuccessAlert";
 import { useState } from "react";
 import MapDebug from "./src/pages/MapDebug";
 import back from "./assets/back.png"
-import MouseParticles from 'react-mouse-particles'
 import ResetPasswordPage from "./src/pages/ResetPassword";
 
 const theme = createTheme({
@@ -74,7 +73,6 @@ function App() {
             <SuccessAlert successAlert={successAlert} setSuccessAlert={setSuccessAlert} />
           </Router>
       </div>
-      <MouseParticles v={2} g={1} num={1.5} color="#ff4fc4" cull="stats,image-wrapper" level={6} />
     </ThemeProvider >
   )
 }

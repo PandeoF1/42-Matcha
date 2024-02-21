@@ -105,7 +105,7 @@ async def get_profiles_filtered(db, user, _filter):
         if (good or len(_filter["wanted_tags"]) == 0):
             new_list.append({
             'id': i['id'],
-            'distance': geopy.distance.distance(user["geoloc"], i["geoloc"]).km,
+            'distance': geopy.distance.distance(user["geoloc"], i["geoloc"]).km if geopy.distance.distance(user["geoloc"], i["geoloc"]).km > 1 else 1,
             'commonTags': i['commonTags'],
             'age': i['age'],
             'elo': i['elo'],
