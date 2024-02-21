@@ -133,6 +133,7 @@ body::-webkit-scrollbar {
 .header {
   background-color: #18181e !important;
   position: sticky;
+  box-shadow: 0 4px 10px #000000;
   top: 0;
   z-index: 10000;
   height: 64px;

@@ -119,7 +119,7 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
 
     const handleSubmit = async () => {
         setIsSubmitting(true)
-        const {elo, ...formToSend} = _.cloneDeep(form)
+        const { elo, ...formToSend } = _.cloneDeep(form)
         if (!formToSend.bio) {
             formToSend.bio = " "
         }
@@ -171,7 +171,7 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
             return;
         }
 
-        navigator.geolocation.getCurrentPosition(success, error, { enableHighAccuracy: true, timeout: 10000});
+        navigator.geolocation.getCurrentPosition(success, error, { enableHighAccuracy: true, timeout: 10000 });
     };
 
     const DraggableMarker = () => {
@@ -206,7 +206,7 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
         <div className="profilePage container">
             {isPageLoading ? <CircularProgress color="secondary" className="mt-4" /> :
                 <div className="row justify-content-center p-4">
-                    <Card className="col-xs-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 col-xxl-5 p-4" elevation={6}>
+                    <Card className="col-xs-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 col-xxl-5 p-4" elevation={6} style={{ boxShadow: "8px 8px 10px #000000" }}>
                         <div className="row justify-content-center">
                             <h5 className="fw-bold">PROFILE</h5>
                         </div>

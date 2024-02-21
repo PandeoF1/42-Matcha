@@ -45,7 +45,8 @@ const theme = createTheme({
         },
       },
     },
-}});
+  }
+});
 
 function App() {
   const [errorAlert, setErrorAlert] = useState<string>("")
@@ -55,23 +56,23 @@ function App() {
   return (
     <ThemeProvider theme={theme} >
       {/*Make the background slide to the bottom*/}
-      <div className="App w-100" style={{backgroundImage: `url(${back})`, backgroundSize: "250px 250px", animation: "fallDown 40s infinite linear", backgroundPosition: "center bottom"}}>
-          <Router>
-            <Header setStatusList={setStatusList} setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />
-            <Routes>
-              <Route path="/" element={<HomePage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} statusList={statusList} />} />
-              <Route path="/register" element={<RegisterPage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
-              <Route path="/login" element={<LoginPage setErrorAlert={setErrorAlert} />} />
-              <Route path="/validate-email/:id" element={<ValidateEmailPage />} />
-              <Route path="/reset-password/:id" element={<ResetPasswordPage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
-              <Route path="/reset-password" element={<ResetPasswordPage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
-              <Route path="/profile" element={<ProfilePage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
-              <Route path="/geolocall" element={<MapDebug />} />
-              <Route path="*" element={<h1>Not Found</h1>} />
-            </Routes>
-            <ErrorAlert errorAlert={errorAlert} setErrorAlert={setErrorAlert} />
-            <SuccessAlert successAlert={successAlert} setSuccessAlert={setSuccessAlert} />
-          </Router>
+      <div className="App w-100" style={{ backgroundImage: `url(${back})`, backgroundSize: "250px 250px", animation: "fallDown 40s infinite linear", backgroundPosition: "center bottom" }}>
+        <Router>
+          <Header setStatusList={setStatusList} setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />
+          <Routes>
+            <Route path="/" element={<HomePage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} statusList={statusList} />} />
+            <Route path="/register" element={<RegisterPage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
+            <Route path="/login" element={<LoginPage setErrorAlert={setErrorAlert} />} />
+            <Route path="/validate-email/:id" element={<ValidateEmailPage />} />
+            <Route path="/reset-password/:id" element={<ResetPasswordPage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
+            <Route path="/reset-password" element={<ResetPasswordPage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
+            <Route path="/profile" element={<ProfilePage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
+            <Route path="/geolocall" element={<MapDebug />} />
+            <Route path="*" element={<h1>Not Found</h1>} />
+          </Routes>
+          <ErrorAlert errorAlert={errorAlert} setErrorAlert={setErrorAlert} />
+          <SuccessAlert successAlert={successAlert} setSuccessAlert={setSuccessAlert} />
+        </Router>
       </div>
     </ThemeProvider >
   )

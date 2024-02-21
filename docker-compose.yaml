@@ -14,7 +14,7 @@ services:
        - ARG_VITE_URL_API=${VITE_URL_API}
        - ARG_VITE_WS_API=${VITE_WS_API}
     ports:
-      - "8080:80"
+      - "5173:80"
     networks:
       - matcha-network
     restart: always
