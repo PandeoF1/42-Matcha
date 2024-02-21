@@ -126,14 +126,25 @@ const Chat = () => {
                                     // put max length
                                     placeholder="Type a message"
                                     variant="outlined"
-                                    value={currentMessage}
-                                    onChange={(e) => setCurrentMessage(e.target.value)}
-                                    // onKeyDown={async (e) => {
-                                    //     if (e.key === "Enter") {
-                                    //         await postMessage()
-                                    //     }
-                                    // }
-                                    // }
+                                    // value={currentMessage}
+                                    // onChange={(e) => setCurrentMessage(e.target.value)}
+                                    // after delay i want to save the value of the input
+                                    onChange={(e) => {
+                                        // setCurrentMessage(e.target.value) after 500ms
+                                        let id = setTimeout(() => {
+                                            setCurrentMessage(e.target.value)
+
+                                            return () => {
+                                                clearTimeout(id)
+                                            }
+                                        }, 500)
+                                    }}
+                                    onKeyDown={async (e) => {
+                                        if (e.key === "Enter") {
+                                            await postMessage()
+                                        }
+                                    }
+                                    }
                                 />
                             </Grid>
                             <Grid item xs={2}>
