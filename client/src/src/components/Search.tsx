@@ -13,10 +13,11 @@ import { StatusListModel } from '../pages/models/StatusListModel'
 
 interface SearchProps {
     setSuccessAlert: (message: string) => void
+    setErrorAlert: (message: string) => void
     statusList: StatusListModel
 }
 
-const Search = ({ setSuccessAlert, statusList }: SearchProps) => {
+const Search = ({ setSuccessAlert, setErrorAlert, statusList }: SearchProps) => {
     const [isFiltersModalOpened, setIsFiltersModalOpened] = useState(false)
     const [ageSliderValue, setAgeSliderValue] = useState<number[]>([18, 99])
     const [eloSliderValue, setEloSliderValue] = useState<number[]>([20, 1000])
@@ -77,6 +78,8 @@ const Search = ({ setSuccessAlert, statusList }: SearchProps) => {
             if (err.response?.data.message) {
                 if (String(err.response?.data.message).includes('Missing key(s)'))
                     checkFilterParams(setAgeSliderValue, setEloSliderValue, setDistanceSliderValue, setMinTagsSliderValue)
+                else
+                    setErrorAlert(err.response?.data.message)
             }
         }).finally(() => {
             setProfileId(null)

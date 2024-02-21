@@ -138,7 +138,7 @@ const ProfileViewer = ({ profileToGetId, likeProfile, skipProfile, reportProfile
 					</Modal>
 					<div className="position-relative">
 						<img src={imageIndex < images.length && images[imageIndex].src ? images[imageIndex].src : goose} alt="imgProfile" className="imgProfile" loading="lazy" onError={(e) => { e.currentTarget.src = goose }} />
-						{statusList && statusList.users.includes(profile.id) ?
+						{statusList && statusList.users && statusList.users.includes(profile.id) ?
 							<Chip label="Online" className="status" icon={<CircleIcon style={{ color: "#4CAF50" }} sx={{ height: "12px", width: "12px" }} />} />
 							:
 							<Chip label={lastActivity(profile.last_login)} className="status" icon={<CircleIcon style={{ color: "#FF0000" }} sx={{ height: "12px", width: "12px" }} />} />

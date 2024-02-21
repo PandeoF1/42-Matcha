@@ -11,15 +11,17 @@ from controllers.notifications_controller import notifications_controller
 from controllers.chat_controller import chat_controller
 from controllers.status_controller import status_controller
 from controllers.tags_controller import tags_controller
+import os
+import dotenv
 
+dotenv.load_dotenv()
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://back-matcha.pandeo.fr",
-        "https://front-matcha.pandeo.fr",
-        "https://front-matcha.pandeo.fr/",
+      os.getenv("URL_FRONT").strip("/"),
+      os.getenv("URL_BACK").strip("/"),
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "DELETE", "PUT"],

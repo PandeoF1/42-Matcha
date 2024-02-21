@@ -145,6 +145,8 @@ const Browsing = ({ setErrorAlert, setSuccessAlert, statusList }: BrowsingProps)
             if (err.response?.data.message) {
                 if (String(err.response?.data.message).includes('Missing key(s)'))
                     checkFilterParams(setAgeSliderValue, setEloSliderValue, setDistanceSliderValue, setMinTagsSliderValue)
+                else
+                    setErrorAlert(err.response?.data.message)
             }
         }).finally(() => {
             setAreProfilesLoading(false)

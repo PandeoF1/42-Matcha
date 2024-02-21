@@ -1,4 +1,4 @@
-import { Avatar, List, ListItem, ListItemAvatar, ListItemText, CircularProgress, Button } from "@mui/material"
+import { Avatar, List, ListItem, ListItemAvatar, ListItemText, CircularProgress, Button, Typography } from "@mui/material"
 import { useEffect, useState } from "react"
 import goose from '../../assets/goose.jpg'
 import instance from "../api/Instance"
@@ -11,7 +11,7 @@ import { StatusListModel } from "../pages/models/StatusListModel"
 
 interface LikeListProps {
     setSuccessAlert: (message: string) => void
-    likesOrViews : "likes" | "views"
+    likesOrViews: "likes" | "views"
     refresh: boolean
     statusList: StatusListModel
 }
@@ -25,14 +25,14 @@ const LikeList = ({ setSuccessAlert, likesOrViews, refresh, statusList }: LikeLi
     const [isHandlingInteraction, setIsHandlingInteraction] = useState(false)
 
     const preloadImages = (images: string[]) => {
-		const imgArray : HTMLImageElement[] = []
-		images.forEach((image) => {
-			const img = new Image()
-			img.src = image
-			imgArray.push(img)
-		})
-		setImages(imgArray)
-	}
+        const imgArray: HTMLImageElement[] = []
+        images.forEach((image) => {
+            const img = new Image()
+            img.src = image
+            imgArray.push(img)
+        })
+        setImages(imgArray)
+    }
 
     const getLikes = async () => {
         setIsLoading(true)
@@ -137,11 +137,13 @@ const LikeList = ({ setSuccessAlert, likesOrViews, refresh, statusList }: LikeLi
                     </>
                     :
 
-                        isLoading ?
-                            <div className="skeletonHeight">
-                                <CircularProgress color="secondary"/>
-                            </div>
+                    isLoading ?
+                        <div className="skeletonHeight">
+                            <CircularProgress color="secondary" />
+                        </div>
                         :
+                        <>
+                            <Typography alignContent="start" variant="h6" fontWeight="bold">{likesOrViews === "likes" ? "LIKES" : "VIEWS"}</Typography>
                             <List className="likeList">
                                 {likes && likes.map((like: LikeModel, index: number) => {
                                     return (
@@ -160,7 +162,8 @@ const LikeList = ({ setSuccessAlert, likesOrViews, refresh, statusList }: LikeLi
                                     )
                                 })}
                             </List>
-                        
+                        </>
+
             }
         </div>
     )

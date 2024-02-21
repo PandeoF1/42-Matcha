@@ -20,16 +20,20 @@ async def get_chat_rooms(db, user):
         )
         for message in messages:
             _message = dict(message)
-            _message.pop("chat_id")
+            _message.pop("id")
+            # reverse messages
             _room["messages"].append(_message)
-        for user in ['user_1', 'user_2']:
-            _user = await search_user_by_id(db, _room[user])
-            _room[user] = {
+        _room["messages"] = list(reversed(_room["messages"]))
+        for user_ in ['user_1', 'user_2']:
+            _user = await search_user_by_id(db, _room[user_])
+            _room[user_] = {
                 "id": _user["id"],
                 "firstName": _user["first_name"],
                 "image": _user["images"][0] if _user["images"] and len(_user["images"]) > 0 else None,
             }
             
+        if _room["user_1"]["id"] != user["id"]:
+            _room["user_1"], _room["user_2"] = _room["user_2"], _room["user_1"]
         _rooms.append(_room)
     return _rooms
 

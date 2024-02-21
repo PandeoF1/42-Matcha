@@ -1,0 +1,56 @@
+version: "3.5"
+
+networks:
+  matcha-network:
+
+services:
+  matcha-client:
+    container_name: matcha-client
+    depends_on:
+      - matcha-server
+    build:
+      context: ./client
+      args:
+       - ARG_VITE_URL_API=${VITE_URL_API}
+       - ARG_VITE_WS_API=${VITE_WS_API}
+    ports:
+      - "80:80"
+    networks:
+      - matcha-network
+    restart: always
+  matcha-server:
+    container_name: matcha-server
+    networks:
+      - matcha-network
+    depends_on:
+      matcha-db:
+        condition: service_healthy
+    build:
+      context: ./server
+      args:
+       - ARG_DATABASE_URL=${DATABASE_URL}
+       - ARG_EMAIL=${EMAIL}
+       - ARG_EMAIL_PASSWORD=${EMAIL_PASSWORD}
+       - ARG_URL_FRONT=${URL_FRONT}
+       - ARG_URL_BACK=${URL_BACK}
+    ports:
+      - "8765:8765"
+    restart: always
+  matcha-db:
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    container_name: matcha
+    build:
+      context: ./db
+      args:
+       - ARG_DB_USER=${DB_USER}
+       - ARG_DB_PASSWORD=${DB_PASSWORD}
+       - ARG_DB_NAME=${DB_NAME}
+    ports:
+      - "5432:5432"
+    networks:
+      - matcha-network
+    restart: always

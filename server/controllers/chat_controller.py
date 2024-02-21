@@ -97,7 +97,7 @@ async def add_message(id, request: Request, db=Depends(get_database)):
         return room_not_found()
     elif "content" not in data:
         return message_not_found()
-    elif len(data["content"]) > 1000:
+    elif len(data["content"]) > 400:
         return message_too_long()
     elif len(data["content"]) < 1:
         return message_not_found()
@@ -106,7 +106,7 @@ async def add_message(id, request: Request, db=Depends(get_database)):
     else:
         other = room["user_2"] if room["user_1"] == user["id"] else room["user_1"]
         await db.execute("""INSERT INTO messages (id, chat_id, user_id, content, date) VALUES ($1, $2, $3, $4, $5)""", str(uuid.uuid4()), id, user["id"], data["content"], str(datetime.datetime.now()))
-        content = ({"chat_id": str(id), "content": data["content"], "user_id": str(user["id"]), "date": str(datetime.datetime.now())})
+        content = ({"id": str(id), "content": data["content"], "user_id": str(user["id"]), "date": str(datetime.datetime.now())})
         #await chat_socket.broadcast(content)
         await chat_socket.send(other, content)
         await chat_socket.send(user["id"], content)

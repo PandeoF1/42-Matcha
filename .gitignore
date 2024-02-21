@@ -7,3 +7,4 @@ venv
 *.jpg
 server/.env
 client/.env
+.env

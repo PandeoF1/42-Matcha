@@ -54,6 +54,7 @@ body::-webkit-scrollbar {
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 750px;
   height: calc(100vh - 64px);
 }
 
@@ -107,6 +108,15 @@ body::-webkit-scrollbar {
 }
 
 .likeListItem span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chatListItem {
+  cursor: pointer;
+}
+
+.chatListItem span {
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -183,7 +193,7 @@ body::-webkit-scrollbar {
   flex-wrap: wrap;
   align-content: start;
   overflow-y: scroll;
-  height: 670px;
+  height: 638px;
   margin-bottom: 56px !important;
 }
 
@@ -192,6 +202,15 @@ body::-webkit-scrollbar {
   display: flex;
   flex-wrap: wrap;
   align-content: start;
+  justify-content: center;
+  overflow-y: scroll;
+  height: 638px;
+  margin-bottom: 56px !important;
+}
+
+.chatBox {
+  width: 100%;
+  display: flex;
   overflow-y: scroll;
   height: 670px;
   margin-bottom: 56px !important;

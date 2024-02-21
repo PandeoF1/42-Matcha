@@ -8,7 +8,6 @@ import { Button } from "@mui/material"
 const MapDebug = () => {
     const navigate = useNavigate()
     const [allUsers, setAllUsers] = useState([])
-    const [hoveredPosition, setHoveredPosition] = useState<string | null>(null)
     const [hoveredUser, setHoveredUser] = useState<any | null>(null)
 
     const getAllPosition = async () => {
@@ -49,7 +48,7 @@ const MapDebug = () => {
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                {allUsers.map((user: Any, index: number) => {
+                {allUsers.map((user: any, index: number) => {
                     const positionTyped: LatLngExpression = { lat: parseFloat(user.geoloc.split(',')[0]), lng: parseFloat(user.geoloc.split(',')[1]) }
                     return (
                         <Marker

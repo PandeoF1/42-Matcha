@@ -54,7 +54,7 @@ const HomePage = ({ setErrorAlert, setSuccessAlert, statusList }: HomePageProps)
         <div className="homePage container">
             {isPageLoading ? <CircularProgress color="secondary" /> :
                 <div className="row justify-content-center p-0 p-2 w-100">
-                    <Card className="col-xs-12 col-sm-12 col-md-10 col-lg-8 col-xl-6 col-xxl-5 pt-3 position-relative d-flex" elevation={6} style={{ minHeight: "647px", marginTop: "60px" }}>
+                    <Card className="col-xs-12 col-sm-12 col-md-10 col-lg-8 col-xl-6 col-xxl-5 pt-3 position-relative d-flex" elevation={6} style={{ minHeight: "647px", marginTop: "14px" }}>
                         {
                             menuValue === 'discover' ?
                                 <Browsing setSuccessAlert={setSuccessAlert} setErrorAlert={setErrorAlert} statusList={statusList} />
@@ -69,7 +69,7 @@ const HomePage = ({ setErrorAlert, setSuccessAlert, statusList }: HomePageProps)
                                             <LikeList setSuccessAlert={setSuccessAlert} likesOrViews="views" refresh={false} statusList={statusList} />
                                             :
                                             menuValue === 'search' ?
-                                                <Search setSuccessAlert={setSuccessAlert} statusList={statusList} />
+                                                <Search setSuccessAlert={setSuccessAlert} setErrorAlert={setErrorAlert} statusList={statusList} />
                                                 :
                                                 <>
                                                     <h1 className="text-center">On forge dur ici</h1>
