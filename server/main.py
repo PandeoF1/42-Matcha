@@ -43,8 +43,4 @@ app.include_router(status_controller)
 app.include_router(tags_controller)
 
 if __name__ == "__main__":
-<<<<<<< HEAD
     uvicorn.run("main:app", host="0.0.0.0", port=8765, reload=True)
-=======
-    uvicorn.run("main:app", host="0.0.0.0", port=8765, reload=True)
->>>>>>> 5565b8d (oui)
