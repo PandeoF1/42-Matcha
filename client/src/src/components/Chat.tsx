@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import instance from "../api/Instance"
-import { Avatar, Box, Button, Divider, Grid, List, ListItem, ListItemAvatar, ListItemText, Paper, TextField, Typography } from "@mui/material"
+import { Avatar, Badge, BadgeProps, Box, Button, Divider, Grid, List, ListItem, ListItemAvatar, ListItemText, Paper, TextField, Typography, styled } from "@mui/material"
 import { ChatMessage, ChatModel, ChatRoom } from "./models/ChatModel"
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import goose from "../../assets/goose.jpg"
@@ -39,10 +39,9 @@ const Chat = () => {
             })
         }
     }
-    const [currentMessage, setCurrentMessage] = useState<string>("")
+
     const getChat = async () => {
         await instance.get<ChatModel>('/chat').then((res) => {
-            console.log(res.data)
             setData(res.data)
         }).catch((err) => {
             console.log(err)
@@ -50,12 +49,11 @@ const Chat = () => {
     }
     const postMessage = async () => {
         if (!roomSelected) return
-        const tempMessage = currentMessage
-        setCurrentMessage("")
+        const tempMessage = (document.getElementById("newMessage") as HTMLInputElement)?.value || "";
+        (document.getElementById("newMessage") as HTMLInputElement).value = ""
         instance.post('/chat/' + roomSelected.id + '/message', { 'content': tempMessage }).then(() => {
-            setCurrentMessage("")
         }).catch(() => {
-            setCurrentMessage(tempMessage)
+            (document.getElementById("newMessage") as HTMLInputElement).value = tempMessage
         })
     }
     useEffect(() => {
@@ -69,100 +67,110 @@ const Chat = () => {
         scrollToBottom()
     }, [roomSelected])
 
+    const StyledBadge = styled(Badge)<BadgeProps>(() => ({
+        '& .MuiBadge-badge': {
+            border: `1px solid`,
+            padding: '0 4px',
+            width: '14px',
+            height: '14px',
+            minWidth: '14px',
+            color : '#FFFFFF',
+            backgroundColor: '#4CAF50',
+        },
+    }));
 
     return (
         <div className="chatParent w-100 h-100">
             {roomSelected ?
-                <Box
-                    className="chatBox"
-                    sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        bgcolor: "grey.200",
-                    }}
-                >
-                    <Box sx={{ flexGrow: 1, overflow: "auto", p: 2 }} id="chatZone">
-                        {roomSelected.messages.map((message, index: number) => (
-                            <Box
-                                key={index}
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: message.user_id === roomSelected.user_2.id ? "flex-start" : "flex-end",
-                                    mb: 2,
-                                }}
-                            >
+                <>
+                    <div className="d-flex align-items-center mb-2">
+                        <StyledBadge
+                            anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'right',
+                            }}
+                            overlap="circular"
+                            badgeContent=" "
+                        >
+                            <Avatar alt={roomSelected.user_2?.firstName || "Avatar"} src={roomSelected.user_2?.image ? roomSelected.user_2.image : goose} />
+                        </StyledBadge>
+                        <Typography ml={1} variant="h6" fontWeight="bold">{roomSelected.user_2?.firstName}</Typography>
+                    </div>
+                    <Box
+                        className="chatBox"
+                        sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            bgcolor: "grey.200",
+                            borderRadius: "6px",
+                        }}
+                    >
+                        <Box sx={{ flexGrow: 1, overflow: "auto", p: 2 }} id="chatZone">
+                            {roomSelected.messages.map((message, index: number) => (
                                 <Box
+                                    key={index}
                                     sx={{
                                         display: "flex",
-                                        flexDirection: message.user_id === roomSelected.user_2.id ? "row" : "row-reverse",
-                                        alignItems: "center",
+                                        justifyContent: message.user_id === roomSelected.user_2.id ? "flex-start" : "flex-end",
+                                        mb: 2,
                                     }}
                                 >
-                                    <Avatar sx={{ bgcolor: message.user_id === roomSelected.user_2.id ? "primary" : "secondary" }}>
-                                        {message.user_id === roomSelected.user_2.id ? "B" : "U"}
-                                    </Avatar>
-                                    <Paper
-                                        variant="outlined"
+                                    <Box
                                         sx={{
-                                            p: 1,
-                                            ml: message.user_id === roomSelected.user_2.id ? 1 : 0,
-                                            mr: message.user_id === roomSelected.user_2.id ? 0 : 1,
-                                            backgroundColor: message.user_id === roomSelected.user_2.id ? "primary.light" : "secondary.light",
-                                            borderRadius: message.user_id === roomSelected.user_2.id ? "20px 20px 20px 5px" : "20px 20px 5px 20px",
+                                            display: "flex",
+                                            flexDirection: message.user_id === roomSelected.user_2.id ? "row" : "row-reverse",
+                                            alignItems: "center",
                                         }}
                                     >
-                                        <Typography variant="body1">{message.content}</Typography>
-                                    </Paper>
+                                        <Avatar sx={{ bgcolor: message.user_id === roomSelected.user_2.id ? "primary" : "secondary" }}>
+                                            {message.user_id === roomSelected.user_2.id ? "B" : "U"}
+                                        </Avatar>
+                                        <Paper
+                                            variant="outlined"
+                                            sx={{
+                                                p: 1,
+                                                ml: message.user_id === roomSelected.user_2.id ? 1 : 0,
+                                                mr: message.user_id === roomSelected.user_2.id ? 0 : 1,
+                                                backgroundColor: message.user_id === roomSelected.user_2.id ? "primary.light" : "secondary.light",
+                                                borderRadius: message.user_id === roomSelected.user_2.id ? "20px 20px 20px 5px" : "20px 20px 5px 20px",
+                                            }}
+                                        >
+                                            <Typography sx={{ wordBreak: "break-all" }} variant="body1">{message.content}</Typography>
+                                        </Paper>
+                                    </Box>
                                 </Box>
-                            </Box>
-                        ))}
-                    </Box>
-                    <Box sx={{ p: 2, backgroundColor: "background.default" }}>
-                        <Grid container spacing={2}>
-                            <Grid item xs={10}>
-                                <TextField
-                                    size="small"
-                                    fullWidth
-                                    // put max length
-                                    placeholder="Type a message"
-                                    variant="outlined"
-                                    // value={currentMessage}
-                                    // onChange={(e) => setCurrentMessage(e.target.value)}
-                                    // after delay i want to save the value of the input
-                                    onChange={(e) => {
-                                        // setCurrentMessage(e.target.value) after 500ms
-                                        let id = setTimeout(() => {
-                                            setCurrentMessage(e.target.value)
-
-                                            return () => {
-                                                clearTimeout(id)
-                                            }
-                                        }, 500)
-                                    }}
-                                    onKeyDown={async (e) => {
-                                        if (e.key === "Enter") {
-                                            await postMessage()
-                                        }
-                                    }
-                                    }
-                                />
-                            </Grid>
-                            <Grid item xs={2}>
-                                <Button
-                                    fullWidth
-                                    color="primary"
-                                    variant="contained"
-                                    endIcon={<SendIcon />}
-                                    onClick={async () => {
+                            ))}
+                        </Box>
+                        <Box sx={{ p: 2, display: "flex" }}>
+                            <TextField
+                                size="small"
+                                fullWidth
+                                inputProps={{ maxLength: 400 }}
+                                placeholder="Type a message"
+                                variant="outlined"
+                                id="newMessage"
+                                onKeyDown={async (e) => {
+                                    if (e.key === "Enter") {
                                         await postMessage()
-                                    }}
-                                >
-                                    Send
-                                </Button>
-                            </Grid>
-                        </Grid>
+                                    }
+                                }
+                                }
+                            />
+                            <Button
+                                fullWidth
+                                color="primary"
+                                variant="contained"
+                                endIcon={<SendIcon />}
+                                style={{ marginLeft: "4px", width: "100px" }}
+                                onClick={async () => {
+                                    await postMessage()
+                                }}
+                            >
+                                Send
+                            </Button>
+                        </Box>
                     </Box>
-                </Box>
+                </>
                 :
                 <>
                     <Typography variant="h6" fontWeight="bold">CHATS</Typography>
