@@ -5,7 +5,7 @@ import instance from "../api/Instance"
 import CloseIcon from '@mui/icons-material/Close';
 import { ProfilesModel } from "../components/models/ProfilesModel";
 import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
-import forgeron from '../../assets/forgeron.jpg'
+import nobodyGoose from '../../assets/nobody_goose.png'
 import { defaultFilterParams } from "../utils/filtersUtils";
 import { checkFilterParams } from "../utils/filtersUtils";
 import SortProfilesComponent from "./sortProfiles";
@@ -306,10 +306,9 @@ const Browsing = ({ setErrorAlert, setSuccessAlert, statusList }: BrowsingProps)
                             isHandlingInteraction={isHandlingInteraction}
                         />
                         :
-                        <>
-                            <h1 className="text-center">On forge dur ici</h1>
-                            <img src={forgeron} alt="forgeron" className="w-100" />
-                        </>
+                        <div className="skeletonHeight">
+                            <img src={nobodyGoose} alt="nobodyGoose" className="w-100" />
+                        </div>
             }
         </div>
     )

@@ -40,7 +40,7 @@ const ResetPasswordPage = ({ setErrorAlert, setSuccessAlert }: ResetPasswordPage
             setIsLoading(true)
             instance.post('/email/password/new', { email }).then(() => {
                 navigate('/login')
-                setSuccessAlert('Please check your email to reset your password')
+                setSuccessAlert('If the email exists, a reset link will be sent')
             }).catch(() => {
                 setErrorAlert('An error occured, please try again later')
             }).finally(() => {

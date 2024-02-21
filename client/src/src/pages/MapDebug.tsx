@@ -12,7 +12,6 @@ const MapDebug = () => {
 
     const getAllPosition = async () => {
         await instance.get('/geoloc/all/' + JSON.parse(localStorage.getItem("filterParams") || "").distance).then((res) => {
-            console.log(res.data)
             setAllUsers(res.data)
         }).catch(() => {
             localStorage.removeItem("token")

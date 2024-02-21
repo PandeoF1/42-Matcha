@@ -1,12 +1,18 @@
 import { useEffect, useMemo, useState } from "react"
 import instance from "../api/Instance"
-import { Avatar, Badge, BadgeProps, Box, Button, Divider, Grid, List, ListItem, ListItemAvatar, ListItemText, Paper, TextField, Typography, styled } from "@mui/material"
+import { Avatar, Badge, BadgeProps, Box, Button, Divider, List, ListItem, ListItemAvatar, ListItemText, Paper, TextField, Typography, styled } from "@mui/material"
 import { ChatMessage, ChatModel, ChatRoom } from "./models/ChatModel"
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import goose from "../../assets/goose.jpg"
 import SendIcon from '@mui/icons-material/Send';
+import { StatusListModel } from "../pages/models/StatusListModel";
+import CloseIcon from '@mui/icons-material/Close';
+import nobodyGoose from '../../assets/nobody_goose.png'
 
-const Chat = () => {
+interface ChatProps {
+    statusList: StatusListModel
+}
+const Chat = ({ statusList }: ChatProps) => {
     const socketChat = useMemo(() => {
         return new WebSocket(import.meta.env.VITE_WS_API + "/chat?token=" + localStorage.getItem("token"))
     }, [])
@@ -23,7 +29,6 @@ const Chat = () => {
         try {
             data = JSON.parse(event.data)
         } catch (e) {
-            console.log(e)
             return
         }
         if (roomSelected && data && data?.id === roomSelected.id) {
@@ -43,8 +48,7 @@ const Chat = () => {
     const getChat = async () => {
         await instance.get<ChatModel>('/chat').then((res) => {
             setData(res.data)
-        }).catch((err) => {
-            console.log(err)
+        }).catch(() => {
         })
     }
     const postMessage = async () => {
@@ -70,11 +74,10 @@ const Chat = () => {
     const StyledBadge = styled(Badge)<BadgeProps>(() => ({
         '& .MuiBadge-badge': {
             border: `1px solid`,
-            padding: '0 4px',
             width: '14px',
             height: '14px',
             minWidth: '14px',
-            color : '#FFFFFF',
+            color: '#FFFFFF',
             backgroundColor: '#4CAF50',
         },
     }));
@@ -82,19 +85,26 @@ const Chat = () => {
     return (
         <div className="chatParent w-100 h-100">
             {roomSelected ?
-                <>
-                    <div className="d-flex align-items-center mb-2">
-                        <StyledBadge
-                            anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'right',
-                            }}
-                            overlap="circular"
-                            badgeContent=" "
-                        >
-                            <Avatar alt={roomSelected.user_2?.firstName || "Avatar"} src={roomSelected.user_2?.image ? roomSelected.user_2.image : goose} />
-                        </StyledBadge>
-                        <Typography ml={1} variant="h6" fontWeight="bold">{roomSelected.user_2?.firstName}</Typography>
+                <div className="chatChannel">
+                    <div className="d-flex justify-content-between w-100 mb-2">
+                        <div className="d-flex align-items-center text-truncate">
+                            <StyledBadge
+                                anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'right',
+                                }}
+                                sx={{ padding: "0 0 2px 2px" }}
+                                overlap="circular"
+                                badgeContent=" "
+                                invisible={statusList && statusList.users && statusList.users.includes(roomSelected?.user_2?.id) ? false : true}
+                            >
+                                <Avatar alt={roomSelected.user_2?.firstName || "Avatar"} src={roomSelected.user_2?.image ? roomSelected.user_2.image : goose} />
+                            </StyledBadge>
+                            <Typography ml={1} variant="h6" fontWeight="bold">{roomSelected.user_2?.firstName}</Typography>
+                        </div>
+                        <Button className="closeButton" onClick={() => { setRoomSelected(undefined) }} title="Close">
+                            <CloseIcon color="primary" />
+                        </Button>
                     </div>
                     <Box
                         className="chatBox"
@@ -122,9 +132,7 @@ const Chat = () => {
                                             alignItems: "center",
                                         }}
                                     >
-                                        <Avatar sx={{ bgcolor: message.user_id === roomSelected.user_2.id ? "primary" : "secondary" }}>
-                                            {message.user_id === roomSelected.user_2.id ? "B" : "U"}
-                                        </Avatar>
+                                        <Avatar src={message.user_id === roomSelected.user_2.id ? (roomSelected.user_2?.image || goose) : (roomSelected.user_1?.image || goose)} />
                                         <Paper
                                             variant="outlined"
                                             sx={{
@@ -170,63 +178,49 @@ const Chat = () => {
                             </Button>
                         </Box>
                     </Box>
-                </>
+                </div>
                 :
-                <>
-                    <Typography variant="h6" fontWeight="bold">CHATS</Typography>
-                    <List className="chatList">
-                        {data && data.rooms.map((room: ChatRoom, index: number) => {
-                            return (
-                                <div className="chatListItemParent w-100" key={index}>
-                                    <ListItem alignItems="center" className="chatListItem w-100" onClick={() => { setRoomSelected(room) }}>
-                                        <ListItemAvatar>
-                                            <Avatar alt={room.user_2?.firstName || "Avatar"} src={room.user_2?.image ? room.user_2.image : goose} />
-                                        </ListItemAvatar>
-                                        <ListItemText
-                                            primary={room.user_2?.firstName || ""}
-                                            secondary={room.messages?.length ? room.messages[room.messages.length - 1].content : "Say hi to your match!"}
-                                        />
-                                        <KeyboardArrowRightIcon />
-                                    </ListItem>
-                                    <Divider variant="inset" component="li" />
-                                </div>
-                            )
-                        })}
-                    </List>
-                </>
+                data && data.rooms.length ?
+                    <>
+                        <Typography variant="h6" fontWeight="bold">CHATS</Typography>
+                        <List className="chatList">
+                            {data.rooms.map((room: ChatRoom, index: number) => {
+                                return (
+                                    <div className="chatListItemParent w-100" key={index}>
+                                        <ListItem alignItems="center" className="chatListItem w-100" onClick={() => { setRoomSelected(room) }}>
+                                            <ListItemAvatar>
+                                                <StyledBadge
+                                                    anchorOrigin={{
+                                                        vertical: 'bottom',
+                                                        horizontal: 'right',
+                                                    }}
+                                                    overlap="circular"
+                                                    badgeContent=" "
+                                                    sx={{ padding: "0 0 4px 4px" }}
+                                                    invisible={statusList && statusList.users && statusList.users.includes(room?.user_2?.id) ? false : true}
+                                                >
+                                                    <Avatar alt={room.user_2?.firstName || "Avatar"} src={room.user_2?.image ? room.user_2.image : goose} />
+                                                </StyledBadge>
+                                            </ListItemAvatar>
+                                            <ListItemText
+                                                primary={room.user_2?.firstName || ""}
+                                                secondary={room.messages?.length ? room.messages[room.messages.length - 1].content : "Say hi to your match!"}
+                                            />
+                                            <KeyboardArrowRightIcon />
+                                        </ListItem>
+                                        <Divider variant="inset" component="li" />
+                                    </div>
+                                )
+                            })}
+                        </List>
+                    </>
+                    :
+                    <div className="skeletonHeight display-flex flex-column position-relative">
+                        <Typography className="position-absolute top-0" variant="h6" fontWeight="bold">CHATS</Typography>
+                        <img src={nobodyGoose} alt="nobodyGoose" className="w-100" />
+                    </div>
             }
         </div>
-        // <div className="skeletonHeight flex-column">
-        //     <select onChange={(e) => {setRoomId(e.target.value)
-
-        //     const room = data?.rooms.find((item: any) => item.id === e.target.value)
-        //     console.log(room)
-        //     setMessages(room?.messages)}} className="my-2">
-        //         <option value="">Select a room</option>
-        //         {
-        //             data && (data?.rooms.map((item: any) => <option key={item.id}>{item.id}</option>))
-        //         }
-        //     </select>
-        //     <TextField
-        //         type="text"
-        //         id="outlined-textarea"
-        //         onChange={(e) => {
-        //             setMessage(e.target.value)
-        //         }}
-        //     />
-        //     <button className="my-2" onClick={async () => {
-        //         await instance.post('/chat/' + roomId + '/message', {'content': message }).then((res) => {
-        //             console.log(res.data)
-        //         }).catch((err) => {
-        //             console.log(err)
-        //         })
-        //     }}>Send</button>
-        //     <div className="overflow-scroll">
-        //         {
-        //             messages && messages.map((item: any) => <div key={item.id}>{item.content} - {item.date}</div>)
-        //         }
-        //     </div>
-        // </div>
     )
 }
 

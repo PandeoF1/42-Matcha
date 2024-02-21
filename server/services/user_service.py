@@ -370,7 +370,12 @@ async def update_user(db, user, body):
                 return invalid_tags()
         if len(body["tags"]) != len(TAGS):
             return invalid_tags()
-
+        count = 0
+        for tag in body["tags"]:
+            if body["tags"][tag] == True:
+                count += 1
+        if count < 1:
+            return invalid_numbers_tags()
         if body["gender"] != user["gender"]:
             if body["gender"] != "male" and body["gender"] != "female":
                 return invalid_gender()

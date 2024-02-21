@@ -9,7 +9,7 @@ import ChatRoundedIcon from '@mui/icons-material/ChatRounded';
 import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Card, CircularProgress } from "@mui/material"
-import forgeron from '../../assets/forgeron.jpg'
+import nobodyGoose from '../../assets/nobody_goose.png'
 import _ from "lodash";
 import LikeList from "../components/LikeList";
 import Chat from "../components/Chat";
@@ -63,7 +63,7 @@ const HomePage = ({ setErrorAlert, setSuccessAlert, statusList }: HomePageProps)
                                     <LikeList setSuccessAlert={setSuccessAlert} likesOrViews="likes" refresh={true} statusList={statusList} />
                                     :
                                     menuValue === 'chat' ?
-                                        <Chat />
+                                        <Chat statusList={statusList} />
                                         :
                                         menuValue === 'views' ?
                                             <LikeList setSuccessAlert={setSuccessAlert} likesOrViews="views" refresh={false} statusList={statusList} />
@@ -73,7 +73,7 @@ const HomePage = ({ setErrorAlert, setSuccessAlert, statusList }: HomePageProps)
                                                 :
                                                 <>
                                                     <h1 className="text-center">On forge dur ici</h1>
-                                                    <img src={forgeron} alt="forgeron" className="w-100" />
+                                                    <img src={nobodyGoose} alt="nobodyGoose" className="w-100" />
                                                 </>
                         }
                         <BottomNavigation sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: "flex" }} value={menuValue} onChange={handleMenuChange} showLabels={false}>

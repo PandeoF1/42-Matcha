@@ -10,6 +10,7 @@ import instance from '../api/Instance'
 import goose from '../../assets/goose.jpg'
 import ProfileViewer from './ProfileViewer'
 import { StatusListModel } from '../pages/models/StatusListModel'
+import nobodyGoose from '../../assets/nobody_goose.png'
 
 interface SearchProps {
     setSuccessAlert: (message: string) => void
@@ -72,7 +73,6 @@ const Search = ({ setSuccessAlert, setErrorAlert, statusList }: SearchProps) => 
             }
         ).then((res) => {
             preloadImages(res.data.profiles.map((profile: ProfilesModel) => profile.image))
-            console.log(res.data.profiles)
             setProfiles(res.data.profiles)
         }).catch((err) => {
             if (err.response?.data.message) {
@@ -330,24 +330,29 @@ const Search = ({ setSuccessAlert, setErrorAlert, statusList }: SearchProps) => 
                             />
                         </div>
                         :
-                        <div className="profileList">
-                            <Grid container spacing={2} className="flex-wrap p-0">
-                                {profiles.map((user, index) => {
-                                    return (
-                                        <Grid item xs={6} sm={4} className="mt-3 imgMosaicContainer position-relative" key={index} height="177px">
-                                            {index > images.length ? <CircularProgress color="secondary" /> :
-                                                <>
-                                                    <img src={user.image} alt="user" className="imgMosaic" style={{ position: "absolute", top: 0, borderRadius: "6px 6px 0 0" }} onClick={() => setProfileId(user.id)} onError={(e) => { e.currentTarget.src = goose }} loading="lazy" />
-                                                    <div className="imgMosaicOverlay">
-                                                        <Typography noWrap variant="h6" className="text-white">{user.firstName}</Typography>
-                                                        <Typography variant="subtitle1" className="text-white">{user.age}</Typography>
-                                                    </div>
-                                                </>
-                                            }
-                                        </Grid>
-                                    )
-                                })}
-                            </Grid>
+                        profiles && profiles.length ?
+                            <div className="profileList">
+                                <Grid container spacing={2} className="flex-wrap p-0">
+                                    {profiles.map((user, index) => {
+                                        return (
+                                            <Grid item xs={6} sm={4} className="mt-3 imgMosaicContainer position-relative" key={index} height="177px">
+                                                {index > images.length ? <CircularProgress color="secondary" /> :
+                                                    <>
+                                                        <img src={user.image} alt="user" className="imgMosaic" style={{ position: "absolute", top: 0, borderRadius: "6px 6px 0 0" }} onClick={() => setProfileId(user.id)} onError={(e) => { e.currentTarget.src = goose }} loading="lazy" />
+                                                        <div className="imgMosaicOverlay">
+                                                            <Typography noWrap variant="h6" className="text-white">{user.firstName}</Typography>
+                                                            <Typography variant="subtitle1" className="text-white">{user.age}</Typography>
+                                                        </div>
+                                                    </>
+                                                }
+                                            </Grid>
+                                        )
+                                    })}
+                                </Grid>
+                            </div>
+                        :
+                        <div className="skeletonHeight">
+                            <img src={nobodyGoose} alt="nobodyGoose" className="w-100" />
                         </div>
             }
         </div>

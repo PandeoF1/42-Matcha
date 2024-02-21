@@ -27,7 +27,6 @@ const Header = ({ setErrorAlert, setSuccessAlert, setStatusList }: HeaderProps) 
         
         socketNotifications ? socketNotifications.onmessage = (event) => {
             const data = JSON.parse(event.data)
-            console.log("oui", data)
             setSuccessAlert(data.message)
             if (data.message.includes("Match with ")) {
                 setConfetti(true)
@@ -39,7 +38,6 @@ const Header = ({ setErrorAlert, setSuccessAlert, setStatusList }: HeaderProps) 
         : null
       
         socketStatus ? socketStatus.onmessage = (event) => {
-          // console.log(event.data)
           setStatusList(JSON.parse(event.data))
         }
         : null

@@ -31,6 +31,7 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
     const firstnameError = !form.firstName.length || !(/^[a-zA-Z\u00C0-\u00FF]{3,16}$/).test(form.firstName)
     const lastnameError = !form.lastName.length || !(/^[a-zA-Z\u00C0-\u00FF]{3,16}$/).test(form.lastName)
     const geolocError = !form.geoloc.length || form.geoloc.split(',').length !== 2 || form.geoloc === "0,0"
+    const tagsError = !!!Object.entries(form.tags).filter(([key, value]) => value).length
 
     const [isPageLoading, setIsPageLoading] = useState(true)
     const [imgAreLoading, setImgAreLoading] = useState<number[]>([])
@@ -145,7 +146,6 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
     }
 
     const getLocation = () => {
-        console.log("getlocation")
         const success = (position: Position) => {
             handlePositionChange(position)
             mapRef.current?.setView({ lat: position.coords.latitude, lng: position.coords.longitude }, 13)
@@ -296,7 +296,7 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
                             <hr className="w-100" />
                         </div>
                         <div className="row justify-content-center pt-1">
-                            <div className="col-12 overflow-y-scroll tagsContainer" style={{ height: "86px" }}>
+                            <div className="col-12 overflow-y-scroll tagsContainer" style={{ height: "126px" }}>
                                 <Stack direction="row" spacing={1} className="flex-wrap">
                                     {Object.entries(form.tags).map(([key, value], index) => {
                                         return value ?
@@ -436,7 +436,7 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
                             <LoadingButton
                                 variant="contained"
                                 color="primary"
-                                disabled={_.isEqual(form, formBackup) || emailError || firstnameError || lastnameError || geolocError || form.images.length < 1}
+                                disabled={_.isEqual(form, formBackup) || emailError || firstnameError || tagsError || lastnameError || geolocError || form.images.length < 1}
                                 loading={isSubmitting}
                                 size="medium"
                                 style={{ width: "fit-content" }}

@@ -121,3 +121,8 @@ def invalid_tags():
     return JSONResponse(
         status_code=400, content={"message": "Invalid tags"}
     )
+
+def invalid_numbers_tags():
+    return JSONResponse(
+        status_code=400, content={"message": "Invalid number of tags (min 1)"}
+    )

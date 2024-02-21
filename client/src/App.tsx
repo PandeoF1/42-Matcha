@@ -10,7 +10,7 @@ import ValidateEmailPage from "./src/pages/ValidateEmail";
 import ProfilePage from "./src/pages/Profile";
 import ErrorAlert from "./src/components/ErrorAlert";
 import SuccessAlert from "./src/components/SuccessAlert";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import MapDebug from "./src/pages/MapDebug";
 import back from "./assets/back.png"
 import MouseParticles from 'react-mouse-particles'
@@ -19,13 +19,13 @@ import ResetPasswordPage from "./src/pages/ResetPassword";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#143857",
+      main: "#22242b",
     },
     secondary: {
       main: "#ff6e00",
     },
     background: {
-      default: '#0b1f30',
+      default: '#18181e',
     },
     error: {
       main: '#FF0000',
@@ -74,7 +74,7 @@ function App() {
             <SuccessAlert successAlert={successAlert} setSuccessAlert={setSuccessAlert} />
           </Router>
       </div>
-      <MouseParticles v={2} g={1} num={3} color="#ff4fc4" cull="stats,image-wrapper" level={6} />
+      <MouseParticles v={2} g={1} num={1.5} color="#ff4fc4" cull="stats,image-wrapper" level={6} />
     </ThemeProvider >
   )
 }

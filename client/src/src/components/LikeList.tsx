@@ -7,7 +7,7 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import ProfileViewer from "./ProfileViewer"
 import CloseIcon from '@mui/icons-material/Close';
 import { StatusListModel } from "../pages/models/StatusListModel"
-
+import nobodyGoose from '../../assets/nobody_goose.png'
 
 interface LikeListProps {
     setSuccessAlert: (message: string) => void
@@ -37,7 +37,6 @@ const LikeList = ({ setSuccessAlert, likesOrViews, refresh, statusList }: LikeLi
     const getLikes = async () => {
         setIsLoading(true)
         await instance.get<LikeModel[]>(likesOrViews === "likes" ? '/user/likes' : '/user/views').then((res) => {
-            // console.log(res.data)
             if (res.data.length)
                 preloadImages(res.data.map(like => like.image))
             setLikes(res.data)
@@ -142,28 +141,33 @@ const LikeList = ({ setSuccessAlert, likesOrViews, refresh, statusList }: LikeLi
                             <CircularProgress color="secondary" />
                         </div>
                         :
-                        <>
-                            <Typography alignContent="start" variant="h6" fontWeight="bold">{likesOrViews === "likes" ? "LIKES" : "VIEWS"}</Typography>
-                            <List className="likeList">
-                                {likes && likes.map((like: LikeModel, index: number) => {
-                                    return (
-                                        <div className="likeListItemParent col-12 col-md-6" key={index}>
-                                            <ListItem alignItems="center" className="likeListItem w-100" onClick={() => { setProfileId(like.id) }}>
-                                                <ListItemAvatar>
-                                                    <Avatar alt={like.firstName || "Avatar"} src={index < images.length && images[index] ? images[index].src : goose} />
-                                                </ListItemAvatar>
-                                                <ListItemText
-                                                    primary={like.firstName || ""}
-                                                    secondary={like.age || ""}
-                                                />
-                                                <KeyboardArrowRightIcon />
-                                            </ListItem>
-                                        </div>
-                                    )
-                                })}
-                            </List>
-                        </>
-
+                        likes && likes.length ?
+                            <>
+                                <Typography alignContent="start" variant="h6" fontWeight="bold">{likesOrViews === "likes" ? "LIKES" : "VIEWS"}</Typography>
+                                <List className="likeList">
+                                    {likes.map((like: LikeModel, index: number) => {
+                                        return (
+                                            <div className="likeListItemParent col-12 col-md-6" key={index}>
+                                                <ListItem alignItems="center" className="likeListItem w-100" onClick={() => { setProfileId(like.id) }}>
+                                                    <ListItemAvatar>
+                                                        <Avatar alt={like.firstName || "Avatar"} src={index < images.length && images[index] ? images[index].src : goose} />
+                                                    </ListItemAvatar>
+                                                    <ListItemText
+                                                        primary={like.firstName || ""}
+                                                        secondary={like.age || ""}
+                                                    />
+                                                    <KeyboardArrowRightIcon />
+                                                </ListItem>
+                                            </div>
+                                        )
+                                    })}
+                                </List>
+                            </>
+                            :
+                            <div className="skeletonHeight display-flex flex-column position-relative">
+                            <Typography className="position-absolute top-0" variant="h6" fontWeight="bold">{likesOrViews === "likes" ? "LIKES" : "VIEWS"}</Typography>
+                            <img src={nobodyGoose} alt="nobodyGoose" className="w-100" />
+                        </div>
             }
         </div>
     )

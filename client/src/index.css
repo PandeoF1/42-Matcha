@@ -5,7 +5,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #0b1f30 !important;
+  background-color: #22242b !important;
   width: 100% !important;
 
   font-synthesis: none;
@@ -100,7 +100,7 @@ body::-webkit-scrollbar {
 }
 
 .likeListItem {
-  border: 1px solid #143857;
+  border: 1px solid #22242b;
   border-radius: 8px;
   align-items: center;
   position: relative;
@@ -131,7 +131,7 @@ body::-webkit-scrollbar {
 }
 
 .header {
-  background-color: #143857 !important;
+  background-color: #18181e !important;
   position: sticky;
   top: 0;
   z-index: 10000;
@@ -206,6 +206,20 @@ body::-webkit-scrollbar {
   overflow-y: scroll;
   height: 638px;
   margin-bottom: 56px !important;
+}
+
+.chatChannel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 726px;
+  overflow-y: scroll;
+}
+
+.chatParent .closeButton {
+  padding: 0;
+  right: 0;
+  min-width: 0 !important;
 }
 
 .chatBox {
@@ -370,12 +384,12 @@ body::-webkit-scrollbar {
   display: flex;
   align-items: flex-end;
   bottom: 0;
-  background: #143857;
+  background: #22242b;
   color: black;
   width: inherit;
   justify-content: space-between;
   border-radius: 0 0 6px 6px;
-  border: 1px solid #143857;
+  border: 1px solid #22242b;
   padding-left: 4px;
   padding-right: 4px;
 }
@@ -386,7 +400,7 @@ body::-webkit-scrollbar {
 }
 
 hr {
-  border-color: #0b1f30 !important;
+  border-color: #18181e !important;
 }
 
 .headerTitle {
@@ -414,7 +428,7 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #0b1f30 !important;
+  background-color: #22242b !important;
   -ms-overflow-style: none;
   scrollbar-width: none;
 
