@@ -39,7 +39,6 @@ async def upload_image(request: Request, db=Depends(get_database)):
 
 @image_controller.get("/{id}")
 async def get_image(id, request: Request, db=Depends(get_database)):
-    # if id is uuid
     try:
         image = await db.fetchrow("SELECT image FROM images WHERE id = $1", id)
     except:

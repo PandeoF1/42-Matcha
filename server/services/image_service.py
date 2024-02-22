@@ -23,4 +23,4 @@ async def image_upload(db, user, form):
         user["id"],
         image,
     )
-    return image_success(url=f"{URL_BACK}image/{id}")
+    return image_success(url=f"{id}")

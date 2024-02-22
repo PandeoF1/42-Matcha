@@ -18,6 +18,7 @@ const Chat = ({ statusList }: ChatProps) => {
     }, [])
     const [data, setData] = useState<ChatModel>()
     const [roomSelected, setRoomSelected] = useState<ChatRoom>()
+    const [images, setImages] = useState<HTMLImageElement[]>([])
     const scrollToBottom = () => {
         if (roomSelected) {
             const chatBox = document.getElementById("chatZone")
@@ -45,8 +46,20 @@ const Chat = ({ statusList }: ChatProps) => {
         }
     }
 
+    const preloadImages = (images: string[]) => {
+        const imgArray: HTMLImageElement[] = []
+        images.forEach((image) => {
+            const img = new Image()
+            img.src = import.meta.env.VITE_URL_API + "/image/" + image
+            imgArray.push(img)
+        })
+        setImages(imgArray)
+    }
+
     const getChat = async () => {
         await instance.get<ChatModel>('/chat').then((res) => {
+            if (res.data.rooms.length)
+                preloadImages(res.data.rooms.map(room => room.user_2.image))
             setData(res.data)
         }).catch(() => {
         })
@@ -102,7 +115,7 @@ const Chat = ({ statusList }: ChatProps) => {
                             </StyledBadge>
                             <Typography ml={1} variant="h6" fontWeight="bold">{roomSelected.user_2?.firstName}</Typography>
                         </div>
-                        <Button className="closeButton" onClick={() => { setRoomSelected(undefined) }} title="Close">
+                        <Button className="closeButton" onClick={() => { setRoomSelected(undefined); getChat() }} title="Close">
                             <CloseIcon color="primary" />
                         </Button>
                     </div>
@@ -132,7 +145,7 @@ const Chat = ({ statusList }: ChatProps) => {
                                             alignItems: "center",
                                         }}
                                     >
-                                        <Avatar src={message.user_id === roomSelected.user_2.id ? (roomSelected.user_2?.image || goose) : (roomSelected.user_1?.image || goose)} />
+                                        <Avatar src={message.user_id === roomSelected.user_2.id ? ((import.meta.env.VITE_URL_API + "/image/" + roomSelected.user_2?.image) || goose) : ((import.meta.env.VITE_URL_API + "/image/" + roomSelected.user_1?.image) || goose)} />
                                         <Paper
                                             variant="outlined"
                                             sx={{
@@ -199,7 +212,7 @@ const Chat = ({ statusList }: ChatProps) => {
                                                     sx={{ padding: "0 0 4px 4px" }}
                                                     invisible={statusList && statusList.users && statusList.users.includes(room?.user_2?.id) ? false : true}
                                                 >
-                                                    <Avatar alt={room.user_2?.firstName || "Avatar"} src={room.user_2?.image ? room.user_2.image : goose} />
+                                                    <Avatar alt={room.user_2?.firstName || "Avatar"} src={images.length > index && images[index] ? images[index].src : goose} />
                                                 </StyledBadge>
                                             </ListItemAvatar>
                                             <ListItemText

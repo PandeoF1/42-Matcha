@@ -89,6 +89,7 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
                 imgLoadingArray.push(i)
             }
             const { id, username, completion, ...filteredData } = res.data
+            filteredData.images = filteredData.images.map((img) => import.meta.env.VITE_URL_API + "/image/" + img)
             setFormBackup(filteredData)
             setForm(filteredData)
             const parsedGeoloc = filteredData.geoloc.split(',')
@@ -111,7 +112,7 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
                 'Content-Type': 'multipart/form-data',
             }
         }).then((res) => {
-            setForm(prev => ({ ...prev, images: [...prev.images].concat(res.data.url) }))
+            setForm(prev => ({ ...prev, images: [...prev.images].concat(import.meta.env.VITE_URL_API + "/image/" + res.data.url) }))
         }).catch(() => {
             setErrorAlert("Could not upload image")
         })
@@ -123,6 +124,7 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
         if (!formToSend.bio) {
             formToSend.bio = " "
         }
+        formToSend.images = formToSend.images.map((img) => img.split("/image/")[1])
         await instance.put('/user', formToSend).then(() => {
             setFormBackup(form)
             setSuccessAlert("Profile updated")

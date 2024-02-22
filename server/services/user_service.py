@@ -39,7 +39,7 @@ def strip_user(user):
 
 
 def check_password(password):
-    regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&])[A-Za-z\d#@$!%*?&]{8,30}$"
+    regex = r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,30}$"
     if not re.match(regex, password):
         return invalid_password()
     return None
@@ -352,8 +352,12 @@ async def update_user(db, user, body):
             return check_last_name(body["lastName"])
         if body["images"] != user["images"]:
             for image in body["images"]:
-                if URL_BACK not in image:
-                    return image_invalid()
+                # if image not uuid
+                try:
+                    if not isinstance(image, uuid):
+                        return image_invalid()
+                except:
+                    pass
             if len(body["images"]) > 5:
                 return too_many_images()
         if body["orientation"] != user["orientation"]:
@@ -379,7 +383,7 @@ async def update_user(db, user, body):
         if body["gender"] != user["gender"]:
             if body["gender"] != "male" and body["gender"] != "female":
                 return invalid_gender()
-        regex = "^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$"
+        regex = r"^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$"
         if not re.match(regex, body["geoloc"]):
             return invalid_geoloc()
         if body["email"] != user["email"]:

@@ -28,7 +28,7 @@ const LikeList = ({ setSuccessAlert, likesOrViews, refresh, statusList }: LikeLi
         const imgArray: HTMLImageElement[] = []
         images.forEach((image) => {
             const img = new Image()
-            img.src = image
+            img.src = import.meta.env.VITE_URL_API + "/image/" + image
             imgArray.push(img)
         })
         setImages(imgArray)
@@ -165,9 +165,9 @@ const LikeList = ({ setSuccessAlert, likesOrViews, refresh, statusList }: LikeLi
                             </>
                             :
                             <div className="skeletonHeight display-flex flex-column position-relative">
-                            <Typography className="position-absolute top-0" variant="h6" fontWeight="bold">{likesOrViews === "likes" ? "LIKES" : "VIEWS"}</Typography>
-                            <img src={nobodyGoose} alt="nobodyGoose" className="w-100" />
-                        </div>
+                                <Typography className="position-absolute top-0" variant="h6" fontWeight="bold">{likesOrViews === "likes" ? "LIKES" : "VIEWS"}</Typography>
+                                <img src={nobodyGoose} alt="nobodyGoose" className="w-100" />
+                            </div>
             }
         </div>
     )

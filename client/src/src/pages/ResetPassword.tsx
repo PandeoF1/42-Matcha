@@ -16,7 +16,7 @@ const ResetPasswordPage = ({ setErrorAlert, setSuccessAlert }: ResetPasswordPage
     const [email, setEmail] = useState<string>("")
     const [password, setPassword] = useState<string>("")
     const emailError = !!email.length && (validator.isEmail(email) ? false : true)
-    const passwordError = !!password.length && !(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&])[A-Za-z\d#@$!%*?&]{8,30}$/).test(password)
+    const passwordError = !!password.length && !(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-_]).{8,30}$/).test(password)
 
     const navigate = useNavigate()
 
@@ -52,7 +52,7 @@ const ResetPasswordPage = ({ setErrorAlert, setSuccessAlert }: ResetPasswordPage
     const handleReset = () => {
         if (!localStorage.getItem("token")) {
             setIsLoading(true)
-            instance.post(`/email/password`, { token : params.id , password }).then(() => {
+            instance.post(`/email/password`, { token: params.id, password }).then(() => {
                 navigate('/login')
                 setSuccessAlert('Password reset, you can now login')
             }
