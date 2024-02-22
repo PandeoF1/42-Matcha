@@ -3,7 +3,6 @@ __pycache__
 *.pyo
 node_modules
 venv
-*.jpg
 server/.env
 client/.env
 .env
