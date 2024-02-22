@@ -46,7 +46,6 @@ const ProfileViewer = ({ profileToGetId, likeProfile, skipProfile, reportProfile
 		await instance.get<ProfileModel>('/user/' + id).then((res) => {
 			preloadImages(res.data.images)
 			setProfile(res.data)
-			console.log(res.data)
 		}).catch(() => {
 			setProfile(null)
 		})

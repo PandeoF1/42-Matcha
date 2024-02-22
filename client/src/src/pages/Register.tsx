@@ -15,7 +15,7 @@ const RegisterPage = ({ setErrorAlert, setSuccessAlert }: RegisterPageProps) => 
     const [form, setForm] = useState<RegisterForm>({ firstName: '', lastName: '', username: '', password: '', email: '' })
     const [isLoading, setIsLoading] = useState(false)
     const emailError = !!form.email.length && (validator.isEmail(form.email) ? false : true)
-    const passwordError = !!form.password.length && !(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-_]).{8,30}$/).test(form.password)
+    const passwordError = !!form.password.length && !(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,30}$/).test(form.password)
     const usernameError = !!form.username.length && !(/^[a-zA-Z0-9]{3,16}$/).test(form.username)
     const firstnameError = !!form.firstName.length && !(/^[a-zA-Z\u00C0-\u00FF]{3,16}$/).test(form.firstName)
     const lastnameError = !!form.lastName.length && !(/^[a-zA-Z\u00C0-\u00FF]{3,16}$/).test(form.lastName)

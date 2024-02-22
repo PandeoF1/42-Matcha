@@ -39,7 +39,7 @@ def strip_user(user):
 
 
 def check_password(password):
-    regex = r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,30}$"
+    regex = r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,30}$"
     if not re.match(regex, password):
         return invalid_password()
     return None

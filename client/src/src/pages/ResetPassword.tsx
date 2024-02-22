@@ -16,7 +16,7 @@ const ResetPasswordPage = ({ setErrorAlert, setSuccessAlert }: ResetPasswordPage
     const [email, setEmail] = useState<string>("")
     const [password, setPassword] = useState<string>("")
     const emailError = !!email.length && (validator.isEmail(email) ? false : true)
-    const passwordError = !!password.length && !(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-_]).{8,30}$/).test(password)
+    const passwordError = !!password.length && !(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,30}$/).test(password)
 
     const navigate = useNavigate()
 
@@ -41,8 +41,8 @@ const ResetPasswordPage = ({ setErrorAlert, setSuccessAlert }: ResetPasswordPage
             instance.post('/email/password/new', { email }).then(() => {
                 navigate('/login')
                 setSuccessAlert('If the email exists, a reset link will be sent')
-            }).catch(() => {
-                setErrorAlert('An error occured, please try again later')
+            }).catch((err) => {
+                setErrorAlert(err?.response?.data.message || 'Could not send reset link')
             }).finally(() => {
                 setIsLoading(false)
             })
@@ -56,8 +56,8 @@ const ResetPasswordPage = ({ setErrorAlert, setSuccessAlert }: ResetPasswordPage
                 navigate('/login')
                 setSuccessAlert('Password reset, you can now login')
             }
-            ).catch(() => {
-                setErrorAlert('An error occured, please try again later')
+            ).catch((err) => {
+                setErrorAlert(err?.response?.data.message || 'Could not reset password')
             }).finally(() => {
                 setIsLoading(false)
             })

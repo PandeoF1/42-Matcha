@@ -11,9 +11,9 @@ import ProfilePage from "./src/pages/Profile";
 import ErrorAlert from "./src/components/ErrorAlert";
 import SuccessAlert from "./src/components/SuccessAlert";
 import { useState } from "react";
-import MapDebug from "./src/pages/MapDebug";
 import back from "./assets/back.png"
 import ResetPasswordPage from "./src/pages/ResetPassword";
+import NotFound from "./src/pages/NotFound";
 
 const theme = createTheme({
   palette: {
@@ -34,14 +34,14 @@ const theme = createTheme({
     MuiSvgIcon: {
       styleOverrides: {
         root: {
-          cursor: "url('./test.png'), auto"
+          cursor: "url('./cursor-pointer.png'), auto"
         },
       },
     },
     MuiBottomNavigationAction: {
       styleOverrides: {
         root: {
-          cursor: "url('./test.png'), auto"
+          cursor: "url('./cursor-pointer.png'), auto"
         },
       },
     },
@@ -67,8 +67,7 @@ function App() {
             <Route path="/reset-password/:id" element={<ResetPasswordPage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
             <Route path="/reset-password" element={<ResetPasswordPage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
             <Route path="/profile" element={<ProfilePage setErrorAlert={setErrorAlert} setSuccessAlert={setSuccessAlert} />} />
-            <Route path="/geolocall" element={<MapDebug />} />
-            <Route path="*" element={<h1>Not Found</h1>} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
           <ErrorAlert errorAlert={errorAlert} setErrorAlert={setErrorAlert} />
           <SuccessAlert successAlert={successAlert} setSuccessAlert={setSuccessAlert} />

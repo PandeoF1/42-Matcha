@@ -5,6 +5,7 @@ import _ from "lodash"
 import validator from "validator"
 import addImage from "../../assets/add-image2.png"
 import goose from "../../assets/goose.jpg"
+import marker from "../../assets/marker.png"
 import instance from "../api/Instance"
 import { useNavigate } from "react-router-dom"
 import { LoadingButton } from "@mui/lab"
@@ -180,6 +181,10 @@ const ProfilePage = ({ setErrorAlert, setSuccessAlert }: ProfilePageProps) => {
         return (
             <Marker
                 draggable
+                icon={L.icon({
+                    iconUrl: marker,
+                    iconSize: [60, 60],
+                })}
                 position={currentPosition}
                 eventHandlers={
                     {
